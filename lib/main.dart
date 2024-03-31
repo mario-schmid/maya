@@ -1018,6 +1018,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         child: KofiButton(
                             kofiName: "mario_schmid",
                             kofiColor: KofiColor.Blue,
+                            style: ButtonStyle(
+                                foregroundColor: const MaterialStatePropertyAll(
+                                    Colors.white),
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            size.width * 0.014)))),
                             onDonation: () {
                               // Runs after the button has been pressed
                               debugPrint("On donation");
@@ -1027,22 +1035,50 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: SizedBox(
                       height: size.width * 0.1,
                       width: size.width * 0.52,
-                      child:
-                          const PayPalButton(paypalButtonId: "S9YDP9YQ2KHVL")),
+                      child: PayPalButton(
+                        paypalButtonId: "S9YDP9YQ2KHVL",
+                        style: ButtonStyle(
+                            foregroundColor:
+                                const MaterialStatePropertyAll(Colors.white),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        size.width * 0.014)))),
+                      )),
                 ),
                 Padding(
                   padding: EdgeInsets.only(bottom: size.width * 0.02),
                   child: SizedBox(
                       height: size.width * 0.1,
                       width: size.width * 0.58,
-                      child: const PatreonButton(patreonName: "mario_schmid")),
+                      child: PatreonButton(
+                        patreonName: "mario_schmid",
+                        style: ButtonStyle(
+                            backgroundColor:
+                                const MaterialStatePropertyAll(Colors.red),
+                            foregroundColor:
+                                const MaterialStatePropertyAll(Colors.white),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        size.width * 0.014)))),
+                      )),
                 ),
                 SizedBox(
                     height: size.width * 0.1,
                     width: size.width * 0.48,
-                    child: const BuyMeACoffeeButton(
-                        buyMeACoffeeName: "mario_schmid",
-                        color: BuyMeACoffeeColor.Green))
+                    child: BuyMeACoffeeButton(
+                      buyMeACoffeeName: "mario_schmid",
+                      color: BuyMeACoffeeColor.Green,
+                      style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          size.width * 0.014)))),
+                    ))
               ])
             ])));
   }
