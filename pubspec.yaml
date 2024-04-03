@@ -37,8 +37,11 @@ dependencies:
 
   arrow_path: ^3.1.0
   flag: ^7.0.0
+  flutter_circle_color_picker: ^0.3.0
   flutter_custom_clippers: ^2.1.0
   flutter_donation_buttons: ^0.4.8
+  flutter_file_dialog: ^3.0.2
+  flutter_svg: ^2.0.10+1
   get: ^4.6.6
   intl: ^0.19.0
   path: ^1.8.3
@@ -78,6 +81,7 @@ flutter:
     - assets/images/icons/
     - assets/images/nahuales/
     - assets/images/tones/
+    - assets/vector_graphics/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
