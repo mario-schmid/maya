@@ -1544,12 +1544,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               Positioned(
                   top: posShapeRightTop.top,
                   left: posShapeRightTop.left,
-                  child: ColorFiltered(
-                      colorFilter:
-                          ColorFilter.mode(mainColor, BlendMode.modulate),
-                      child: Image.asset('assets/images/shape_right_top.png',
-                          height: sizeShapeRightTop.height,
-                          width: sizeShapeRightTop.width))),
+                  child: Image.asset('assets/images/shape_right_top.png',
+                      height: sizeShapeRightTop.height,
+                      width: sizeShapeRightTop.width,
+                      color: mainColor,
+                      colorBlendMode: BlendMode.modulate)),
               Positioned(
                   top: posSandstoneFormBottom.top,
                   left: posSandstoneFormBottom.left,
@@ -1559,12 +1558,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               Positioned(
                   top: posShapeRightBottom.top,
                   left: posShapeRightBottom.left,
-                  child: ColorFiltered(
-                      colorFilter:
-                          ColorFilter.mode(mainColor, BlendMode.modulate),
-                      child: Image.asset('assets/images/shape_right_bottom.png',
-                          height: sizeShapeRightBottom.height,
-                          width: sizeShapeRightBottom.width))),
+                  child: Image.asset('assets/images/shape_right_bottom.png',
+                      height: sizeShapeRightBottom.height,
+                      width: sizeShapeRightBottom.width,
+                      color: mainColor,
+                      colorBlendMode: BlendMode.modulate)),
               Positioned(
                   top: posWheelHaab.top,
                   left: posWheelHaab.left,
@@ -1591,17 +1589,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                           width: sizeSectionFieldWinal.width,
                                           child: Stack(children: [
                                             Positioned(
-                                                child: ColorFiltered(
-                                                    colorFilter:
-                                                        ColorFilter.mode(
-                                                            mainColor,
-                                                            BlendMode.modulate),
-                                                    child: Image.asset(
-                                                        'assets/images/shape_section_winal.png',
-                                                        height: sizeSectionWinal
-                                                            .height,
-                                                        width: sizeSectionWinal
-                                                            .width))),
+                                                child: Image.asset(
+                                                    'assets/images/shape_section_winal.png',
+                                                    height:
+                                                        sizeSectionWinal.height,
+                                                    width:
+                                                        sizeSectionWinal.width,
+                                                    color: mainColor,
+                                                    colorBlendMode:
+                                                        BlendMode.modulate)),
                                             for (int j = 0; j < 20; j++)
                                               Positioned(
                                                   top:
@@ -1661,18 +1657,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         width: sizeSectionFieldWinalWayeb.width,
                                         child: Stack(children: [
                                           Positioned(
-                                              child: ColorFiltered(
-                                                  colorFilter: ColorFilter.mode(
-                                                      mainColor,
-                                                      BlendMode.modulate),
-                                                  child: Image.asset(
-                                                      'assets/images/shape_section_winal_wayeb.png',
-                                                      height:
-                                                          sizeSectionWinalWayeb
-                                                              .height,
-                                                      width:
-                                                          sizeSectionWinalWayeb
-                                                              .width))),
+                                              child: Image.asset(
+                                                  'assets/images/shape_section_winal_wayeb.png',
+                                                  height: sizeSectionWinalWayeb
+                                                      .height,
+                                                  width: sizeSectionWinalWayeb
+                                                      .width,
+                                                  color: mainColor,
+                                                  colorBlendMode:
+                                                      BlendMode.modulate)),
                                           for (int i = 0; i < 5; i++)
                                             Positioned(
                                                 top:
@@ -1820,12 +1813,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   left: posWheelNahuales.left,
                   child: Transform.rotate(
                       angle: offsetGearNahuales + finalAngle / 180 * pi,
-                      child: ColorFiltered(
-                          colorFilter:
-                              ColorFilter.mode(mainColor, BlendMode.modulate),
-                          child: Image.asset('assets/images/gearNahuales.png',
-                              height: sizeWheelNahuales.height,
-                              width: sizeWheelNahuales.width)))),
+                      child: Image.asset('assets/images/gearNahuales.png',
+                          height: sizeWheelNahuales.height,
+                          width: sizeWheelNahuales.width,
+                          color: mainColor,
+                          colorBlendMode: BlendMode.modulate))),
               Positioned(
                   top: posWheelNahuales.top,
                   left: posWheelNahuales.left,
@@ -2030,13 +2022,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       onTap: () {
                         reset();
                       },
-                      child: ColorFiltered(
-                          colorFilter:
-                              ColorFilter.mode(mainColor, BlendMode.modulate),
-                          child: Image.asset(
-                              "assets/images/shape_button_moon.png",
-                              height: sizeButtonReset.height,
-                              width: sizeButtonReset.width)))),
+                      child: Image.asset("assets/images/shape_button_moon.png",
+                          height: sizeButtonReset.height,
+                          width: sizeButtonReset.width,
+                          color: mainColor,
+                          colorBlendMode: BlendMode.modulate))),
               Positioned(
                   top: posWheelTones.top,
                   left: posWheelTones.left,
@@ -2086,13 +2076,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     backgroundImage: backgroundImage,
                                     mainColor: mainColor)));
                       },
-                      child: ColorFiltered(
-                          colorFilter:
-                              ColorFilter.mode(mainColor, BlendMode.modulate),
-                          child: Image.asset(
-                              'assets/images/shape_button_left_top.png',
-                              height: sizeButtonRelationship.height,
-                              width: sizeButtonRelationship.width)))),
+                      child: Image.asset(
+                          'assets/images/shape_button_left_top.png',
+                          height: sizeButtonRelationship.height,
+                          width: sizeButtonRelationship.width,
+                          color: mainColor,
+                          colorBlendMode: BlendMode.modulate))),
               Positioned(
                   // rechts oben
                   top: posButtonTheYear.top,
@@ -2164,13 +2153,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     backgroundImage: backgroundImage,
                                     mainColor: mainColor)));
                       },
-                      child: ColorFiltered(
-                          colorFilter:
-                              ColorFilter.mode(mainColor, BlendMode.modulate),
-                          child: Image.asset(
-                              'assets/images/shape_button_left_bottom.png',
-                              height: sizeButtonDateCalculator.height,
-                              width: sizeButtonDateCalculator.width)))),
+                      child: Image.asset(
+                          'assets/images/shape_button_left_bottom.png',
+                          height: sizeButtonDateCalculator.height,
+                          width: sizeButtonDateCalculator.width,
+                          color: mainColor,
+                          colorBlendMode: BlendMode.modulate))),
               Positioned(
                   // rechts unten
                   top: posButtonCholqij.top,
