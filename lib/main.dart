@@ -1,12 +1,12 @@
-//import 'dart:ui/';
-
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flag/flag.dart';
-// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:maya/data/event.dart';
@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cholqij.dart';
 import 'classes/position.dart';
+import 'color_picker.dart';
 import 'data/day.dart';
 import 'database_handler.dart';
 import 'date_calculator.dart';
@@ -76,12 +77,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* Assets for precacheImage                                                 */
   /*                                                                          */
   final List<String> assets = [
-    'assets/images/blue_button_bottom_left.png',
-    'assets/images/blue_button_bottom_right.png',
-    'assets/images/blue_button_moon.png',
-    'assets/images/blue_button_top_left.png',
-    'assets/images/blue_button_top_right.png',
-    'assets/images/button_add.png',
+    'assets/images/shape_button_left_bottom.png',
+    'assets/images/shape_button_left_top.png',
+    'assets/images/shape_right_bottom.png',
+    'assets/images/shape_right_top.png',
+    'assets/images/shape_button_moon.png',
     'assets/images/gearNahuales.png',
     'assets/images/gearTones.png',
     'assets/images/leaves.jpg',
@@ -90,8 +90,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     'assets/images/sandstoneForm_bottom.png',
     'assets/images/sandstoneForm_top.png',
     'assets/images/sandstoneMoon.png',
-    'assets/images/section_winal_wayeb.png',
-    'assets/images/section_winal.png',
+    'assets/images/shape_section_winal_wayeb.png',
+    'assets/images/shape_section_winal.png',
     'assets/images/trecenaBlue.png',
     'assets/images/trecenaRed.png',
     'assets/images/trecenaWhite.png',
@@ -204,9 +204,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     'assets/images/nahuales/18_kawoq.png',
     'assets/images/nahuales/19_ajpu.png',
     //
-    'assets/images/orange.jpg',
-    'assets/images/green.jpg',
-    'assets/images/blue.jpg',
+    'assets/images/grey.png',
+    'assets/images/grey_small.png',
     //
     'assets/images/cholqij_field_red.jpg',
     'assets/images/cholqij_field_white.jpg',
@@ -228,8 +227,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Size sizeSandstoneFormTop;
   late Position posSandstoneFormTop;
   //
+  late Size sizeShapeRightTop;
+  late Position posShapeRightTop;
+  //
   late Size sizeSandstoneFormBottom;
   late Position posSandstoneFormBottom;
+  //
+  late Size sizeShapeRightBottom;
+  late Position posShapeRightBottom;
   //
   late Size sizeWheelNahuales; // 393.333
   late Position posWheelNahuales;
@@ -296,8 +301,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Size sizeButtonDateCalculator;
   late Position posButtonDateCalculator;
   //
-  late Size sizeButtonTzolkin;
-  late Position posButtonTzolkin;
+  late Size sizeButtonCholqij;
+  late Position posButtonCholqij;
   //
   late Size sizeBoxTextToneNahual;
   late Position posBoxTextToneNahual;
@@ -473,6 +478,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     loadTimeFormat();
     loadLanguage();
+    loadMainColor();
+    loadBgFilePath();
 
     Future.delayed(
         Duration(
@@ -719,6 +726,33 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* init, load and set Language - END                                        */
   /* ------------------------------------------------------------------------ */
 
+  Color mainColor = const Color(0xff0000ff);
+
+  /* ------------------------------------------------------------------------ */
+  /* loadMainColor                                                           */
+  /*                                                                          */
+  loadMainColor() async {
+    Future<Object> mainColorFuture = readMainColor();
+    String strMainColor = (await mainColorFuture).toString();
+    mainColor = Color(int.parse(strMainColor));
+  }
+  /*                                                                          */
+  /* loadMainColor - END                                                      */
+  /* ------------------------------------------------------------------------ */
+
+  late String? bgFilePath;
+  ImageProvider backgroundImage = const AssetImage('assets/images/leaves.jpg');
+
+  /* ------------------------------------------------------------------------ */
+  /* loadBgFilePath                                                           */
+  /*                                                                          */
+  loadBgFilePath() async {
+    backgroundImage = await readBgFilePath();
+  }
+  /*                                                                          */
+  /* loadBgFilePath - END                                                      */
+  /* ------------------------------------------------------------------------ */
+
   /* ------------------------------------------------------------------------ */
   /* scheduletask                                                             */
   /*                                                                          */
@@ -865,9 +899,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     return Drawer(
         width: size.width * 0.8,
         child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/leaves.jpg"),
+                image: backgroundImage,
                 fit: BoxFit.cover,
               ),
             ),
@@ -891,6 +925,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               SizedBox(
                   height: size.width * 0.12,
                   child: CheckboxListTile(
+                      activeColor: mainColor.withOpacity(0.5),
                       side: const BorderSide(color: Colors.white),
                       title: Text('English'.tr,
                           style: TextStyle(
@@ -912,6 +947,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               SizedBox(
                   height: size.width * 0.12,
                   child: CheckboxListTile(
+                      activeColor: mainColor.withOpacity(0.5),
                       side: const BorderSide(color: Colors.white),
                       title: Text('German'.tr,
                           style: TextStyle(
@@ -933,6 +969,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               SizedBox(
                   height: size.width * 0.12,
                   child: CheckboxListTile(
+                      activeColor: mainColor.withOpacity(0.5),
                       side: const BorderSide(color: Colors.white),
                       title: Text('French'.tr,
                           style: TextStyle(
@@ -954,6 +991,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               SizedBox(
                   height: size.width * 0.12,
                   child: CheckboxListTile(
+                      activeColor: mainColor.withOpacity(0.5),
                       side: const BorderSide(color: Colors.white),
                       title: Text('Spain'.tr,
                           style: TextStyle(
@@ -978,7 +1016,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       constraints: BoxConstraints(
                           minHeight: size.width * 0.1,
                           minWidth: size.width * 0.3),
-                      fillColor: Colors.blue,
+                      fillColor: mainColor.withOpacity(0.5),
                       borderColor: Colors.white,
                       selectedBorderColor: Colors.white,
                       borderRadius:
@@ -1007,14 +1045,72 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         style: TextStyle(
                             color: Colors.white, fontSize: size.width * 0.04))
                   ])),
+              SizedBox(height: size.width * 0.04),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                GestureDetector(
+                    onTap: () async {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      mainColor = await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ColorPicker(mainColor: mainColor);
+                          });
+                    },
+                    onLongPress: () {
+                      mainColor = const Color(0xff0000ff);
+                      deleteMainColor();
+                    },
+                    child: Container(
+                      height: size.width * 0.1,
+                      width: size.width * 0.2,
+                      decoration: BoxDecoration(
+                          color: mainColor.withOpacity(0.5),
+                          border: Border.all(color: Colors.white, width: 1),
+                          borderRadius:
+                              BorderRadius.circular(size.width * 0.01),
+                          shape: BoxShape.rectangle),
+                      child: SvgPicture.asset(
+                          "assets/vector_graphics/rby_icon.svg"),
+                    )),
+                SizedBox(width: size.width * 0.06),
+                GestureDetector(
+                    onTap: () async {
+                      const params = OpenFileDialogParams(
+                        dialogType: OpenFileDialogType.image,
+                        sourceType: SourceType.photoLibrary,
+                      );
+                      bgFilePath =
+                          await FlutterFileDialog.pickFile(params: params);
+                      saveBgFilePath(bgFilePath);
+                      backgroundImage = FileImage(File(bgFilePath!));
+                    },
+                    onLongPress: () {
+                      backgroundImage =
+                          const AssetImage('assets/images/leaves.jpg');
+                      deleteBgImagePath();
+                    },
+                    child: Container(
+                      height: size.width * 0.1,
+                      width: size.width * 0.2,
+                      decoration: BoxDecoration(
+                          color: mainColor.withOpacity(0.5),
+                          border: Border.all(color: Colors.white, width: 1),
+                          borderRadius:
+                              BorderRadius.circular(size.width * 0.01),
+                          shape: BoxShape.rectangle),
+                      child: SvgPicture.asset(
+                          "assets/vector_graphics/image_icon.svg"),
+                    ))
+              ]),
+              SizedBox(height: size.width * 0.04),
               SizedBox(
-                  height: size.height - size.width * 1.64 - statusBarHeight),
+                  height: size.height - size.width * 1.78 - statusBarHeight),
               Column(children: [
                 Padding(
                     padding: EdgeInsets.only(bottom: size.width * 0.02),
                     child: SizedBox(
                         height: size.width * 0.1,
-                        width: size.width * 0.52,
+                        width: size.width * 0.6,
                         child: KofiButton(
                             kofiName: "mario_schmid",
                             kofiColor: KofiColor.Blue,
@@ -1034,7 +1130,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   padding: EdgeInsets.only(bottom: size.width * 0.02),
                   child: SizedBox(
                       height: size.width * 0.1,
-                      width: size.width * 0.52,
+                      width: size.width * 0.6,
                       child: PayPalButton(
                         paypalButtonId: "S9YDP9YQ2KHVL",
                         style: ButtonStyle(
@@ -1051,7 +1147,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   padding: EdgeInsets.only(bottom: size.width * 0.02),
                   child: SizedBox(
                       height: size.width * 0.1,
-                      width: size.width * 0.58,
+                      width: size.width * 0.66,
                       child: PatreonButton(
                         patreonName: "mario_schmid",
                         style: ButtonStyle(
@@ -1068,7 +1164,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 ),
                 SizedBox(
                     height: size.width * 0.1,
-                    width: size.width * 0.48,
+                    width: size.width * 0.56,
                     child: BuyMeACoffeeButton(
                       buyMeACoffeeName: "mario_schmid",
                       color: BuyMeACoffeeColor.Green,
@@ -1108,11 +1204,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       posSandstoneFormTop = Position(size.height / 2 - size.width * 0.793058333,
           size.width - size.width * 0.949322222);
       //
+      sizeShapeRightTop =
+          Size(size.width * 0.403827667, size.width * 0.317301957);
+      posShapeRightTop = Position(size.height / 2 - size.width * 0.748390489,
+          size.width - size.width * 0.602768191);
+      //
       sizeSandstoneFormBottom =
           Size(size.width * 0.776591667, size.width * 0.417247222);
       posSandstoneFormBottom = Position(
           size.height / 2 + size.width * 0.375811111,
           size.width - size.width * 0.949322222);
+      //
+      sizeShapeRightBottom =
+          Size(size.width * 0.403827667, size.width * 0.317301957);
+      posShapeRightBottom = Position(size.height / 2 + size.width * 0.431143267,
+          size.width - size.width * 0.602768191);
       //
       sizeWheelNahuales =
           Size(size.width * 1.092592593, size.width * 1.092592593);
@@ -1212,9 +1318,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.height / 2 + size.width * 0.556369444,
           size.width - size.width * 0.926025);
       //
-      sizeButtonTzolkin =
+      sizeButtonCholqij =
           Size(size.width * 0.207738889, size.width * 0.192205556);
-      posButtonTzolkin = Position(size.height / 2 + size.width * 0.500066667,
+      posButtonCholqij = Position(size.height / 2 + size.width * 0.500066667,
           size.width - size.width * 0.441625);
       //
       sizeBoxTextToneNahual =
@@ -1261,11 +1367,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.height / 2 - size.height * 0.412573699,
           size.width - size.height * 0.493867052);
       //
+      sizeShapeRightTop =
+          Size(size.height * 0.210083757, size.height * 0.1650703825);
+      posShapeRightTop = Position(size.height / 2 - size.height * 0.389,
+          size.width - size.height * 0.314);
+      //
       sizeSandstoneFormBottom =
           Size(size.height * 0.404007225, size.height * 0.217065029);
       posSandstoneFormBottom = Position(
           size.height / 2 + size.height * 0.195508671,
           size.width - size.height * 0.493867052);
+      //
+      sizeShapeRightBottom =
+          Size(size.height * 0.210083757, size.height * 0.1650703825);
+      posShapeRightBottom = Position(size.height / 2 + size.height * 0.224,
+          size.width - size.height * 0.314);
       //
       sizeWheelNahuales =
           Size(size.height * 0.568400771, size.height * 0.568400771);
@@ -1368,9 +1484,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.height / 2 + size.height * 0.289440751,
           size.width - size.height * 0.48174711);
       //
-      sizeButtonTzolkin =
+      sizeButtonCholqij =
           Size(size.height * 0.108072254, size.height * 0.099991329);
-      posButtonTzolkin = Position(size.height / 2 + size.height * 0.260150289,
+      posButtonCholqij = Position(size.height / 2 + size.height * 0.260150289,
           size.width - size.height * 0.22974711);
       //
       sizeBoxTextToneNahual =
@@ -1407,10 +1523,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         body: Container(
             height: double.infinity,
             width: double.infinity,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/images/leaves.jpg"),
-                    fit: BoxFit.cover)),
+            decoration: BoxDecoration(
+                image:
+                    DecorationImage(image: backgroundImage, fit: BoxFit.cover)),
             child: Stack(children: [
               Positioned(
                   top: posBoxTime.top,
@@ -1427,11 +1542,29 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       height: sizeSandstoneFormTop.height,
                       width: sizeSandstoneFormTop.width)),
               Positioned(
+                  top: posShapeRightTop.top,
+                  left: posShapeRightTop.left,
+                  child: ColorFiltered(
+                      colorFilter:
+                          ColorFilter.mode(mainColor, BlendMode.modulate),
+                      child: Image.asset('assets/images/shape_right_top.png',
+                          height: sizeShapeRightTop.height,
+                          width: sizeShapeRightTop.width))),
+              Positioned(
                   top: posSandstoneFormBottom.top,
                   left: posSandstoneFormBottom.left,
                   child: Image.asset('assets/images/sandstoneForm_bottom.png',
                       height: sizeSandstoneFormBottom.height,
                       width: sizeSandstoneFormBottom.width)),
+              Positioned(
+                  top: posShapeRightBottom.top,
+                  left: posShapeRightBottom.left,
+                  child: ColorFiltered(
+                      colorFilter:
+                          ColorFilter.mode(mainColor, BlendMode.modulate),
+                      child: Image.asset('assets/images/shape_right_bottom.png',
+                          height: sizeShapeRightBottom.height,
+                          width: sizeShapeRightBottom.width))),
               Positioned(
                   top: posWheelHaab.top,
                   left: posWheelHaab.left,
@@ -1458,12 +1591,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                           width: sizeSectionFieldWinal.width,
                                           child: Stack(children: [
                                             Positioned(
-                                                child: Image.asset(
-                                                    'assets/images/section_winal.png',
-                                                    height:
-                                                        sizeSectionWinal.height,
-                                                    width: sizeSectionWinal
-                                                        .width)),
+                                                child: ColorFiltered(
+                                                    colorFilter:
+                                                        ColorFilter.mode(
+                                                            mainColor,
+                                                            BlendMode.modulate),
+                                                    child: Image.asset(
+                                                        'assets/images/shape_section_winal.png',
+                                                        height: sizeSectionWinal
+                                                            .height,
+                                                        width: sizeSectionWinal
+                                                            .width))),
                                             for (int j = 0; j < 20; j++)
                                               Positioned(
                                                   top:
@@ -1523,12 +1661,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         width: sizeSectionFieldWinalWayeb.width,
                                         child: Stack(children: [
                                           Positioned(
-                                              child: Image.asset(
-                                                  'assets/images/section_winal_wayeb.png',
-                                                  height: sizeSectionWinalWayeb
-                                                      .height,
-                                                  width: sizeSectionWinalWayeb
-                                                      .width)),
+                                              child: ColorFiltered(
+                                                  colorFilter: ColorFilter.mode(
+                                                      mainColor,
+                                                      BlendMode.modulate),
+                                                  child: Image.asset(
+                                                      'assets/images/shape_section_winal_wayeb.png',
+                                                      height:
+                                                          sizeSectionWinalWayeb
+                                                              .height,
+                                                      width:
+                                                          sizeSectionWinalWayeb
+                                                              .width))),
                                           for (int i = 0; i < 5; i++)
                                             Positioned(
                                                 top:
@@ -1676,9 +1820,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   left: posWheelNahuales.left,
                   child: Transform.rotate(
                       angle: offsetGearNahuales + finalAngle / 180 * pi,
-                      child: Image.asset('assets/images/gearNahuales.png',
-                          height: sizeWheelNahuales.height,
-                          width: sizeWheelNahuales.width))),
+                      child: ColorFiltered(
+                          colorFilter:
+                              ColorFilter.mode(mainColor, BlendMode.modulate),
+                          child: Image.asset('assets/images/gearNahuales.png',
+                              height: sizeWheelNahuales.height,
+                              width: sizeWheelNahuales.width)))),
               Positioned(
                   top: posWheelNahuales.top,
                   left: posWheelNahuales.left,
@@ -1883,9 +2030,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       onTap: () {
                         reset();
                       },
-                      child: Image.asset("assets/images/blue_button_moon.png",
-                          height: sizeButtonReset.height,
-                          width: sizeButtonReset.width))),
+                      child: ColorFiltered(
+                          colorFilter:
+                              ColorFilter.mode(mainColor, BlendMode.modulate),
+                          child: Image.asset(
+                              "assets/images/shape_button_moon.png",
+                              height: sizeButtonReset.height,
+                              width: sizeButtonReset.width)))),
               Positioned(
                   top: posWheelTones.top,
                   left: posWheelTones.left,
@@ -1895,7 +2046,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           height: sizeWheelTones.height,
                           width: sizeWheelTones.width,
                           child: Stack(children: [
-                            Image.asset('assets/images/gearTones.png'),
+                            Image.asset(
+                              'assets/images/gearTones.png',
+                              color: mainColor,
+                              colorBlendMode: BlendMode.modulate,
+                            ),
                             Stack(children: [
                               for (int i = 0; i < 13; i++)
                                 Align(
@@ -1927,12 +2082,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Relationship()));
+                                builder: (context) => Relationship(
+                                    backgroundImage: backgroundImage,
+                                    mainColor: mainColor)));
                       },
-                      child: Image.asset(
-                          'assets/images/blue_button_top_left.png',
-                          height: sizeButtonRelationship.height,
-                          width: sizeButtonRelationship.width))),
+                      child: ColorFiltered(
+                          colorFilter:
+                              ColorFilter.mode(mainColor, BlendMode.modulate),
+                          child: Image.asset(
+                              'assets/images/shape_button_left_top.png',
+                              height: sizeButtonRelationship.height,
+                              width: sizeButtonRelationship.width)))),
               Positioned(
                   // rechts oben
                   top: posButtonTheYear.top,
@@ -1967,6 +2127,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => TheYear(
+                                      backgroundImage: backgroundImage,
+                                      mainColor: mainColor,
                                       chosenYear: chosenYear,
                                       chosenHaabYear: chosenHaabYear,
                                       chosenDay: chosenDay,
@@ -1984,10 +2146,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                           chosenBeginGregorianDate,
                                     )));
                       },
-                      child: Image.asset(
-                          'assets/images/blue_button_top_right.png',
+                      child: Container(
                           height: sizeButtonTheYear.height,
-                          width: sizeButtonTheYear.width))),
+                          width: sizeButtonTheYear.width,
+                          decoration:
+                              const BoxDecoration(color: Colors.transparent)))),
               Positioned(
                   // links unten
                   top: posButtonDateCalculator.top,
@@ -1997,16 +2160,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const DateCalculator()));
+                                builder: (context) => DateCalculator(
+                                    backgroundImage: backgroundImage,
+                                    mainColor: mainColor)));
                       },
-                      child: Image.asset(
-                          'assets/images/blue_button_bottom_left.png',
-                          height: sizeButtonDateCalculator.height,
-                          width: sizeButtonDateCalculator.width))),
+                      child: ColorFiltered(
+                          colorFilter:
+                              ColorFilter.mode(mainColor, BlendMode.modulate),
+                          child: Image.asset(
+                              'assets/images/shape_button_left_bottom.png',
+                              height: sizeButtonDateCalculator.height,
+                              width: sizeButtonDateCalculator.width)))),
               Positioned(
                   // rechts unten
-                  top: posButtonTzolkin.top,
-                  left: posButtonTzolkin.left,
+                  top: posButtonCholqij.top,
+                  left: posButtonCholqij.left,
                   child: GestureDetector(
                       onTap: () {
                         int cTone = getTone((offsetGearTones * 180 / pi +
@@ -2019,13 +2187,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    Cholqij(cKinIndex: cKinIndex)));
+                                builder: (context) => Cholqij(
+                                    backgroundImage: backgroundImage,
+                                    mainColor: mainColor,
+                                    cKinIndex: cKinIndex)));
                       },
-                      child: Image.asset(
-                          'assets/images/blue_button_bottom_right.png',
-                          height: sizeButtonTzolkin.height,
-                          width: sizeButtonTzolkin.width))),
+                      child: Container(
+                          height: sizeButtonCholqij.height,
+                          width: sizeButtonCholqij.width,
+                          decoration:
+                              const BoxDecoration(color: Colors.transparent)))),
               Positioned(
                   top: posBoxTextToneNahual.top,
                   left: posBoxTextToneNahual.left,
@@ -2060,6 +2231,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => TheDay(
+                                            backgroundImage: backgroundImage,
+                                            mainColor: mainColor,
                                             chosenYear: chosenYear,
                                             chosenDay: chosenDay,
                                             strHaabDate:
@@ -2174,4 +2347,37 @@ saveTimeFormat(timeFormat) async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'timeformat';
   prefs.setString(key, timeFormat);
+}
+
+Future<Object> readMainColor() async {
+  final prefs = await SharedPreferences.getInstance();
+  const key = 'mainColor';
+  return prefs.getString(key) ?? '0xff0000ff';
+}
+
+deleteMainColor() async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.remove('mainColor');
+}
+
+Future<ImageProvider> readBgFilePath() async {
+  final prefs = await SharedPreferences.getInstance();
+  const key = 'bgFilePath';
+  String bgfilePath = prefs.getString(key) ?? '';
+  if (bgfilePath.isEmpty) {
+    return const AssetImage('assets/images/leaves.jpg');
+  } else {
+    return FileImage(File(bgfilePath));
+  }
+}
+
+saveBgFilePath(bgFilePath) async {
+  final prefs = await SharedPreferences.getInstance();
+  const key = 'bgFilePath';
+  prefs.setString(key, bgFilePath);
+}
+
+deleteBgImagePath() async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.remove('bgFilePath');
 }

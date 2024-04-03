@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +15,8 @@ import 'methods/update_list.dart';
 import 'selection_dialog.dart';
 
 class TheYear extends StatefulWidget {
+  final ImageProvider backgroundImage;
+  final Color mainColor;
   final int chosenYear;
   final int chosenHaabYear;
   final int chosenDay;
@@ -24,6 +27,8 @@ class TheYear extends StatefulWidget {
   final DateTime chosenBeginGregorianDate;
   const TheYear(
       {super.key,
+      required this.backgroundImage,
+      required this.mainColor,
       required this.chosenYear,
       required this.chosenHaabYear,
       required this.chosenDay,
@@ -40,11 +45,8 @@ class TheYear extends StatefulWidget {
 class _TheYearState extends State<TheYear> {
   late DateFormat dateFormat;
 
-  BoxDecoration tableBoxDecoration = BoxDecoration(
-      color: const Color.fromARGB(127, 41, 41, 163),
-      border: Border.all(color: Colors.white, width: 1),
-      borderRadius: BorderRadius.circular(10),
-      shape: BoxShape.rectangle);
+  late BoxDecoration tableBoxDecoration;
+  late BoxDecoration addIconDecoration;
 
   TextStyle tableTextStyle = const TextStyle(color: Colors.white, fontSize: 14);
 
@@ -72,6 +74,17 @@ class _TheYearState extends State<TheYear> {
     initializeDateFormatting();
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
+
+    tableBoxDecoration = BoxDecoration(
+        color: widget.mainColor.withOpacity(0.5),
+        border: Border.all(color: Colors.white, width: 1),
+        borderRadius: BorderRadius.circular(10),
+        shape: BoxShape.rectangle);
+
+    addIconDecoration = BoxDecoration(
+        color: widget.mainColor.withOpacity(0.5),
+        border: Border.all(color: Colors.white, width: 1),
+        shape: BoxShape.circle);
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => executeAfterWholeBuildProcess(context));
@@ -132,6 +145,8 @@ class _TheYearState extends State<TheYear> {
                     return Center(
                         child: mayaCrossContainer(
                             size,
+                            widget.backgroundImage,
+                            widget.mainColor,
                             (widget.beginTone + dayIndex) % 13,
                             (widget.beginNahual + dayIndex) % 20));
                   });
@@ -166,9 +181,10 @@ class _TheYearState extends State<TheYear> {
             child: Center(
                 child: Text(dateFormat.format(gregorianDate),
                     style: tableTextStyle))),
-        SizedBox(
+        Container(
             height: 40,
             width: 40,
+            decoration: addIconDecoration,
             child: GestureDetector(
                 onTap: () {
                   showDialog(
@@ -178,7 +194,7 @@ class _TheYearState extends State<TheYear> {
                             context, widget.chosenYear, dayIndex);
                       });
                 },
-                child: Image.asset('assets/images/button_add.png')))
+                child: SvgPicture.asset('assets/vector_graphics/add_icon.svg')))
       ]),
       SizedBox(
           width: size.width,
@@ -208,10 +224,9 @@ class _TheYearState extends State<TheYear> {
             body: Container(
                 height: double.infinity,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: AssetImage("assets/images/leaves.jpg"),
-                      fit: BoxFit.cover),
+                      image: widget.backgroundImage, fit: BoxFit.cover),
                 ),
                 child: Stack(children: [
                   Column(children: [
@@ -240,9 +255,12 @@ class _TheYearState extends State<TheYear> {
                       child: Material(
                         color: Colors.transparent,
                         child: Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: AssetImage('assets/images/blue.jpg'),
+                                colorFilter: ColorFilter.mode(
+                                    widget.mainColor, BlendMode.modulate),
+                                image:
+                                    const AssetImage('assets/images/grey.png'),
                                 fit: BoxFit.cover),
                           ),
                           child: MaterialButton(

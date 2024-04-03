@@ -26,7 +26,9 @@ Center selectionDialog(BuildContext context, int yearIndex, int dayIndex) {
                       child: Container(
                           decoration: BoxDecoration(
                             image: const DecorationImage(
-                                image: AssetImage('assets/images/orange.jpg'),
+                                colorFilter: ColorFilter.mode(
+                                    Colors.orange, BlendMode.modulate),
+                                image: AssetImage('assets/images/grey.png'),
                                 fit: BoxFit.cover),
                             border: Border.all(color: Colors.white, width: 1),
                             borderRadius: BorderRadius.circular(10),
@@ -60,7 +62,9 @@ Center selectionDialog(BuildContext context, int yearIndex, int dayIndex) {
                       child: Container(
                           decoration: BoxDecoration(
                             image: const DecorationImage(
-                                image: AssetImage('assets/images/green.jpg'),
+                                colorFilter: ColorFilter.mode(
+                                    Colors.green, BlendMode.modulate),
+                                image: AssetImage('assets/images/grey.png'),
                                 fit: BoxFit.cover),
                             border: Border.all(color: Colors.white, width: 1),
                             borderRadius: BorderRadius.circular(10),
@@ -91,7 +95,9 @@ Center selectionDialog(BuildContext context, int yearIndex, int dayIndex) {
                       child: Container(
                           decoration: BoxDecoration(
                             image: const DecorationImage(
-                                image: AssetImage('assets/images/blue.jpg'),
+                                colorFilter: ColorFilter.mode(
+                                    Colors.blue, BlendMode.modulate),
+                                image: AssetImage('assets/images/grey.png'),
                                 fit: BoxFit.cover),
                             border: Border.all(color: Colors.white, width: 1),
                             borderRadius: BorderRadius.circular(10),

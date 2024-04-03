@@ -53,7 +53,9 @@ class _TaskDialogState extends State<TaskDialog> {
                       width: size.width * 0.888888889, // 320
                       decoration: BoxDecoration(
                           image: const DecorationImage(
-                              image: AssetImage('assets/images/blue.jpg'),
+                              colorFilter: ColorFilter.mode(
+                                  Colors.blue, BlendMode.modulate),
+                              image: AssetImage('assets/images/grey.png'),
                               fit: BoxFit.cover),
                           //color: Colors.indigo[700],
                           border: Border.all(color: Colors.white, width: 1),
@@ -110,9 +112,11 @@ class _TaskDialogState extends State<TaskDialog> {
                                       }
                                     },
                                     style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                Colors.transparent),
+                                        foregroundColor:
+                                            const MaterialStatePropertyAll(
+                                                Colors.white),
+                                        backgroundColor: MaterialStateProperty.all(
+                                            Colors.transparent),
                                         shadowColor: MaterialStateProperty.all(
                                             Colors.transparent),
                                         side: MaterialStateProperty.all(
@@ -122,10 +126,9 @@ class _TaskDialogState extends State<TaskDialog> {
                                             RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
-                                        textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 20)),
-                                        overlayColor:
-                                            MaterialStateProperty.all(Colors.indigo[400])),
+                                        textStyle:
+                                            MaterialStateProperty.all(const TextStyle(fontSize: 18)),
+                                        overlayColor: MaterialStateProperty.all(Colors.indigo[400])),
                                     child: Text('Cancel'.tr)))),
                         Positioned(
                             top: size.width * 0.25, // 90
@@ -158,9 +161,11 @@ class _TaskDialogState extends State<TaskDialog> {
                                       }
                                     },
                                     style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                Colors.transparent),
+                                        foregroundColor:
+                                            const MaterialStatePropertyAll(
+                                                Colors.white),
+                                        backgroundColor: MaterialStateProperty.all(
+                                            Colors.transparent),
                                         shadowColor: MaterialStateProperty.all(
                                             Colors.transparent),
                                         side: MaterialStateProperty.all(
@@ -170,10 +175,9 @@ class _TaskDialogState extends State<TaskDialog> {
                                             RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
-                                        textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 20)),
-                                        overlayColor:
-                                            MaterialStateProperty.all(Colors.indigo[400])),
+                                        textStyle:
+                                            MaterialStateProperty.all(const TextStyle(fontSize: 18)),
+                                        overlayColor: MaterialStateProperty.all(Colors.indigo[400])),
                                     child: Text('Ok'.tr))))
                       ])))
             ])));

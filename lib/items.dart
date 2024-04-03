@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:maya/globals.dart';
 import 'package:maya/providers/dayitems.dart';
@@ -196,7 +197,9 @@ Dismissible eventItem(int yearIndex, int dayIndex, String begin, String end,
                   width: size.width * 0.972222222,
                   decoration: BoxDecoration(
                       image: const DecorationImage(
-                          image: AssetImage('assets/images/orange.jpg'),
+                          colorFilter: ColorFilter.mode(
+                              Colors.orange, BlendMode.modulate),
+                          image: AssetImage('assets/images/grey.png'),
                           fit: BoxFit.cover),
                       //color: Colors.amber[700],
                       border: Border.all(color: Colors.white, width: 1),
@@ -204,30 +207,21 @@ Dismissible eventItem(int yearIndex, int dayIndex, String begin, String end,
                       shape: BoxShape.rectangle),
                   child: Consumer<YearData>(builder: (context, data, child) {
                     return Column(children: [
-                      Row(children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 5, left: size.width * 0.013888889),
-                          child: Text(
-                              '${'from'.tr} ${data.yearData[yearIndex][dayIndex].eventList[eventIndex].event[0]} ${'to'.tr} ${data.yearData[yearIndex][dayIndex].eventList[eventIndex].event[1]}',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 14)),
-                        )
-                      ]),
-                      Column(children: [
-                        Center(
-                            child: Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                    size.width * 0.013888889,
-                                    5,
-                                    size.width * 0.013888889,
-                                    5),
-                                child: Text(
-                                    data.yearData[yearIndex][dayIndex]
-                                        .eventList[eventIndex].event[2],
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 18))))
-                      ])
+                      Align(
+                        alignment: const Alignment(-0.95, 0.05),
+                        child: Text(
+                            '${'from'.tr} ${data.yearData[yearIndex][dayIndex].eventList[eventIndex].event[0]} ${'to'.tr} ${data.yearData[yearIndex][dayIndex].eventList[eventIndex].event[1]}',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 14)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                            data.yearData[yearIndex][dayIndex]
+                                .eventList[eventIndex].event[2],
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 18)),
+                      )
                     ]);
                   })))));
 }
@@ -379,7 +373,9 @@ Dismissible noteItem(
                   width: size.width * 0.972222222,
                   decoration: BoxDecoration(
                       image: const DecorationImage(
-                          image: AssetImage('assets/images/green.jpg'),
+                          colorFilter: ColorFilter.mode(
+                              Colors.green, BlendMode.modulate),
+                          image: AssetImage('assets/images/grey.png'),
                           fit: BoxFit.cover),
                       //color: Colors.green[700],
                       border: Border.all(color: Colors.white, width: 1),
@@ -560,7 +556,9 @@ Dismissible taskItem(int yearIndex, int dayIndex, String task, bool isChecked,
                   width: size.width * 0.972222222,
                   decoration: BoxDecoration(
                       image: const DecorationImage(
-                          image: AssetImage('assets/images/blue.jpg'),
+                          colorFilter:
+                              ColorFilter.mode(Colors.blue, BlendMode.modulate),
+                          image: AssetImage('assets/images/grey.png'),
                           fit: BoxFit.cover),
                       //color: Colors.indigo[700],
                       border: Border.all(color: Colors.white, width: 1),

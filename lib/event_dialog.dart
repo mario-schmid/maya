@@ -166,7 +166,9 @@ class _EventDialogState extends State<EventDialog> {
                     width: size.width * 0.888888889, // 320
                     decoration: BoxDecoration(
                         image: const DecorationImage(
-                            image: AssetImage('assets/images/orange.jpg'),
+                            colorFilter: ColorFilter.mode(
+                                Colors.orange, BlendMode.modulate),
+                            image: AssetImage('assets/images/grey.png'),
                             fit: BoxFit.cover),
                         //color: Colors.amber[700],
                         border: Border.all(color: Colors.white, width: 1),
@@ -328,6 +330,8 @@ class _EventDialogState extends State<EventDialog> {
                                   }
                                 },
                                 style: ButtonStyle(
+                                    foregroundColor: const MaterialStatePropertyAll(
+                                        Colors.white),
                                     backgroundColor: MaterialStateProperty.all(
                                         Colors.transparent),
                                     shadowColor: MaterialStateProperty.all(
@@ -335,15 +339,13 @@ class _EventDialogState extends State<EventDialog> {
                                     side: MaterialStateProperty.all(
                                         const BorderSide(
                                             color: Colors.white, width: 1)),
-                                    shape:
-                                        MaterialStateProperty.all<RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10))),
+                                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10))),
                                     textStyle: MaterialStateProperty.all(
-                                        const TextStyle(fontSize: 20)),
-                                    overlayColor:
-                                        MaterialStateProperty.all(Colors.amber[400])),
+                                        const TextStyle(fontSize: 18)),
+                                    overlayColor: MaterialStateProperty.all(Colors.amber[400])),
                                 child: Text('Cancel'.tr)),
                           )),
                       Positioned(
@@ -382,6 +384,9 @@ class _EventDialogState extends State<EventDialog> {
                                     }
                                   },
                                   style: ButtonStyle(
+                                      foregroundColor:
+                                          const MaterialStatePropertyAll(
+                                              Colors.white),
                                       backgroundColor:
                                           MaterialStateProperty.all(
                                               Colors.transparent),
@@ -397,9 +402,9 @@ class _EventDialogState extends State<EventDialog> {
                                               borderRadius:
                                                   BorderRadius.circular(10))),
                                       textStyle: MaterialStateProperty.all(
-                                          const TextStyle(fontSize: 20)),
-                                      overlayColor: MaterialStateProperty.all(
-                                          Colors.amber[400])),
+                                          const TextStyle(fontSize: 18)),
+                                      overlayColor:
+                                          MaterialStateProperty.all(Colors.amber[400])),
                                   child: Text('Ok'.tr))))
                     ])))));
   }

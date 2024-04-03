@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'helper/images.dart';
 
-Container mayaCrossContainer(Size size, int tone, int nahual) {
+Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
+    Color mainColor, int tone, int nahual) {
   BoxDecoration mainBoxDecoration = BoxDecoration(
-    image: const DecorationImage(
-        image: AssetImage("assets/images/leaves.jpg"), fit: BoxFit.cover),
+    image: DecorationImage(image: backgroundImage, fit: BoxFit.cover),
     border: Border.all(color: Colors.white, width: size.width * 0.0028),
     borderRadius: BorderRadius.circular(10),
     shape: BoxShape.rectangle,
   );
 
   BoxDecoration boxDecoration = BoxDecoration(
-    color: const Color.fromARGB(127, 41, 41, 163),
+    color: mainColor.withOpacity(0.5),
     border: Border.all(color: Colors.white, width: size.width * 0.0028),
     borderRadius: BorderRadius.circular(10),
     shape: BoxShape.rectangle,
@@ -21,7 +21,7 @@ Container mayaCrossContainer(Size size, int tone, int nahual) {
   TextStyle textStyle = TextStyle(
       fontFamily: 'Roboto',
       color: Colors.white,
-      fontSize: size.width * 0.034,
+      fontSize: size.width * 0.03,
       fontWeight: FontWeight.normal,
       decoration: TextDecoration.none);
 
@@ -30,13 +30,12 @@ Container mayaCrossContainer(Size size, int tone, int nahual) {
   double heightNahual = size.width * 0.155;
   double paddingToneNahual = size.width * 0.01;
   double padding = size.width * 0.01;
-  double sizeTextBox = size.width * 0.0782;
+  double sizeTextBox = size.width * 0.0922;
 
   List<int> tonesDirections = getDirectionTones(tone);
   List<int> nahualesDirections = getDirectionsNahuales(nahual);
 
   return Container(
-      padding: const EdgeInsets.all(5),
       decoration: mainBoxDecoration,
       height: size.width * 0.96,
       width: size.width * 0.96,

@@ -7,7 +7,10 @@ import 'methods/get_haab_date.dart';
 import 'methods/get_tone_nahual.dart';
 
 class DateCalculator extends StatefulWidget {
-  const DateCalculator({super.key});
+  final ImageProvider backgroundImage;
+  final Color mainColor;
+  const DateCalculator(
+      {super.key, required this.backgroundImage, required this.mainColor});
 
   @override
   State<DateCalculator> createState() => _HomeState();
@@ -54,10 +57,9 @@ class _HomeState extends State<DateCalculator> {
             body: Container(
                 height: double.infinity,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage("assets/images/leaves.jpg"),
-                        fit: BoxFit.cover)),
+                        image: widget.backgroundImage, fit: BoxFit.cover)),
                 child: Stack(children: [
                   Positioned(
                       top: 200,
@@ -146,7 +148,7 @@ class _HomeState extends State<DateCalculator> {
                               height: 150,
                               width: 150,
                               decoration: BoxDecoration(
-                                color: const Color.fromARGB(127, 41, 41, 163),
+                                color: widget.mainColor.withOpacity(0.5),
                                 border:
                                     Border.all(color: Colors.white, width: 1),
                                 shape: BoxShape.circle,
@@ -161,7 +163,7 @@ class _HomeState extends State<DateCalculator> {
 
   void calculateAndShowResult(Size size) {
     final BoxDecoration textBoxDecorationResult = BoxDecoration(
-      color: const Color.fromARGB(243, 41, 41, 163),
+      color: widget.mainColor,
       border: Border.all(color: Colors.white, width: size.width * 0.0028),
       borderRadius: BorderRadius.circular(10),
       shape: BoxShape.rectangle,
@@ -324,7 +326,8 @@ class _HomeState extends State<DateCalculator> {
                                     '${strTone[tone]} ${strNahual[nahual]}',
                                     style: textStyleResult))),
                         SizedBox(height: size.width * 0.02),
-                        mayaCrossContainer(size, tone, nahual),
+                        mayaCrossContainer(size, widget.backgroundImage,
+                            widget.mainColor, tone, nahual),
                         SizedBox(height: size.width * 0.02),
                         Container(
                             decoration: textBoxDecorationResult,

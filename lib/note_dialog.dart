@@ -53,7 +53,9 @@ class _NoteDialogState extends State<NoteDialog> {
                       width: size.width * 0.888888889, // 320
                       decoration: BoxDecoration(
                           image: const DecorationImage(
-                              image: AssetImage('assets/images/green.jpg'),
+                              colorFilter: ColorFilter.mode(
+                                  Colors.green, BlendMode.modulate),
+                              image: AssetImage('assets/images/grey.png'),
                               fit: BoxFit.cover),
                           //color: Colors.green[700],
                           border: Border.all(color: Colors.white, width: 1),
@@ -110,6 +112,9 @@ class _NoteDialogState extends State<NoteDialog> {
                                       }
                                     },
                                     style: ButtonStyle(
+                                        foregroundColor:
+                                            const MaterialStatePropertyAll(
+                                                Colors.white),
                                         backgroundColor:
                                             MaterialStateProperty.all(
                                                 Colors.transparent),
@@ -120,13 +125,12 @@ class _NoteDialogState extends State<NoteDialog> {
                                           color: Colors.white,
                                           width: 1,
                                         )),
-                                        shape: MaterialStateProperty.all<
-                                                RoundedRectangleBorder>(
+                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                                             RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
                                         textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 20)),
+                                            const TextStyle(fontSize: 18)),
                                         overlayColor: MaterialStateProperty.all(
                                             Colors.green[400])),
                                     child: Text('Cancel'.tr)))),
@@ -160,9 +164,11 @@ class _NoteDialogState extends State<NoteDialog> {
                                       }
                                     },
                                     style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                Colors.transparent),
+                                        foregroundColor:
+                                            const MaterialStatePropertyAll(
+                                                Colors.white),
+                                        backgroundColor: MaterialStateProperty.all(
+                                            Colors.transparent),
                                         shadowColor: MaterialStateProperty.all(
                                             Colors.transparent),
                                         side: MaterialStateProperty.all(
@@ -172,10 +178,9 @@ class _NoteDialogState extends State<NoteDialog> {
                                             RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(10))),
-                                        textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 20)),
-                                        overlayColor:
-                                            MaterialStateProperty.all(Colors.green[400])),
+                                        textStyle:
+                                            MaterialStateProperty.all(const TextStyle(fontSize: 18)),
+                                        overlayColor: MaterialStateProperty.all(Colors.green[400])),
                                     child: Text('Ok'.tr))))
                       ])))
             ])));

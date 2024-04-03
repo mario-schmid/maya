@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,8 @@ import 'providers/dayitems.dart';
 import 'selection_dialog.dart';
 
 class TheDay extends StatefulWidget {
+  final ImageProvider backgroundImage;
+  final Color mainColor;
   final int chosenYear;
   final int chosenDay;
   final String strHaabDate;
@@ -21,6 +24,8 @@ class TheDay extends StatefulWidget {
   final DateTime chosenGregorianDate;
   const TheDay(
       {super.key,
+      required this.backgroundImage,
+      required this.mainColor,
       required this.chosenYear,
       required this.chosenDay,
       required this.strHaabDate,
@@ -36,11 +41,8 @@ class TheDay extends StatefulWidget {
 class _TheDayState extends State<TheDay> {
   late DateFormat dateFormat;
 
-  BoxDecoration boxDecoration = BoxDecoration(
-      color: const Color.fromARGB(127, 41, 41, 163),
-      border: Border.all(color: Colors.white, width: 1),
-      borderRadius: BorderRadius.circular(10),
-      shape: BoxShape.rectangle);
+  late BoxDecoration boxDecoration;
+  late BoxDecoration addIconDecoration;
 
   TextStyle textStyle = const TextStyle(color: Colors.white, fontSize: 16);
 
@@ -57,6 +59,18 @@ class _TheDayState extends State<TheDay> {
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
     chosenKinIndex = getKinNummber(widget.chosenTone, widget.chosenNahual);
     trecena = chosenKinIndex ~/ 13;
+
+    boxDecoration = BoxDecoration(
+        color: widget.mainColor.withOpacity(0.5),
+        border: Border.all(color: Colors.white, width: 1),
+        borderRadius: BorderRadius.circular(10),
+        shape: BoxShape.rectangle);
+
+    addIconDecoration = BoxDecoration(
+        color: widget.mainColor.withOpacity(0.5),
+        border: Border.all(color: Colors.white, width: 1),
+        shape: BoxShape.circle);
+
     super.initState();
   }
 
@@ -70,10 +84,9 @@ class _TheDayState extends State<TheDay> {
             body: Container(
                 height: double.infinity,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     image: DecorationImage(
-                        image: AssetImage("assets/images/leaves.jpg"),
-                        fit: BoxFit.cover)),
+                        image: widget.backgroundImage, fit: BoxFit.cover)),
                 child: Padding(
                     padding:
                         EdgeInsets.fromLTRB(10, statusBarHeight + 10, 10, 10),
@@ -91,6 +104,8 @@ class _TheDayState extends State<TheDay> {
                                             alignment: const Alignment(0, 0.4),
                                             child: mayaCrossContainer(
                                                 size,
+                                                widget.backgroundImage,
+                                                widget.mainColor,
                                                 widget.chosenTone,
                                                 widget.chosenNahual));
                                       });
@@ -185,9 +200,10 @@ class _TheDayState extends State<TheDay> {
                                 Padding(
                                     padding: EdgeInsets.only(
                                         left: (size.width - 140) / 27.5),
-                                    child: SizedBox(
+                                    child: Container(
                                         height: 40,
                                         width: 40,
+                                        decoration: addIconDecoration,
                                         child: GestureDetector(
                                           onTap: () {
                                             showDialog(
@@ -200,8 +216,14 @@ class _TheDayState extends State<TheDay> {
                                                       widget.chosenDay);
                                                 });
                                           },
-                                          child: Image.asset(
-                                              'assets/images/button_add.png'),
+                                          child: SizedBox(
+                                            height: 30,
+                                            width: 30,
+                                            child: SvgPicture.asset(
+                                                'assets/vector_graphics/add_icon.svg',
+                                                height: 30,
+                                                width: 30),
+                                          ),
                                         )))
                               ])
                             ])

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'helper/images.dart';
 import 'maya_cross_container.dart';
 
 class Cholqij extends StatefulWidget {
+  final ImageProvider backgroundImage;
+  final Color mainColor;
   final int cKinIndex;
-  const Cholqij({super.key, required this.cKinIndex});
+  const Cholqij(
+      {super.key,
+      required this.backgroundImage,
+      required this.mainColor,
+      required this.cKinIndex});
 
   @override
   State<Cholqij> createState() => _CholqijState();
@@ -36,10 +43,9 @@ class _CholqijState extends State<Cholqij> {
                   Container(
                       height: double.infinity,
                       width: double.infinity,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         image: DecorationImage(
-                            image: AssetImage("assets/images/leaves.jpg"),
-                            fit: BoxFit.cover),
+                            image: widget.backgroundImage, fit: BoxFit.cover),
                       ),
                       child: Align(
                           alignment: Alignment.center,
@@ -47,12 +53,12 @@ class _CholqijState extends State<Cholqij> {
                               height: size.width * 1.466666666,
                               width: size.width,
                               decoration: BoxDecoration(
-                                  image: const DecorationImage(
-                                      image:
-                                          AssetImage('assets/images/green.jpg'),
+                                  image: DecorationImage(
+                                      colorFilter: ColorFilter.mode(
+                                          widget.mainColor, BlendMode.modulate),
+                                      image: const AssetImage(
+                                          'assets/images/grey.png'),
                                       fit: BoxFit.cover),
-                                  /*color:
-                                      const Color.fromARGB(255, 102, 153, 255),*/
                                   borderRadius: BorderRadius.all(
                                       Radius.circular(
                                           size.width * 0.066666667))),
@@ -74,16 +80,12 @@ class _CholqijState extends State<Cholqij> {
                                         itemBuilder: (context, index) {
                                           return signNahual[index];
                                         })),
-                                Container(
+                                SizedBox(
                                     height: size.width * 1.333333333,
                                     width: size.width * 0.866666666,
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.blue[900]!,
-                                            width: size.width * 0.001111111)),
                                     child: GridView.builder(
-                                        padding: EdgeInsets.only(
-                                            bottom: size.width * 0.133333333),
+                                        padding:
+                                            const EdgeInsets.only(bottom: 0),
                                         physics:
                                             const NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
@@ -93,7 +95,12 @@ class _CholqijState extends State<Cholqij> {
                                           crossAxisCount: 13,
                                         ),
                                         itemBuilder: (context, index) {
-                                          return kinIndex(context, size, index);
+                                          return kinIndex(
+                                              context,
+                                              size,
+                                              widget.backgroundImage,
+                                              widget.mainColor,
+                                              index);
                                         })),
                                 SizedBox(
                                     width: size.width * 0.066666666,
@@ -125,8 +132,7 @@ class _CholqijState extends State<Cholqij> {
                               width: size.width * 0.146666667,
                               decoration: BoxDecoration(
                                   border: Border.all(
-                                      color:
-                                          const Color.fromARGB(180, 0, 140, 0),
+                                      color: widget.mainColor.withOpacity(0.7),
                                       width: size.width * 0.04),
                                   borderRadius: BorderRadius.circular(
                                       size.width * 0.027777778)))))
@@ -134,8 +140,9 @@ class _CholqijState extends State<Cholqij> {
   }
 }
 
-GestureDetector kinIndex(BuildContext context, Size size, int index) {
-  late AssetImage backgroundImage;
+GestureDetector kinIndex(BuildContext context, Size size,
+    ImageProvider backgroundImage, Color mainColor, int index) {
+  late AssetImage bgImage;
 
   final List<Image> imageToneBlackFlatCenter = [
     Image.asset('assets/images/tones/01_black_flat_center.png'),
@@ -160,27 +167,22 @@ GestureDetector kinIndex(BuildContext context, Size size, int index) {
 
   switch (colorValue) {
     case 0:
-      backgroundImage = const AssetImage('assets/images/cholqij_field_red.jpg');
+      bgImage = const AssetImage('assets/images/cholqij_field_red.jpg');
       break;
     case 1:
-      backgroundImage =
-          const AssetImage('assets/images/cholqij_field_white.jpg');
+      bgImage = const AssetImage('assets/images/cholqij_field_white.jpg');
       break;
     case 2:
-      backgroundImage =
-          const AssetImage('assets/images/cholqij_field_blue.jpg');
+      bgImage = const AssetImage('assets/images/cholqij_field_blue.jpg');
       break;
     case 3:
-      backgroundImage =
-          const AssetImage('assets/images/cholqij_field_yellow.jpg');
+      bgImage = const AssetImage('assets/images/cholqij_field_yellow.jpg');
       break;
   }
 
   BoxDecoration boxDecoration = BoxDecoration(
-    image: DecorationImage(image: backgroundImage, fit: BoxFit.cover),
-    //color: backgroundColor,
-    border:
-        Border.all(color: Colors.blue[900]!, width: size.width * 0.001111111),
+    image: DecorationImage(image: bgImage, fit: BoxFit.cover),
+    border: Border.all(color: mainColor, width: size.width * 0.001111111),
   );
 
   TextStyle textStyle = TextStyle(
@@ -196,7 +198,9 @@ GestureDetector kinIndex(BuildContext context, Size size, int index) {
             context: context,
             //barrierDismissible: true,
             builder: (BuildContext context) {
-              return Center(child: mayaCrossContainer(size, tone, nahual));
+              return Center(
+                  child: mayaCrossContainer(
+                      size, backgroundImage, mainColor, tone, nahual));
             });
       },
       child: Container(
