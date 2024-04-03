@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:maya/globals.dart';
 import 'package:maya/providers/dayitems.dart';
@@ -560,7 +559,6 @@ Dismissible taskItem(int yearIndex, int dayIndex, String task, bool isChecked,
                               ColorFilter.mode(Colors.blue, BlendMode.modulate),
                           image: AssetImage('assets/images/grey.png'),
                           fit: BoxFit.cover),
-                      //color: Colors.indigo[700],
                       border: Border.all(color: Colors.white, width: 1),
                       borderRadius: BorderRadius.circular(10),
                       shape: BoxShape.rectangle),
