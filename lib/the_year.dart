@@ -267,7 +267,7 @@ class _TheYearState extends State<TheYear> {
                               shape: const Border(
                                   top: BorderSide(
                                       color: Colors.white, width: 1)),
-                              splashColor: Colors.blue[600],
+                              splashColor: widget.mainColor,
                               onPressed: _scrollToHome,
                               child: const Icon(Icons.unfold_less,
                                   color: Colors.white, size: 30)),
