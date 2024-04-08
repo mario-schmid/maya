@@ -1369,8 +1369,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       //
       sizeShapeRightTop =
           Size(size.height * 0.210083757, size.height * 0.1650703825);
-      posShapeRightTop = Position(size.height / 2 - size.height * 0.389,
-          size.width - size.height * 0.314);
+      posShapeRightTop = Position(size.height / 2 - size.height * 0.389336093,
+          size.width - size.height * 0.313578828);
       //
       sizeSandstoneFormBottom =
           Size(size.height * 0.404007225, size.height * 0.217065029);
@@ -1380,8 +1380,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       //
       sizeShapeRightBottom =
           Size(size.height * 0.210083757, size.height * 0.1650703825);
-      posShapeRightBottom = Position(size.height / 2 + size.height * 0.224,
-          size.width - size.height * 0.314);
+      posShapeRightBottom = Position(
+          size.height / 2 + size.height * 0.224294185,
+          size.width - size.height * 0.313578828);
       //
       sizeWheelNahuales =
           Size(size.height * 0.568400771, size.height * 0.568400771);
