@@ -170,7 +170,6 @@ class _EventDialogState extends State<EventDialog> {
                                 Colors.orange, BlendMode.modulate),
                             image: AssetImage('assets/images/grey.png'),
                             fit: BoxFit.cover),
-                        //color: Colors.amber[700],
                         border: Border.all(color: Colors.white, width: 1),
                         borderRadius: BorderRadius.circular(10),
                         shape: BoxShape.rectangle),
