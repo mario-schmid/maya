@@ -70,7 +70,7 @@ class _RelationshipState extends State<Relationship> {
                                                 widget.mainColor,
                                                 BlendMode.modulate),
                                             image: const AssetImage(
-                                                'assets/images/grey_small.png'),
+                                                'assets/images/background_B.png'),
                                             fit: BoxFit.cover),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
@@ -101,7 +101,7 @@ class _RelationshipState extends State<Relationship> {
                                                 widget.mainColor,
                                                 BlendMode.modulate),
                                             image: const AssetImage(
-                                                'assets/images/grey_small.png'),
+                                                'assets/images/background_B.png'),
                                             fit: BoxFit.cover),
                                         /*color: const Color.fromARGB(
                                             255, 102, 153, 255),*/
@@ -139,7 +139,7 @@ class _RelationshipState extends State<Relationship> {
                                                 widget.mainColor,
                                                 BlendMode.modulate),
                                             image: const AssetImage(
-                                                'assets/images/grey_small.png'),
+                                                'assets/images/background_B.png'),
                                             fit: BoxFit.cover),
                                         /*color: const Color.fromARGB(
                                             255, 102, 153, 255),*/
@@ -172,7 +172,7 @@ class _RelationshipState extends State<Relationship> {
                                                 widget.mainColor,
                                                 BlendMode.modulate),
                                             image: const AssetImage(
-                                                'assets/images/grey_small.png'),
+                                                'assets/images/background_B.png'),
                                             fit: BoxFit.cover),
                                         /*color: const Color.fromARGB(
                                             255, 102, 153, 255),*/
@@ -202,7 +202,7 @@ class _RelationshipState extends State<Relationship> {
                                     colorFilter: ColorFilter.mode(
                                         widget.mainColor, BlendMode.modulate),
                                     image: const AssetImage(
-                                        'assets/images/grey_small.png'),
+                                        'assets/images/background_B.png'),
                                     fit: BoxFit.cover),
                                 /*color: const Color.fromARGB(255, 102, 153, 255),*/
                                 border: Border.all(

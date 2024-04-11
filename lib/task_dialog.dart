@@ -55,7 +55,8 @@ class _TaskDialogState extends State<TaskDialog> {
                           image: const DecorationImage(
                               colorFilter: ColorFilter.mode(
                                   Colors.blue, BlendMode.modulate),
-                              image: AssetImage('assets/images/grey.png'),
+                              image:
+                                  AssetImage('assets/images/background_A.png'),
                               fit: BoxFit.cover),
                           //color: Colors.indigo[700],
                           border: Border.all(color: Colors.white, width: 1),

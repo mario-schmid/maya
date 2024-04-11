@@ -259,8 +259,8 @@ class _TheYearState extends State<TheYear> {
                             image: DecorationImage(
                                 colorFilter: ColorFilter.mode(
                                     widget.mainColor, BlendMode.modulate),
-                                image:
-                                    const AssetImage('assets/images/grey.png'),
+                                image: const AssetImage(
+                                    'assets/images/background_A.png'),
                                 fit: BoxFit.cover),
                           ),
                           child: MaterialButton(

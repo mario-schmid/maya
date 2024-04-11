@@ -204,8 +204,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     'assets/images/nahuales/18_kawoq.png',
     'assets/images/nahuales/19_ajpu.png',
     //
-    'assets/images/grey.png',
-    'assets/images/grey_small.png',
+    'assets/images/background_button.png',
+    'assets/images/background_A.png',
+    'assets/images/background_B.png',
     //
     'assets/images/cholqij_field_red.jpg',
     'assets/images/cholqij_field_white.jpg',

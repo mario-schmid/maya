@@ -168,7 +168,7 @@ class _EventDialogState extends State<EventDialog> {
                         image: const DecorationImage(
                             colorFilter: ColorFilter.mode(
                                 Colors.orange, BlendMode.modulate),
-                            image: AssetImage('assets/images/grey.png'),
+                            image: AssetImage('assets/images/background_A.png'),
                             fit: BoxFit.cover),
                         border: Border.all(color: Colors.white, width: 1),
                         borderRadius: BorderRadius.circular(10),

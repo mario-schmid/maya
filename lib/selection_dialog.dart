@@ -28,7 +28,8 @@ Center selectionDialog(BuildContext context, int yearIndex, int dayIndex) {
                             image: const DecorationImage(
                                 colorFilter: ColorFilter.mode(
                                     Colors.orange, BlendMode.modulate),
-                                image: AssetImage('assets/images/grey.png'),
+                                image: AssetImage(
+                                    'assets/images/background_button.png'),
                                 fit: BoxFit.cover),
                             border: Border.all(color: Colors.white, width: 1),
                             borderRadius: BorderRadius.circular(10),
@@ -64,7 +65,8 @@ Center selectionDialog(BuildContext context, int yearIndex, int dayIndex) {
                             image: const DecorationImage(
                                 colorFilter: ColorFilter.mode(
                                     Colors.green, BlendMode.modulate),
-                                image: AssetImage('assets/images/grey.png'),
+                                image: AssetImage(
+                                    'assets/images/background_button.png'),
                                 fit: BoxFit.cover),
                             border: Border.all(color: Colors.white, width: 1),
                             borderRadius: BorderRadius.circular(10),
@@ -97,7 +99,8 @@ Center selectionDialog(BuildContext context, int yearIndex, int dayIndex) {
                             image: const DecorationImage(
                                 colorFilter: ColorFilter.mode(
                                     Colors.blue, BlendMode.modulate),
-                                image: AssetImage('assets/images/grey.png'),
+                                image: AssetImage(
+                                    'assets/images/background_button.png'),
                                 fit: BoxFit.cover),
                             border: Border.all(color: Colors.white, width: 1),
                             borderRadius: BorderRadius.circular(10),

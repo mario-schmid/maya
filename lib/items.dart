@@ -198,7 +198,7 @@ Dismissible eventItem(int yearIndex, int dayIndex, String begin, String end,
                       image: const DecorationImage(
                           colorFilter: ColorFilter.mode(
                               Colors.orange, BlendMode.modulate),
-                          image: AssetImage('assets/images/grey.png'),
+                          image: AssetImage('assets/images/background_A.png'),
                           fit: BoxFit.cover),
                       //color: Colors.amber[700],
                       border: Border.all(color: Colors.white, width: 1),
@@ -374,7 +374,7 @@ Dismissible noteItem(
                       image: const DecorationImage(
                           colorFilter: ColorFilter.mode(
                               Colors.green, BlendMode.modulate),
-                          image: AssetImage('assets/images/grey.png'),
+                          image: AssetImage('assets/images/background_A.png'),
                           fit: BoxFit.cover),
                       //color: Colors.green[700],
                       border: Border.all(color: Colors.white, width: 1),
@@ -557,7 +557,7 @@ Dismissible taskItem(int yearIndex, int dayIndex, String task, bool isChecked,
                       image: const DecorationImage(
                           colorFilter:
                               ColorFilter.mode(Colors.blue, BlendMode.modulate),
-                          image: AssetImage('assets/images/grey.png'),
+                          image: AssetImage('assets/images/background_A.png'),
                           fit: BoxFit.cover),
                       border: Border.all(color: Colors.white, width: 1),
                       borderRadius: BorderRadius.circular(10),

@@ -55,7 +55,8 @@ class _NoteDialogState extends State<NoteDialog> {
                           image: const DecorationImage(
                               colorFilter: ColorFilter.mode(
                                   Colors.green, BlendMode.modulate),
-                              image: AssetImage('assets/images/grey.png'),
+                              image:
+                                  AssetImage('assets/images/background_A.png'),
                               fit: BoxFit.cover),
                           //color: Colors.green[700],
                           border: Border.all(color: Colors.white, width: 1),
