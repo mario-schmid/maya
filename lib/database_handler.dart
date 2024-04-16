@@ -1,3 +1,5 @@
+import 'package:alarm/model/alarm_settings.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -203,6 +205,122 @@ class DatabaseHandlerTasks {
     Iterable<List<Object?>> taskList =
         queryResult.map((e) => e.values.toList());
     return taskList;
+  }
+}
+
+class DatabaseHandlerAlarms {
+  Future<Database> initializeDB() async {
+    String path = await getDatabasesPath();
+    return openDatabase(
+      join(path, 'alarms.db'),
+      onCreate: (database, version) async {
+        await database.execute(
+          "CREATE TABLE alarms(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTAGER NOT NULL, id INTAGER NOT NULL, dateTime TEXT NOT NULL, assetAudioPath TEXT NOT NULL, loopAudio INTAGER NOT NULL, vibrate INTAGER NOT NULL, volume STRING NOT NULL, fadeDuration STRING NOT NULL, notificationTitle TEXT NOT NULL, notificationBody TEXT NOT NULL, enableNotificationOnKill INTAGER NOT NULL, isActive INTAGER NOT NULL)",
+        );
+      },
+      version: 1,
+    );
+  }
+
+  Future<int> insertAlarm(int yearIndex, int dayIndex, int elementIndex,
+      AlarmSettings alarmSettings, bool isActive) async {
+    DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+    int result = 0;
+    final Database db = await initializeDB();
+    result = await db.insert('alarms', {
+      'yearIndex': yearIndex,
+      'dayIndex': dayIndex,
+      'elementIndex': elementIndex,
+      'id': alarmSettings.id,
+      'dateTime': dateTimeformat.format(alarmSettings.dateTime),
+      'assetAudioPath': alarmSettings.assetAudioPath,
+      'loopAudio': alarmSettings.loopAudio ? 1 : 0,
+      'vibrate': alarmSettings.vibrate ? 1 : 0,
+      'volume': alarmSettings.volume.toString(),
+      'fadeDuration': alarmSettings.fadeDuration.toString(),
+      'notificationTitle': alarmSettings.notificationTitle,
+      'notificationBody': alarmSettings.notificationBody,
+      'enableNotificationOnKill':
+          alarmSettings.enableNotificationOnKill ? 1 : 0,
+      'isActive': isActive ? 1 : 0,
+    });
+    return result;
+  }
+
+  insertAlarmList(List<Map<String, dynamic>> listMapAlarms) async {
+    DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+    final Database db = await initializeDB();
+    for (var elements in listMapAlarms) {
+      await db.insert('alarms', {
+        'yearIndex': elements['yearIndex'],
+        'dayIndex': elements['dayIndex'],
+        'elementIndex': elements['elementIndex'],
+        'id': elements['alarmSettings'].id,
+        'dateTime': dateTimeformat.format(elements['alarmSettings'].dateTime),
+        'assetAudioPath': elements['alarmSettings'].assetAudioPath,
+        'loopAudio': elements['alarmSettings'].loopAudio ? 1 : 0,
+        'vibrate': elements['alarmSettings'].vibrate ? 1 : 0,
+        'volume': elements['alarmSettings'].volume.toString(),
+        'fadeDuration': elements['alarmSettings'].fadeDuration.toString(),
+        'notificationTitle': elements['alarmSettings'].notificationTitle,
+        'notificationBody': elements['alarmSettings'].notificationBody,
+        'enableNotificationOnKill':
+            elements['alarmSettings'].enableNotificationOnKill ? 1 : 0,
+        'isActive': elements['isActive'] ? 1 : 0,
+      });
+    }
+  }
+
+  Future<int> updateAlarmSettings(int yearIndex, int dayIndex, int elementIndex,
+      AlarmSettings alarmSettings) async {
+    DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+    final Database db = await initializeDB();
+    var result = await db.update(
+      'alarms',
+      {
+        'id': alarmSettings.id,
+        'dateTime': dateTimeformat.format(alarmSettings.dateTime),
+        'assetAudioPath': alarmSettings.assetAudioPath,
+        'loopAudio': alarmSettings.loopAudio,
+        'vibrate': alarmSettings.vibrate,
+        'volume': alarmSettings.volume.toString(),
+        'fadeDuration': alarmSettings.fadeDuration.toString(),
+        'notificationTitle': alarmSettings.notificationTitle,
+        'notificationBody': alarmSettings.notificationBody,
+        'enableNotificationOnKill': alarmSettings.enableNotificationOnKill,
+      },
+      where:
+          'yearIndex = $yearIndex AND dayIndex = $dayIndex AND elementIndex = $elementIndex',
+    );
+    return result;
+  }
+
+  Future<int> updateAlarmIsActive(
+      int yearIndex, int dayIndex, int elementIndex, bool isActive) async {
+    final Database db = await initializeDB();
+    var result = await db.update(
+      'alarms',
+      {
+        'isActive': isActive ? 1 : 0,
+      },
+      where:
+          'yearIndex = $yearIndex AND dayIndex = $dayIndex AND elementIndex = $elementIndex',
+    );
+    return result;
+  }
+
+  Future<void> deleteAlarms(int yearIndex, int dayIndex) async {
+    final Database db = await initializeDB();
+    await db.delete('alarms',
+        where: 'yearIndex = $yearIndex AND dayIndex = $dayIndex');
+  }
+
+  Future<Iterable<List<Object?>>> retrieveAlarms() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.query('alarms');
+    Iterable<List<Object?>> alarmList =
+        queryResult.map((e) => e.values.toList());
+    return alarmList;
   }
 }
 

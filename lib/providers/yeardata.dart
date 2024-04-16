@@ -1,3 +1,4 @@
+import 'package:alarm/model/alarm_settings.dart';
 import 'package:flutter/material.dart';
 
 class YearData extends ChangeNotifier {
@@ -26,8 +27,20 @@ class YearData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setAlarm(int yearIndex, int dayIndex, int alarmIndex,
+      AlarmSettings alarmSettings) {
+    _yearData[yearIndex][dayIndex].alarmList[alarmIndex].alarmSettings =
+        alarmSettings;
+    notifyListeners();
+  }
+
   void setIsChecked(int yearIndex, int dayIndex, int taskIndex, bool? value) {
     _yearData[yearIndex][dayIndex].taskList[taskIndex].isChecked = value!;
+    notifyListeners();
+  }
+
+  void setIsActive(int yearIndex, int dayIndex, int alarmIndex, bool? value) {
+    _yearData[yearIndex][dayIndex].alarmList[alarmIndex].isActive = value!;
     notifyListeners();
   }
 }

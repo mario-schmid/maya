@@ -56,7 +56,7 @@ class _CholqijState extends State<Cholqij> {
                                       colorFilter: ColorFilter.mode(
                                           widget.mainColor, BlendMode.modulate),
                                       image: const AssetImage(
-                                          'assets/images/background_A.png'),
+                                          'assets/images/bg_pattern_one.jpg'),
                                       fit: BoxFit.cover),
                                   borderRadius: BorderRadius.all(
                                       Radius.circular(

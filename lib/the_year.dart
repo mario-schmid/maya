@@ -140,7 +140,6 @@ class _TheYearState extends State<TheYear> {
             onTap: () {
               showDialog<void>(
                   context: context,
-                  //barrierDismissible: true,
                   builder: (BuildContext context) {
                     return Center(
                         child: mayaCrossContainer(
@@ -191,10 +190,18 @@ class _TheYearState extends State<TheYear> {
                       context: context,
                       builder: (BuildContext context) {
                         return selectionDialog(
-                            context, widget.chosenYear, dayIndex);
+                            context,
+                            widget.chosenYear,
+                            dayIndex,
+                            widget.chosenBeginGregorianDate
+                                .add(Duration(days: dayIndex)));
                       });
                 },
-                child: SvgPicture.asset('assets/vector_graphics/add_icon.svg')))
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child:
+                      SvgPicture.asset('assets/vector_graphics/add_icon.svg'),
+                )))
       ]),
       SizedBox(
           width: size.width,
@@ -260,7 +267,7 @@ class _TheYearState extends State<TheYear> {
                                 colorFilter: ColorFilter.mode(
                                     widget.mainColor, BlendMode.modulate),
                                 image: const AssetImage(
-                                    'assets/images/background_A.png'),
+                                    'assets/images/bg_pattern_one.jpg'),
                                 fit: BoxFit.cover),
                           ),
                           child: MaterialButton(

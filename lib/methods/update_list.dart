@@ -101,6 +101,30 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       }
       DatabaseHandlerTasks().insertTaskList(listMapTasks);
       break;
+    case 3:
+      DatabaseHandlerAlarms().deleteAlarms(yearIndex, dayIndex);
+      int elementIndexAlarm = 0;
+      List<Map<String, dynamic>> listMapAlarms = [];
+      for (int i = 0; i < arrayIndex[yearIndex][dayIndex][2].length; i++) {
+        if (arrayIndex[yearIndex][dayIndex][2][i] == 3) {
+          listMapAlarms.add({
+            'yearIndex': yearIndex,
+            'dayIndex': dayIndex,
+            'elementIndex': elementIndexAlarm,
+            'alarmSettings': YearData()
+                .yearData[yearIndex][dayIndex]
+                .alarmList[arrayIndex[yearIndex][dayIndex][3][i]]
+                .alarmSettings,
+            'isActive': YearData()
+                .yearData[yearIndex][dayIndex]
+                .alarmList[arrayIndex[yearIndex][dayIndex][3][i]]
+                .isActive
+          });
+          elementIndexAlarm++;
+        }
+      }
+      DatabaseHandlerAlarms().insertAlarmList(listMapAlarms);
+      break;
   }
 
   DatabaseHandlerArrangements().updateArrangement(

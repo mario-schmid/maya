@@ -98,7 +98,6 @@ class _TheDayState extends State<TheDay> {
                                 onTap: () {
                                   showDialog<void>(
                                       context: context,
-                                      //barrierDismissible: true,
                                       builder: (BuildContext context) {
                                         return Align(
                                             alignment: const Alignment(0, 0.4),
@@ -170,7 +169,6 @@ class _TheDayState extends State<TheDay> {
                                         )))
                                   ])),
                               Padding(
-                                  //padding: const EdgeInsets.all(10),
                                   padding: EdgeInsets.fromLTRB(
                                       (size.width - 140) / 22,
                                       10,
@@ -213,16 +211,21 @@ class _TheDayState extends State<TheDay> {
                                                   return selectionDialog(
                                                       context,
                                                       widget.chosenYear,
-                                                      widget.chosenDay);
+                                                      widget.chosenDay,
+                                                      widget
+                                                          .chosenGregorianDate);
                                                 });
                                           },
                                           child: SizedBox(
                                             height: 30,
                                             width: 30,
-                                            child: SvgPicture.asset(
-                                                'assets/vector_graphics/add_icon.svg',
-                                                height: 30,
-                                                width: 30),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(3),
+                                              child: SvgPicture.asset(
+                                                  'assets/vector_graphics/add_icon.svg',
+                                                  height: 30,
+                                                  width: 30),
+                                            ),
                                           ),
                                         )))
                               ])

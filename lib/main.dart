@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:alarm/alarm.dart';
+import 'package:alarm/model/alarm_settings.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
@@ -9,15 +11,19 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:maya/data/maya_alarm.dart';
 import 'package:maya/data/event.dart';
 import 'package:maya/data/task.dart';
+import 'package:maya/helper/get_text_size.dart';
 import 'package:maya/helper/images.dart';
 import 'package:maya/helper/lists.dart';
+import 'package:maya/helper/maya_style.dart';
 import 'package:maya/methods/get_delda_year.dart';
 import 'package:maya/providers/dayitems.dart';
-import 'package:maya/providers/ischecked.dart';
 import 'package:maya/providers/yeardata.dart';
 import 'package:maya/relationship.dart';
+import 'package:maya/ring_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,43 +46,11 @@ import 'time_format.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() {
-  runApp(const MayaApp());
-}
-
-class MayaApp extends StatelessWidget {
-  const MayaApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => DayItems()),
-          ChangeNotifierProvider(create: (context) => IsChecked()),
-          ChangeNotifierProvider(create: (context) => YearData())
-        ],
-        child: GetMaterialApp(
-            navigatorKey: navigatorKey,
-            translations: LocaleString(),
-            locale: const Locale('en', 'GB'),
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(fontFamily: 'Roboto'),
-            home: const Home()));
-  }
-}
-
-class Home extends StatefulWidget {
-  const Home({super.key});
-
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> with TickerProviderStateMixin {
-  /* ------------------------------------------------------------------------ */
-  /* Assets for precacheImage                                                 */
-  /*                                                                          */
-  final List<String> assets = [
+void main() async {
+/* ------------------------------------------------------------------------ */
+/* Assets for precacheImage                                                 */
+/*                                                                          */
+  final List<String> allAssetImages = [
     'assets/images/shape_button_left_bottom.png',
     'assets/images/shape_button_left_top.png',
     'assets/images/shape_right_bottom.png',
@@ -204,21 +178,62 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     'assets/images/nahuales/18_kawoq.png',
     'assets/images/nahuales/19_ajpu.png',
     //
-    'assets/images/background_button.png',
-    'assets/images/background_A.png',
-    'assets/images/background_B.png',
+    'assets/images/bg_pattern_two.jpg',
+    'assets/images/bg_pattern_one.jpg',
+    'assets/images/bg_pattern_three.jpg',
     //
     'assets/images/cholqij_field_red.jpg',
     'assets/images/cholqij_field_white.jpg',
     'assets/images/cholqij_field_blue.jpg',
     'assets/images/cholqij_field_yellow.jpg'
   ];
-  /*                                                                          */
-  /* Assets for precacheImage - END                                           */
-  /* ------------------------------------------------------------------------ */
+/*                                                                          */
+/* Assets for precacheImage - END                                           */
+/* ------------------------------------------------------------------------ */
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  binding.addPostFrameCallback((_) async {
+    Element? context = binding.rootElement;
+    if (context != null) {
+      for (var asset in allAssetImages) {
+        precacheImage(AssetImage(asset), context);
+      }
+    }
+  });
+  await Alarm.init();
+  runApp(const MayaApp());
+}
 
+class MayaApp extends StatelessWidget {
+  const MayaApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => DayItems()),
+          ChangeNotifierProvider(create: (context) => YearData())
+        ],
+        child: GetMaterialApp(
+            navigatorKey: navigatorKey,
+            translations: LocaleString(),
+            locale: const Locale('en', 'GB'),
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(fontFamily: 'Roboto'),
+            home: const Home()));
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> with TickerProviderStateMixin {
+  DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
   /* ------------------------------------------------------------------------ */
-  /* Positions and Sizes                                             */
+  /* Positions and Sizes                                                      */
   /*                                                                          */
   late Size sizeBoxTime;
   late Position posBoxTime;
@@ -335,13 +350,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       DatabaseHandlerNotes().retrieveNotes();
   final Future<Iterable<List<Object?>>> _taskList =
       DatabaseHandlerTasks().retrieveTasks();
+  final Future<Iterable<List<Object?>>> _alarmList =
+      DatabaseHandlerAlarms().retrieveAlarms();
   final Future<Iterable<List<Object?>>> _arrangementList =
       DatabaseHandlerArrangements().retrieveArrangements();
 
-  List<List<dynamic>> eList = [];
-  List<List<dynamic>> nList = [];
-  List<List<dynamic>> tList = [];
-  List<List<dynamic>> aList = [];
+  List<List<dynamic>> eventList = [];
+  List<List<dynamic>> noteList = [];
+  List<List<dynamic>> taskList = [];
+  List<List<dynamic>> alarmList = [];
+  List<List<dynamic>> arrangementList = [];
 
   late DateTime startDate;
   String currTime = '';
@@ -455,10 +473,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/trecenaYellow.png')
   ];
 
-  final Uri githubURL = Uri.parse('https://github.com/mario-schmid/maya');
-
   late AnimationController _controller;
   late Animation<double> _animation;
+
+  late List<AlarmSettings> alarms;
+  static StreamSubscription<AlarmSettings>? subscription;
   /*                                                                          */
   /* Varibles - END                                                           */
   /* ------------------------------------------------------------------------ */
@@ -468,6 +487,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   @override
   void initState() {
+    if (Alarm.android) {
+      checkAndroidNotificationPermission();
+      checkAndroidScheduleExactAlarmPermission();
+    }
+    subscription ??= Alarm.ringStream.stream.listen(
+      (alarmSettings) => navigateToRingScreen(alarmSettings),
+    );
+    Alarm.setNotificationOnAppKillContent(
+        'NotificationOnAppKillContentTitle'.tr,
+        'NotificationOnAppKillContentBody'.tr);
+
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     _controller.addListener(() {
@@ -495,7 +525,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       final DateTime now = DateTime.now();
       setState(() {
-        //currTime = ("${now.hour}:${now.minute}:${now.second}");
         currTime = TimeFormat().getTimeFormat.format(now);
       });
     });
@@ -530,9 +559,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     for (int i = 0; i <= currYear + 1; i++) {
       YearData().yearData.add(List.generate(365, (index) => Day()));
-      IsChecked()
-          .isChecked
-          .add(List.generate(365, (index) => List.empty(growable: true)));
       DayItems().dayItems.add(List.generate(
           365, (index) => List<Dismissible>.empty(growable: true)));
       arrayIndex.add(List.generate(
@@ -568,99 +594,137 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     super.initState();
   }
+
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
-
-  /* ------------------------------------------------------------------------ */
-  /* didChangeDependencies - precacheImage                                    */
-  /*                                                                          */
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    for (var asset in assets) {
-      precacheImage(AssetImage(asset), context);
-    }
-  }
-  /*                                                                          */
-  /* didChangeDependencies - precacheImage - END                              */
-  /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
   loadData() async {
-    eList = (await _eventList).toList();
-    nList = (await _noteList).toList();
-    tList = (await _taskList).toList();
-    aList = (await _arrangementList).toList();
+    eventList = (await _eventList).toList();
+    noteList = (await _noteList).toList();
+    taskList = (await _taskList).toList();
+    alarmList = (await _alarmList).toList();
+    arrangementList = (await _arrangementList).toList();
 
-    for (int i = 0; i < eList.length; i++) {
-      YearData()
-          .yearData[eList[i][0]][eList[i][1]]
-          .eventList
-          .add(Event([eList[i][3], eList[i][4], eList[i][5], eList[i][6]]));
+    for (int i = 0; i < eventList.length; i++) {
+      YearData().yearData[eventList[i][0]][eventList[i][1]].eventList.add(
+              Event([
+            eventList[i][3],
+            eventList[i][4],
+            eventList[i][5],
+            eventList[i][6]
+          ]));
     }
-    for (int i = 0; i < nList.length; i++) {
-      YearData().yearData[nList[i][0]][nList[i][1]].noteList.add(nList[i][3]);
-    }
-    for (int i = 0; i < tList.length; i++) {
+    for (int i = 0; i < noteList.length; i++) {
       YearData()
-          .yearData[tList[i][0]][tList[i][1]]
+          .yearData[noteList[i][0]][noteList[i][1]]
+          .noteList
+          .add(noteList[i][3]);
+    }
+    for (int i = 0; i < taskList.length; i++) {
+      YearData()
+          .yearData[taskList[i][0]][taskList[i][1]]
           .taskList
-          .add(Task(tList[i][3], tList[i][4] == 0 ? false : true));
-
-      IsChecked()
-          .isChecked[tList[i][0]][tList[i][1]]
-          .add(tList[i][4] == 0 ? false : true);
+          .add(Task(taskList[i][3], taskList[i][4] == 0 ? false : true));
     }
+    for (int i = 0; i < alarmList.length; i++) {
+      YearData().yearData[alarmList[i][0]][alarmList[i][1]].alarmList.add(
+          MayaAlarm(
+              AlarmSettings(
+                  id: alarmList[i][3],
+                  dateTime: dateTimeformat.parse(alarmList[i][4]),
+                  assetAudioPath: alarmList[i][5],
+                  loopAudio: alarmList[i][6] == 0 ? false : true,
+                  vibrate: alarmList[i][7] == 0 ? false : true,
+                  volume: alarmList[i][8],
+                  fadeDuration: alarmList[i][9],
+                  notificationTitle: alarmList[i][10],
+                  notificationBody: alarmList[i][11],
+                  enableNotificationOnKill:
+                      alarmList[i][12] == 0 ? false : true),
+              alarmList[i][13] == 0 ? false : true));
 
-    for (int i = 0; i < aList.length; i++) {
+      /*if (alarmList[i][13] == 1) {
+        await Alarm.set(
+            alarmSettings: YearData()
+                .yearData[alarmList[i][0]][alarmList[i][1]]
+                .alarmList[i]
+                .alarmSettings);
+      }*/
+    }
+    for (int i = 0; i < arrangementList.length; i++) {
       int l = 0;
       int m = 0;
       int n = 0;
-      String removedBrackets = aList[i][2].substring(1, aList[i][2].length - 1);
+      int o = 0;
+      String removedBrackets =
+          arrangementList[i][2].substring(1, arrangementList[i][2].length - 1);
       List<String> strArrangements = removedBrackets.split(',');
       List<int> arrangements =
           strArrangements.map((data) => int.parse(data)).toList();
       for (int j = 0; j < arrangements.length; j++) {
         if (arrangements[j] == 0) {
-          DayItems().dayItems[aList[i][0]][aList[i][1]].add(eventItem(
-              aList[i][0],
-              aList[i][1],
-              eList[l][3],
-              eList[l][4],
-              eList[l][5],
-              eList[l][6],
-              false,
-              l));
+          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
+              eventItem(
+                  arrangementList[i][0],
+                  arrangementList[i][1],
+                  eventList[l][3],
+                  eventList[l][4],
+                  eventList[l][5],
+                  eventList[l][6],
+                  false,
+                  l));
           l++;
         }
         if (arrangements[j] == 1) {
-          DayItems()
-              .dayItems[aList[i][0]][aList[i][1]]
-              .add(noteItem(aList[i][0], aList[i][1], nList[m][3], false, m));
+          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
+              noteItem(arrangementList[i][0], arrangementList[i][1],
+                  noteList[m][3], false, m));
           m++;
         }
         if (arrangements[j] == 2) {
-          DayItems().dayItems[aList[i][0]][aList[i][1]].add(taskItem(
-              aList[i][0],
-              aList[i][1],
-              tList[n][3],
-              tList[n][4] == 0 ? false : true,
-              false,
-              n));
+          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
+              taskItem(
+                  arrangementList[i][0],
+                  arrangementList[i][1],
+                  taskList[n][3],
+                  taskList[n][4] == 0 ? false : true,
+                  false,
+                  n));
           n++;
+        }
+        if (arrangements[j] == 3) {
+          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
+              alarmItem(
+                  arrangementList[i][0],
+                  arrangementList[i][1],
+                  AlarmSettings(
+                      id: alarmList[o][3],
+                      dateTime: dateTimeformat.parse(alarmList[o][4]),
+                      assetAudioPath: alarmList[o][5],
+                      loopAudio: alarmList[o][6] == 0 ? false : true,
+                      vibrate: alarmList[o][7] == 0 ? false : true,
+                      volume: alarmList[o][8],
+                      fadeDuration: alarmList[o][9],
+                      notificationTitle: alarmList[o][10],
+                      notificationBody: alarmList[o][11],
+                      enableNotificationOnKill:
+                          alarmList[o][12] == 0 ? false : true),
+                  alarmList[o][13] == 0 ? false : true,
+                  false,
+                  o));
+          o++;
         }
       }
     }
   }
+
   /*                                                                          */
   /* loadData - END                                                           */
   /* ------------------------------------------------------------------------ */
-
   List<bool> isSelected = [true, false];
-
   /* ------------------------------------------------------------------------ */
   /* loadTimeFormat                                                           */
   /*                                                                          */
@@ -677,10 +741,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         break;
     }
   }
+
   /*                                                                          */
   /* loadTimeFormat - END                                                     */
   /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* init, load and set Language                                              */
   /*                                                                          */
@@ -723,12 +787,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     Get.updateLocale(Locale(listLanguage[0], listLanguage[1]));
   }
+
   /*                                                                          */
   /* init, load and set Language - END                                        */
   /* ------------------------------------------------------------------------ */
-
   Color mainColor = const Color(0xff0000ff);
-
   /* ------------------------------------------------------------------------ */
   /* loadMainColor                                                           */
   /*                                                                          */
@@ -737,22 +800,31 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     String strMainColor = (await mainColorFuture).toString();
     mainColor = Color(int.parse(strMainColor));
   }
+
   /*                                                                          */
   /* loadMainColor - END                                                      */
   /* ------------------------------------------------------------------------ */
-
   late String? bgFilePath;
   ImageProvider backgroundImage = const AssetImage('assets/images/leaves.jpg');
-
   /* ------------------------------------------------------------------------ */
   /* loadBgFilePath                                                           */
   /*                                                                          */
   loadBgFilePath() async {
     backgroundImage = await readBgFilePath();
   }
+
   /*                                                                          */
-  /* loadBgFilePath - END                                                      */
+  /* loadBgFilePath - END                                                     */
   /* ------------------------------------------------------------------------ */
+  Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AlarmRingScreen(
+            backgroundImage: backgroundImage, alarmSettings: alarmSettings),
+      ),
+    );
+  }
 
   /* ------------------------------------------------------------------------ */
   /* scheduletask                                                             */
@@ -831,10 +903,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     });
   }
+
   /*                                                                          */
   /* scheduletask - END                                                       */
   /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* reset                                                                    */
   /*                                                                          */
@@ -846,7 +918,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       upsetAngle = 0.0;
       finalAngle = 0.0;
       oldAngle = 0.0;
-      //prevAngle = 0.0;
 
       iRounds = 0;
       mAngle = 0.0;
@@ -877,24 +948,29 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       chosenHaabYear = currHaabYear;
     });
   }
+
   /*                                                                          */
   /* reset - END                                                              */
   /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* updateLanguage                                                           */
   /*                                                                          */
   updateLanguage(Locale locale) {
     Get.updateLocale(locale);
   }
+
   /*                                                                          */
   /* updateLanguage - END                                                     */
   /* ------------------------------------------------------------------------ */
+  @override
+  void dispose() {
+    subscription?.cancel();
+    super.dispose();
+  }
 
   /* ------------------------------------------------------------------------ */
   /* Drawer                                                                   */
   /*                                                                          */
-
   Drawer _customDrawer(BuildContext context, Size size) {
     double statusBarHeight = MediaQuery.of(context).viewPadding.top;
     return Drawer(
@@ -1048,60 +1124,88 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   ])),
               SizedBox(height: size.width * 0.04),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                GestureDetector(
-                    onTap: () async {
-                      Navigator.of(context, rootNavigator: true).pop();
-                      mainColor = await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return ColorPicker(mainColor: mainColor);
-                          });
-                    },
-                    onLongPress: () {
-                      mainColor = const Color(0xff0000ff);
-                      deleteMainColor();
-                    },
-                    child: Container(
-                      height: size.width * 0.1,
-                      width: size.width * 0.2,
-                      decoration: BoxDecoration(
-                          color: mainColor.withOpacity(0.5),
-                          border: Border.all(color: Colors.white, width: 1),
-                          borderRadius:
-                              BorderRadius.circular(size.width * 0.01),
-                          shape: BoxShape.rectangle),
-                      child: SvgPicture.asset(
-                          "assets/vector_graphics/rby_icon.svg"),
-                    )),
+                SizedBox(
+                    height: size.width * 0.1,
+                    width: size.width * 0.2,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          mainColor = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return ColorPicker(mainColor: mainColor);
+                              });
+                        },
+                        onLongPress: () async {
+                          mainColor = const Color(0xff0000ff);
+                          deleteMainColor();
+                        },
+                        style: ButtonStyle(
+                            foregroundColor:
+                                const MaterialStatePropertyAll(Colors.white),
+                            backgroundColor: MaterialStateProperty.all(
+                                mainColor.withOpacity(0.5)),
+                            shadowColor:
+                                MaterialStateProperty.all(Colors.transparent),
+                            side: MaterialStateProperty.all(const BorderSide(
+                                color: Colors.white, width: 1)),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        size.width * 0.01))),
+                            overlayColor: MaterialStateProperty.all(mainColor)),
+                        child: SvgPicture.asset(
+                            "assets/vector_graphics/rby_icon.svg",
+                            height: size.width * 0.08,
+                            width: size.width * 0.08))),
                 SizedBox(width: size.width * 0.06),
-                GestureDetector(
-                    onTap: () async {
-                      const params = OpenFileDialogParams(
-                        dialogType: OpenFileDialogType.image,
-                        sourceType: SourceType.photoLibrary,
-                      );
-                      bgFilePath =
-                          await FlutterFileDialog.pickFile(params: params);
-                      saveBgFilePath(bgFilePath);
-                      backgroundImage = FileImage(File(bgFilePath!));
-                    },
-                    onLongPress: () {
-                      backgroundImage =
-                          const AssetImage('assets/images/leaves.jpg');
-                      deleteBgImagePath();
-                    },
-                    child: Container(
-                      height: size.width * 0.1,
-                      width: size.width * 0.2,
-                      decoration: BoxDecoration(
-                          color: mainColor.withOpacity(0.5),
-                          border: Border.all(color: Colors.white, width: 1),
-                          borderRadius:
-                              BorderRadius.circular(size.width * 0.01),
-                          shape: BoxShape.rectangle),
-                      child: SvgPicture.asset(
-                          "assets/vector_graphics/image_icon.svg"),
-                    ))
+                SizedBox(
+                    height: size.width * 0.1,
+                    width: size.width * 0.2,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          const params = OpenFileDialogParams(
+                            dialogType: OpenFileDialogType.image,
+                            sourceType: SourceType.photoLibrary,
+                          );
+                          bgFilePath =
+                              await FlutterFileDialog.pickFile(params: params);
+                          if (bgFilePath != null) {
+                            String ext = bgFilePath!.split('.').last;
+                            if (ext == 'jpg' || ext == 'jpeg' || ext == 'png') {
+                              saveBgFilePath(bgFilePath!);
+                              backgroundImage = FileImage(File(bgFilePath!));
+                            } else {
+                              if (!context.mounted) return;
+                              showImageFileFormatDialog(context, size);
+                            }
+                          }
+                        },
+                        onLongPress: () async {
+                          backgroundImage =
+                              const AssetImage('assets/images/leaves.jpg');
+                          deleteBgImagePath();
+                        },
+                        style: ButtonStyle(
+                            foregroundColor:
+                                const MaterialStatePropertyAll(Colors.white),
+                            backgroundColor: MaterialStateProperty.all(
+                                mainColor.withOpacity(0.5)),
+                            shadowColor:
+                                MaterialStateProperty.all(Colors.transparent),
+                            side: MaterialStateProperty.all(const BorderSide(
+                                color: Colors.white, width: 1)),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        size.width * 0.01))),
+                            overlayColor: MaterialStateProperty.all(mainColor)),
+                        child: SvgPicture.asset(
+                            "assets/vector_graphics/image_icon.svg",
+                            height: size.width * 0.08,
+                            width: size.width * 0.08)))
               ]),
               SizedBox(height: size.width * 0.04),
               SizedBox(
@@ -1179,10 +1283,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               ])
             ])));
   }
+
   /*                                                                          */
   /* Drawer - END                                                             */
   /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* Build                                                                    */
   /*                                                                          */
@@ -1223,11 +1327,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       //
       sizeWheelNahuales =
           Size(size.width * 1.092592593, size.width * 1.092592593);
-      posWheelNahuales = Position(
-          (size.height - sizeWheelNahuales.height) / 2,
-          size.width -
-              sizeWheelNahuales.width -
-              size.width * 0.113888889); // -41
+      posWheelNahuales = Position((size.height - sizeWheelNahuales.height) / 2,
+          size.width - sizeWheelNahuales.width - size.width * 0.113888889);
       //
       sizeSignNahual = Size(size.width * 0.128, size.width * 0.117333333);
       offsetSignNahual = Offset(-size.width * 0.435995852, 0);
@@ -1569,11 +1670,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelHaab.top,
                   left: posWheelHaab.left,
                   child: Transform.rotate(
-                      angle: offsetGearHaab -
-                          finalAngle /
-                              9 *
-                              pi /
-                              365, // offsetGearHaab - finalAngle / 180 * pi / 365 * 20
+                      angle: offsetGearHaab - finalAngle / 9 * pi / 365,
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
@@ -1766,11 +1863,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelHaab.top,
                   left: posWheelHaab.left,
                   child: Transform.rotate(
-                      angle: offsetGearHaab -
-                          finalAngle /
-                              9 *
-                              pi /
-                              365, // offsetGearHaab - finalAngle / 180 * pi / 365 * 20
+                      angle: offsetGearHaab - finalAngle / 9 * pi / 365,
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
@@ -1779,29 +1872,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             return Stack(children: [
                               for (int i = -20; i < 21; i++)
                                 if (data.yearData[(currYear + (xDayTotal + i) / 365).floor()][(xDayTotal + i) % 365].eventList.any((element) => element.event != null) ||
-                                    data.yearData[(currYear + (xDayTotal + i) / 365).floor()][(xDayTotal + i) % 365].noteList
+                                    data
+                                        .yearData[(currYear + (xDayTotal + i) / 365).floor()]
+                                            [(xDayTotal + i) % 365]
+                                        .noteList
                                         .any((element) => element != null) ||
-                                    data.yearData[(currYear + (xDayTotal + i) / 365).floor()][(xDayTotal + i) % 365].taskList
+                                    data
+                                        .yearData[(currYear + (xDayTotal + i) / 365).floor()]
+                                            [(xDayTotal + i) % 365]
+                                        .taskList
                                         .any((element) =>
-                                            element.isChecked == false))
+                                            element.isChecked == false) ||
+                                    data.yearData[(currYear + (xDayTotal + i) / 365).floor()][(xDayTotal + i) % 365].alarmList.any(
+                                        (element) => element.isActive == true))
                                   Positioned(
                                       top: posFrame.top,
                                       left: posFrame.left,
                                       child: Transform.rotate(
-                                          angle: 360 /
-                                              365 *
-                                              ((xDayTotal + i) % 365) /
-                                              180 *
-                                              pi,
+                                          angle: 360 / 365 * ((xDayTotal + i) % 365) / 180 * pi,
                                           origin: offsetFrame,
-                                          child: Container(
-                                              height: sizeFrame.height,
-                                              width: sizeFrame.width,
-                                              decoration: BoxDecoration(
-                                                  color: const Color.fromARGB(32, 255, 255, 255),
-                                                  border: Border.all(color: Colors.white, width: 1),
-                                                  borderRadius: BorderRadius.circular(5),
-                                                  shape: BoxShape.rectangle))))
+                                          child: Container(height: sizeFrame.height, width: sizeFrame.width, decoration: BoxDecoration(color: const Color.fromARGB(32, 255, 255, 255), border: Border.all(color: Colors.white, width: 1), borderRadius: BorderRadius.circular(5), shape: BoxShape.rectangle))))
                             ]);
                           })))),
               Positioned(
@@ -2066,7 +2156,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       height: sizeSandstoneCircle.height,
                       width: sizeSandstoneCircle.width)),
               Positioned(
-                  // links oben
                   top: posButtonRelationship.top,
                   left: posButtonRelationship.left,
                   child: GestureDetector(
@@ -2085,7 +2174,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           color: mainColor,
                           colorBlendMode: BlendMode.modulate))),
               Positioned(
-                  // rechts oben
                   top: posButtonTheYear.top,
                   left: posButtonTheYear.left,
                   child: GestureDetector(
@@ -2143,7 +2231,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           decoration:
                               const BoxDecoration(color: Colors.transparent)))),
               Positioned(
-                  // links unten
                   top: posButtonDateCalculator.top,
                   left: posButtonDateCalculator.left,
                   child: GestureDetector(
@@ -2162,7 +2249,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           color: mainColor,
                           colorBlendMode: BlendMode.modulate))),
               Positioned(
-                  // rechts unten
                   top: posButtonCholqij.top,
                   left: posButtonCholqij.left,
                   child: GestureDetector(
@@ -2353,15 +2439,19 @@ deleteMainColor() async {
 Future<ImageProvider> readBgFilePath() async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'bgFilePath';
-  String bgfilePath = prefs.getString(key) ?? '';
-  if (bgfilePath.isEmpty) {
+  String bgFilePath = prefs.getString(key) ?? '';
+  if (bgFilePath.isEmpty) {
     return const AssetImage('assets/images/leaves.jpg');
   } else {
-    return FileImage(File(bgfilePath));
+    if (await File(bgFilePath).exists()) {
+      return FileImage(File(bgFilePath));
+    } else {
+      return const AssetImage('assets/images/leaves.jpg');
+    }
   }
 }
 
-saveBgFilePath(bgFilePath) async {
+saveBgFilePath(String bgFilePath) async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'bgFilePath';
   prefs.setString(key, bgFilePath);
@@ -2370,4 +2460,51 @@ saveBgFilePath(bgFilePath) async {
 deleteBgImagePath() async {
   final prefs = await SharedPreferences.getInstance();
   prefs.remove('bgFilePath');
+}
+
+Future<void> checkAndroidScheduleExactAlarmPermission() async {
+  final status = await Permission.scheduleExactAlarm.status;
+  alarmPrint('Schedule exact alarm permission: $status.');
+  if (status.isDenied) {
+    alarmPrint('Requesting schedule exact alarm permission...');
+    final res = await Permission.scheduleExactAlarm.request();
+    alarmPrint(
+      'Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.',
+    );
+  }
+}
+
+Future<void> checkAndroidNotificationPermission() async {
+  final status = await Permission.notification.status;
+  if (status.isDenied) {
+    alarmPrint('Requesting notification permission...');
+    final res = await Permission.notification.request();
+    alarmPrint(
+      'Notification permission ${res.isGranted ? '' : 'not '}granted.',
+    );
+  }
+}
+
+showImageFileFormatDialog(BuildContext context, Size size) {
+  Size size = GetTextSize().getTextSize(
+      'Only jpeg/jpg and png files are allowed!'.tr,
+      MayaStyle().popUpdialogBody());
+  showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Center(
+            child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: MayaStyle().popUpDialogDecoration(),
+                height: 93,
+                width: size.width + 42,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('Invalid File Format!'.tr,
+                          style: MayaStyle().popUpdialogTitle()),
+                      Text('\n${'Only jpeg/jpg and png files are allowed!'.tr}',
+                          style: MayaStyle().popUpdialogBody())
+                    ])));
+      });
 }

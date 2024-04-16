@@ -25,6 +25,7 @@ class LocaleString extends Translations {
           'Event': 'Event',
           'Note': 'Note',
           'Task': 'Task',
+          'Alarm': 'Alarm',
           //
           'Beginning': 'Beginning',
           'End': 'End',
@@ -34,12 +35,16 @@ class LocaleString extends Translations {
           'from': 'from',
           'to': 'to',
           //
+          'Loop alarm audio': 'Loop alarm audio',
+          'Vibrate': 'Vibrate',
+          'Custom Volume': 'Custom Volume',
+          //
           'Calculate': 'Calculate',
           'Day': 'Day',
           'Month': 'Month',
           'Year': 'Year',
           //
-          'Ok': 'Ok',
+          'Save': 'Save',
           'Cancel': 'Cancel',
           //
           'Invalid characters!': 'Invalid characters!',
@@ -65,7 +70,16 @@ class LocaleString extends Translations {
           'Days': 'Days',
           //
           'The month from 1 to 12': 'The month from 1 to 12',
-          'The year from 1601 to 2099': 'The year from 1601 to 2099'
+          'The year from 1601 to 2099': 'The year from 1601 to 2099',
+          //
+          'NotificationOnAppKillContentTitle': 'Your alarm may not ring!',
+          'NotificationOnAppKillContentBody':
+              'You killed the app. Please reopen so your alarm can ring.',
+          //
+          'Invalid File Format!': 'Invalid File Format!',
+          'Only jpeg/jpg and png files are allowed!':
+              'Only jpeg/jpg and png files are allowed!',
+          'Only mp3 files are allowed!': 'Only mp3 files are allowed!'
         },
         //GERMAN LANGUAGE
         'de_DE': {
@@ -89,6 +103,7 @@ class LocaleString extends Translations {
           'Event': 'Event',
           'Note': 'Notiz',
           'Task': 'Aufgabe',
+          'Alarm': 'Alarm',
           //
           'Beginning': 'Anfang',
           'End': 'Ende',
@@ -98,12 +113,16 @@ class LocaleString extends Translations {
           'from': 'von',
           'to': 'bis',
           //
+          'Loop alarm audio': 'Loop alarm audio',
+          'Vibrate': 'Vibrate',
+          'Custom Volume': 'Custom Volume',
+          //
           'Calculate': 'Berechnen',
           'Day': 'Tag',
           'Month': 'Monat',
           'Year': 'Jahr',
           //
-          'Ok': 'Ok',
+          'Save': 'Speichern',
           'Cancel': 'Abbruch',
           //
           'Invalid characters!': 'Ungültige Zeichen!',
@@ -130,7 +149,17 @@ class LocaleString extends Translations {
           'Days': 'Tage',
           //
           'The month from 1 to 12': 'Der Monat von 1 bis 12',
-          'The year from 1601 to 2099': 'Das Jahr von 1601 bis 2099'
+          'The year from 1601 to 2099': 'Das Jahr von 1601 bis 2099',
+          //
+          'NotificationOnAppKillContentTitle':
+              'Möglicherweise klingelt Ihr Alarm nicht!',
+          'NotificationOnAppKillContentBody':
+              'Du hast die App getötet. Bitte öffnen Sie erneut, damit Dein Alarm klingeln kann.',
+          //
+          'Invalid File Format!': 'Ungültiges Dateiformat!',
+          'Only jpeg/jpg and png files are allowed!':
+              'Es sind nur jpeg/jpg und png Dateien erlaubt!',
+          'Only mp3 files are allowed!': 'Es sind nur mp3 Dateien erlaubt!'
         },
         //FRENCH LANGUAGE
         'fr_FR': {
@@ -154,6 +183,7 @@ class LocaleString extends Translations {
           'Event': 'Événement',
           'Note': 'Note',
           'Task': 'Tâche',
+          'Alarm': 'Alarme',
           //
           'Beginning': 'Début',
           'End': 'Fin',
@@ -163,12 +193,16 @@ class LocaleString extends Translations {
           'from': 'depuis',
           'to': 'pour',
           //
+          'Loop alarm audio': 'Loop alarm audio',
+          'Vibrate': 'Vibrate',
+          'Custom Volume': 'Custom Volume',
+          //
           'Calculate': 'Calculer',
           'Day': 'Jour',
           'Month': 'Mois',
           'Year': 'Année',
           //
-          'Ok': 'Ok',
+          'Save': 'Enregistrer',
           'Cancel': 'Annuler',
           //
           'Invalid characters!': 'Caractères invalides!',
@@ -195,7 +229,18 @@ class LocaleString extends Translations {
           'Days': 'Jours',
           //
           'The month from 1 to 12': 'Le mois de 1 à 12',
-          'The year from 1601 to 2099': "L'année de 1601 à 2099"
+          'The year from 1601 to 2099': "L'année de 1601 à 2099",
+          //
+          'NotificationOnAppKillContentTitle':
+              'Votre alarme peut ne pas sonner!',
+          'NotificationOnAppKillContentBody.':
+              "Vous avez tué l'application. Veuillez rouvrir pour que votre alarme puisse sonner.",
+          //
+          'Invalid File Format!': 'Format de fichier invalide!',
+          'Only jpeg/jpg and png files are allowed!':
+              'Seuls les fichiers jpeg/jpg et png sont autorisés!',
+          'Only mp3 files are allowed!':
+              'Seuls les fichiers mp3 sont autorisés!'
         },
         //SPAIN LANGUAGE
         'es_ES': {
@@ -219,6 +264,7 @@ class LocaleString extends Translations {
           'Event': 'Evento',
           'Note': 'Nota',
           'Task': 'Tarea',
+          'Alarm': 'Alarma',
           //
           'Beginning': 'Comienzo',
           'End': 'Fin',
@@ -228,12 +274,16 @@ class LocaleString extends Translations {
           'from': 'de',
           'to': 'a',
           //
+          'Loop alarm audio': 'Loop alarm audio',
+          'Vibrate': 'Vibrate',
+          'Custom Volume': 'Custom Volume',
+          //
           'Calculate': 'Calcular',
           'Day': 'Día',
           'Month': 'Mes',
           'Year': 'Año',
           //
-          'Ok': 'Ok',
+          'Save': 'Ahorrar',
           'Cancel': 'Cancelar',
           //
           'Invalid characters!': 'Caracteres inválidos!',
@@ -260,7 +310,17 @@ class LocaleString extends Translations {
           'Days': 'Dias',
           //
           'The month from 1 to 12': 'El mes de 1 a 12',
-          'The year from 1601 to 2099': 'El año de 1601 a 2099'
+          'The year from 1601 to 2099': 'El año de 1601 a 2099',
+          //
+          'NotificationOnAppKillContentTitle':
+              'Es posible que tu alarma no suene!',
+          'NotificationOnAppKillContentBody':
+              'Mataste la aplicación. Vuelve a abrir para que suene la alarma.',
+          //
+          'Invalid File Format!': 'Formato de archivo inválido!',
+          'Only jpeg/jpg and png files are allowed!':
+              'Sólo se permiten archivos lgep/jpg y png!',
+          'Only mp3 files are allowed!': '   Sólo se permiten archivos mp3!   '
         },
       };
 }

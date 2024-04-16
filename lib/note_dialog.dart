@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:maya/helper/maya_style.dart';
 import 'package:provider/provider.dart';
 
 import 'items.dart';
@@ -44,146 +45,126 @@ class _NoteDialogState extends State<NoteDialog> {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             backgroundColor: Colors.black12,
-            body: Stack(children: [
-              Positioned(
-                  top: size.width * 0.055555556, // 20
-                  left: size.width * 0.055555556, // 20
-                  child: Container(
-                      height: size.width * 0.972222222, // 350
-                      width: size.width * 0.888888889, // 320
-                      decoration: BoxDecoration(
-                          image: const DecorationImage(
-                              colorFilter: ColorFilter.mode(
-                                  Colors.green, BlendMode.modulate),
-                              image:
-                                  AssetImage('assets/images/background_A.png'),
-                              fit: BoxFit.cover),
-                          //color: Colors.green[700],
-                          border: Border.all(color: Colors.white, width: 1),
-                          borderRadius: BorderRadius.circular(10),
-                          shape: BoxShape.rectangle),
-                      child: Stack(children: [
-                        Positioned(
-                            top: size.width * 0.027777778, // 10
-                            left: size.width * 0.027777778, // 10
+            body: Align(
+                alignment: const Alignment(0, -0.9),
+                child: SizedBox(
+                    child: Container(
+                        height: size.width * 0.98,
+                        width: size.width * 0.9,
+                        decoration: BoxDecoration(
+                            image: const DecorationImage(
+                                colorFilter: ColorFilter.mode(
+                                    Colors.green, BlendMode.modulate),
+                                image: AssetImage(
+                                    'assets/images/bg_pattern_one.jpg'),
+                                fit: BoxFit.cover),
+                            border: Border.all(color: Colors.white, width: 1),
+                            borderRadius: BorderRadius.circular(10),
+                            shape: BoxShape.rectangle),
+                        child: Padding(
+                            padding: EdgeInsets.all(size.width * 0.028),
                             child: SizedBox(
-                                height: size.width * 0.777777778, // 280
-                                width: size.width * 0.833333334, // 300
-                                child: TextField(
-                                    textAlignVertical: TextAlignVertical.top,
-                                    keyboardType: TextInputType.multiline,
-                                    minLines: null,
-                                    maxLines: null,
-                                    expands: true,
-                                    style: const TextStyle(color: Colors.white),
-                                    obscureText: false,
-                                    decoration: InputDecoration(
-                                        focusedBorder: const OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.white, width: 2)),
-                                        enabledBorder: const OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.white54,
-                                                width: 1)),
-                                        filled: false,
-                                        labelText: 'Note'.tr,
-                                        labelStyle: const TextStyle(
-                                            color: Colors.white54,
-                                            fontWeight: FontWeight.w300),
-                                        floatingLabelStyle: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w300)),
-                                    controller: _noteController))),
-                        Positioned(
-                            top: size.width * 0.833333333, // 300
-                            left: size.width * 0.166666667, // 60
-                            child: SizedBox(
-                                height: size.width * 0.111111111, // 40
-                                width: size.width * 0.333333333, // 120
-                                child: ElevatedButton(
-                                    onPressed: () {
-                                      if (widget.flagCreateChange) {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
-                                      } else {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop(widget.note);
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                        foregroundColor:
-                                            const MaterialStatePropertyAll(
-                                                Colors.white),
-                                        backgroundColor:
-                                            MaterialStateProperty.all(
-                                                Colors.transparent),
-                                        shadowColor: MaterialStateProperty.all(
-                                            Colors.transparent),
-                                        side: MaterialStateProperty.all(
-                                            const BorderSide(
-                                          color: Colors.white,
-                                          width: 1,
-                                        )),
-                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10))),
-                                        textStyle: MaterialStateProperty.all(
-                                            const TextStyle(fontSize: 18)),
-                                        overlayColor: MaterialStateProperty.all(
-                                            Colors.green[400])),
-                                    child: Text('Cancel'.tr)))),
-                        Positioned(
-                            top: size.width * 0.833333333, // 300
-                            left: size.width * 0.527777778, // 190
-                            child: SizedBox(
-                                height: size.width * 0.111111111, // 40
-                                width: size.width * 0.333333333, // 120
-                                child: ElevatedButton(
-                                    onPressed: () {
-                                      if (widget.flagCreateChange) {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
-                                        Provider.of<DayItems>(context,
-                                                listen: false)
-                                            .add(
-                                                widget.yearIndex,
-                                                widget.dayIndex,
-                                                noteItem(
-                                                    widget.yearIndex,
-                                                    widget.dayIndex,
-                                                    _noteController.text,
-                                                    true,
-                                                    0));
-                                      } else {
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop(_noteController.text);
-                                      }
-                                    },
-                                    style: ButtonStyle(
-                                        foregroundColor:
-                                            const MaterialStatePropertyAll(
-                                                Colors.white),
-                                        backgroundColor: MaterialStateProperty.all(
-                                            Colors.transparent),
-                                        shadowColor: MaterialStateProperty.all(
-                                            Colors.transparent),
-                                        side: MaterialStateProperty.all(
-                                            const BorderSide(
-                                                color: Colors.white, width: 1)),
-                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                            RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10))),
-                                        textStyle:
-                                            MaterialStateProperty.all(const TextStyle(fontSize: 18)),
-                                        overlayColor: MaterialStateProperty.all(Colors.green[400])),
-                                    child: Text('Ok'.tr))))
-                      ])))
-            ])));
+                                child: Column(children: [
+                              SizedBox(
+                                  height: size.width * 0.79,
+                                  child: TextField(
+                                      textAlignVertical: TextAlignVertical.top,
+                                      keyboardType: TextInputType.multiline,
+                                      minLines: null,
+                                      maxLines: null,
+                                      expands: true,
+                                      style: const TextStyle(
+                                          color: Colors.white),
+                                      obscureText: false,
+                                      decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: size.width * 0.036,
+                                              horizontal: size.width * 0.03),
+                                          focusedBorder:
+                                              const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 2)),
+                                          enabledBorder:
+                                              const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.white54,
+                                                      width: 1)),
+                                          filled: false,
+                                          labelText: 'Note'.tr,
+                                          labelStyle: const TextStyle(
+                                              color: Colors.white54,
+                                              fontWeight: FontWeight.w300),
+                                          floatingLabelStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w300)),
+                                      controller: _noteController)),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            top: size.width * 0.028,
+                                            right: size.width * 0.028),
+                                        child: SizedBox(
+                                            height: size.width * 0.1,
+                                            width: size.width * 0.3,
+                                            child: ElevatedButton(
+                                                onPressed: () {
+                                                  if (widget.flagCreateChange) {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                  } else {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop([false]);
+                                                  }
+                                                },
+                                                style: MayaStyle()
+                                                    .dialogButtonStyle(
+                                                        Colors.green[400]),
+                                                child: Text('Cancel'.tr)))),
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            top: size.width * 0.028),
+                                        child: SizedBox(
+                                            height: size.width * 0.1,
+                                            width: size.width * 0.3,
+                                            child: ElevatedButton(
+                                                onPressed: () {
+                                                  if (widget.flagCreateChange) {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                    Provider.of<DayItems>(
+                                                            context,
+                                                            listen: false)
+                                                        .add(
+                                                            widget.yearIndex,
+                                                            widget.dayIndex,
+                                                            noteItem(
+                                                                widget
+                                                                    .yearIndex,
+                                                                widget.dayIndex,
+                                                                _noteController
+                                                                    .text,
+                                                                true,
+                                                                0));
+                                                  } else {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop([
+                                                      true,
+                                                      _noteController.text
+                                                    ]);
+                                                  }
+                                                },
+                                                style: MayaStyle()
+                                                    .dialogButtonStyle(
+                                                        Colors.green[400]),
+                                                child: Text('Save'.tr))))
+                                  ])
+                            ]))))))));
   }
 }
