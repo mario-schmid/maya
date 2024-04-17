@@ -497,6 +497,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Alarm.setNotificationOnAppKillContent(
         'NotificationOnAppKillContentTitle'.tr,
         'NotificationOnAppKillContentBody'.tr);
+    checkAudioFiles(Alarm.getAlarms());
 
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
@@ -598,6 +599,27 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
+  checkAudioFiles(List<AlarmSettings> alarms) async {
+    for (int i = 0; i < alarms.length; i++) {
+      if (!await File(alarms[i].assetAudioPath).exists() &&
+          alarms[i].assetAudioPath != 'assets/audio/ringtone.mp3') {
+        Alarm.stop(alarms[i].id);
+        AlarmSettings tmpAlarmSettings = AlarmSettings(
+            id: alarms[i].id,
+            dateTime: alarms[i].dateTime,
+            assetAudioPath: 'assets/audio/ringtone.mp3',
+            loopAudio: alarms[i].loopAudio,
+            vibrate: alarms[i].vibrate,
+            volume: alarms[i].volume,
+            fadeDuration: alarms[i].fadeDuration,
+            notificationTitle: alarms[i].notificationTitle,
+            notificationBody: alarms[i].notificationBody,
+            enableNotificationOnKill: alarms[i].enableNotificationOnKill);
+        Alarm.set(alarmSettings: tmpAlarmSettings);
+      }
+    }
+  }
+
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
