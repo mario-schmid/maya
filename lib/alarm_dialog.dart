@@ -40,7 +40,7 @@ class _ADialogState extends State<ADialog> {
 
   TimeOfDay selectedTime = const TimeOfDay(hour: 00, minute: 00);
 
-  late String alarmSoundPath;
+  late String? alarmSoundPath;
   bool alarmSoundPathChanged = false;
   late AlarmSettings alarmSettings;
 
@@ -256,13 +256,14 @@ class _ADialogState extends State<ADialog> {
                                     dialogType: OpenFileDialogType.document,
                                     sourceType: SourceType.camera,
                                   );
-                                  String? alarmSoundPath =
-                                      await FlutterFileDialog.pickFile(
-                                          params: params);
+                                  alarmSoundPath =
+                                      (await FlutterFileDialog.pickFile(
+                                          params: params));
                                   if (alarmSoundPath != null) {
-                                    String ext = alarmSoundPath.split('.').last;
-                                    if (ext == 'mp3') {
-                                      saveAlarmSoundPath(alarmSoundPath);
+                                    String ext =
+                                        alarmSoundPath!.split('.').last;
+                                    if (ext == 'mp3' || ext == 'wav') {
+                                      saveAlarmSoundPath(alarmSoundPath!);
                                       alarmSoundPathChanged = true;
                                     } else {
                                       if (!context.mounted) return;
@@ -354,7 +355,7 @@ class _ADialogState extends State<ADialog> {
                                                               dateTime:
                                                                   dateTime,
                                                               assetAudioPath:
-                                                                  alarmSoundPath,
+                                                                  alarmSoundPath!,
                                                               loopAudio:
                                                                   loopAudio,
                                                               vibrate: vibrate,
@@ -391,9 +392,13 @@ class _ADialogState extends State<ADialog> {
                                                     dateTime: dateTime,
                                                     assetAudioPath:
                                                         alarmSoundPathChanged
-                                                            ? alarmSoundPath
-                                                            : alarmSettings
-                                                                .assetAudioPath,
+                                                            ? alarmSoundPath!
+                                                            : await File(alarmSettings
+                                                                        .assetAudioPath)
+                                                                    .exists()
+                                                                ? alarmSettings
+                                                                    .assetAudioPath
+                                                                : 'assets/audio/ringtone.mp3',
                                                     loopAudio: loopAudio,
                                                     vibrate: vibrate,
                                                     volume: volume,
@@ -428,7 +433,6 @@ saveAlarmSoundPath(String alarmSoundPath) async {
   prefs.setString(key, alarmSoundPath);
 }
 
-//TODO: testing
 Future<String> readAlarmSoundPath() async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'alarmSoundPath';
@@ -447,7 +451,7 @@ deleteAlarmSoundPath() async {
 
 showAudioFileFormatDialog(BuildContext context, Size size) {
   Size size = GetTextSize().getTextSize(
-      'Only mp3 files are allowed!'.tr, MayaStyle().popUpdialogBody());
+      'Only mp3 or wav files are allowed!'.tr, MayaStyle().popUpdialogBody());
   showDialog<void>(
       context: context,
       //barrierDismissible: true,
@@ -463,7 +467,7 @@ showAudioFileFormatDialog(BuildContext context, Size size) {
                     children: [
                       Text('Invalid File Format!'.tr,
                           style: MayaStyle().popUpdialogTitle()),
-                      Text('\n${'Only mp3 files are allowed!'.tr}',
+                      Text('\n${'Only mp3 or wav files are allowed!'.tr}',
                           style: MayaStyle().popUpdialogBody())
                     ])));
       });
