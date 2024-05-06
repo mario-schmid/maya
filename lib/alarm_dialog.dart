@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:alarm/model/alarm_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:maya/helper/get_text_size.dart';
 import 'package:maya/helper/maya_style.dart';
+import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/time_format.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'items.dart';
@@ -44,6 +44,7 @@ class _ADialogState extends State<ADialog> {
   bool alarmSoundPathChanged = false;
   late AlarmSettings alarmSettings;
 
+  final _alarmControllerTitle = TextEditingController();
   final _alarmControllerDescription = TextEditingController();
 
   late TextStyle textStyle;
@@ -75,7 +76,8 @@ class _ADialogState extends State<ADialog> {
     loopAudio = widget.alarmSettings.loopAudio;
     vibrate = widget.alarmSettings.vibrate;
     volume = widget.alarmSettings.volume!;
-    _alarmControllerDescription.text = widget.alarmSettings.notificationTitle;
+    _alarmControllerTitle.text = widget.alarmSettings.notificationTitle;
+    _alarmControllerDescription.text = widget.alarmSettings.notificationBody;
 
     super.initState();
   }
@@ -140,6 +142,7 @@ class _ADialogState extends State<ADialog> {
 
   @override
   void dispose() {
+    _alarmControllerTitle.dispose();
     _alarmControllerDescription.dispose();
     super.dispose();
   }
@@ -153,7 +156,7 @@ class _ADialogState extends State<ADialog> {
             body: Align(
               alignment: const Alignment(0, -0.9),
               child: Container(
-                  height: size.width * 0.98,
+                  height: size.width * 1.218,
                   width: size.width * 0.9,
                   decoration: BoxDecoration(
                       image: const DecorationImage(
@@ -212,14 +215,52 @@ class _ADialogState extends State<ADialog> {
                                                     color: Colors.white54,
                                                     width: 1)),
                                             filled: false,
-                                            labelText: 'Description'.tr,
+                                            labelText: 'Title'.tr,
                                             labelStyle: const TextStyle(
                                                 color: Colors.white54,
                                                 fontWeight: FontWeight.w300),
                                             floatingLabelStyle: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.w300)),
-                                        controller: _alarmControllerDescription))),
+                                        controller: _alarmControllerTitle))),
+                            Padding(
+                              padding:
+                                  EdgeInsets.only(bottom: size.width * 0.028),
+                              child: SizedBox(
+                                  height: size.width * 0.21,
+                                  child: TextField(
+                                      textAlignVertical: TextAlignVertical.top,
+                                      keyboardType: TextInputType.multiline,
+                                      minLines: null,
+                                      maxLines: null,
+                                      expands: true,
+                                      style: const TextStyle(
+                                          color: Colors.white),
+                                      obscureText: false,
+                                      decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              vertical: size.width * 0.036,
+                                              horizontal: size.width * 0.03),
+                                          focusedBorder:
+                                              const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 2)),
+                                          enabledBorder:
+                                              const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.white54,
+                                                      width: 1)),
+                                          filled: false,
+                                          labelText: 'Description'.tr,
+                                          labelStyle: const TextStyle(
+                                              color: Colors.white54,
+                                              fontWeight: FontWeight.w300),
+                                          floatingLabelStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w300)),
+                                      controller: _alarmControllerDescription)),
+                            ),
                             SizedBox(
                               height: size.width * 0.12,
                               child: SwitchListTile(
@@ -262,7 +303,9 @@ class _ADialogState extends State<ADialog> {
                                   if (alarmSoundPath != null) {
                                     String ext =
                                         alarmSoundPath!.split('.').last;
-                                    if (ext == 'mp3' || ext == 'wav') {
+                                    if (ext == 'mp3' ||
+                                        ext == 'wav' ||
+                                        ext == 'ogg') {
                                       saveAlarmSoundPath(alarmSoundPath!);
                                       alarmSoundPathChanged = true;
                                     } else {
@@ -339,38 +382,34 @@ class _ADialogState extends State<ADialog> {
                                               Navigator.of(context,
                                                       rootNavigator: true)
                                                   .pop();
-                                              Provider.of<DayItems>(
-                                                      context,
-                                                      listen: false)
-                                                  .add(
+                                              Provider.of<DayItems>(context, listen: false).add(
+                                                  widget.yearIndex,
+                                                  widget.dayIndex,
+                                                  alarmItem(
                                                       widget.yearIndex,
                                                       widget.dayIndex,
-                                                      alarmItem(
-                                                          widget.yearIndex,
-                                                          widget.dayIndex,
-                                                          AlarmSettings(
-                                                              id: dateTime
-                                                                      .millisecondsSinceEpoch ~/
-                                                                  60000,
-                                                              dateTime:
-                                                                  dateTime,
-                                                              assetAudioPath:
-                                                                  alarmSoundPath!,
-                                                              loopAudio:
-                                                                  loopAudio,
-                                                              vibrate: vibrate,
-                                                              volume: volume,
-                                                              fadeDuration: 0.5,
-                                                              notificationTitle:
-                                                                  _alarmControllerDescription
-                                                                      .text,
-                                                              notificationBody:
-                                                                  '',
-                                                              enableNotificationOnKill:
-                                                                  true),
-                                                          true,
-                                                          true,
-                                                          0));
+                                                      AlarmSettings(
+                                                          id: dateTime
+                                                                  .millisecondsSinceEpoch ~/
+                                                              60000,
+                                                          dateTime: dateTime,
+                                                          assetAudioPath:
+                                                              alarmSoundPath!,
+                                                          loopAudio: loopAudio,
+                                                          vibrate: vibrate,
+                                                          volume: volume,
+                                                          fadeDuration: 0.5,
+                                                          notificationTitle:
+                                                              _alarmControllerTitle
+                                                                  .text,
+                                                          notificationBody:
+                                                              _alarmControllerDescription
+                                                                  .text,
+                                                          enableNotificationOnKill:
+                                                              true),
+                                                      true,
+                                                      true,
+                                                      0));
                                             } else {
                                               DateFormat dateTimeFormat =
                                                   DateFormat(
@@ -404,9 +443,11 @@ class _ADialogState extends State<ADialog> {
                                                     volume: volume,
                                                     fadeDuration: 0.5,
                                                     notificationTitle:
+                                                        _alarmControllerTitle
+                                                            .text,
+                                                    notificationBody:
                                                         _alarmControllerDescription
                                                             .text,
-                                                    notificationBody: '',
                                                     enableNotificationOnKill:
                                                         true)
                                               ]);
@@ -451,7 +492,7 @@ deleteAlarmSoundPath() async {
 
 showAudioFileFormatDialog(BuildContext context, Size size) {
   Size size = GetTextSize().getTextSize(
-      'Only mp3 or wav files are allowed!'.tr, MayaStyle().popUpdialogBody());
+      'Only mp3, ogg or wav files are allowed!'.tr, MayaStyle.popUpDialogBody);
   showDialog<void>(
       context: context,
       //barrierDismissible: true,
@@ -459,16 +500,16 @@ showAudioFileFormatDialog(BuildContext context, Size size) {
         return Center(
             child: Container(
                 padding: const EdgeInsets.all(20),
-                decoration: MayaStyle().popUpDialogDecoration(),
+                decoration: MayaStyle.popUpDialogDecoration,
                 height: 93,
                 width: size.width + 42,
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text('Invalid File Format!'.tr,
-                          style: MayaStyle().popUpdialogTitle()),
-                      Text('\n${'Only mp3 or wav files are allowed!'.tr}',
-                          style: MayaStyle().popUpdialogBody())
+                          style: MayaStyle.popUpDialogTitle),
+                      Text('\n${'Only mp3, ogg or wav files are allowed!'.tr}',
+                          style: MayaStyle.popUpDialogBody)
                     ])));
       });
 }

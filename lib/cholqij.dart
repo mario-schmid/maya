@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'helper/images.dart';
+import 'helper/maya_images.dart';
 import 'maya_cross_container.dart';
 
 class Cholqij extends StatefulWidget {
@@ -77,7 +77,7 @@ class _CholqijState extends State<Cholqij> {
                                           crossAxisCount: 1,
                                         ),
                                         itemBuilder: (context, index) {
-                                          return signNahual[index];
+                                          return MayaImages().signNahual[index];
                                         })),
                                 SizedBox(
                                     height: size.width * 1.333333333,
@@ -116,7 +116,7 @@ class _CholqijState extends State<Cholqij> {
                                           crossAxisCount: 1,
                                         ),
                                         itemBuilder: (context, index) {
-                                          return signNahual[index];
+                                          return MayaImages().signNahual[index];
                                         }))
                               ])))),
                   Positioned(

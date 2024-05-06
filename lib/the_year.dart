@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
-import 'helper/images.dart';
-import 'helper/lists.dart';
+import 'helper/maya_images.dart';
+import 'helper/maya_lists.dart';
 import 'maya_cross_container.dart';
 import 'methods/update_list.dart';
 import 'selection_dialog.dart';
@@ -128,8 +128,9 @@ class _TheYearState extends State<TheYear> {
             height: 33,
             width: (size.width - 100) / 3.513513514 /*74*/,
             decoration: tableBoxDecoration,
-            child:
-                Center(child: Text(strWinal[winalNr], style: tableTextStyle))),
+            child: Center(
+                child: Text(MayaLists().strWinal[winalNr],
+                    style: tableTextStyle))),
         Container(
             height: 33,
             width: (size.width - 100) / 4.193548387 /*62*/,
@@ -153,9 +154,10 @@ class _TheYearState extends State<TheYear> {
             child: SizedBox(
                 child: Row(children: [
               const SizedBox(width: 4),
-              SizedBox(width: 26, child: imageToneWhiteVertical[tone]),
+              SizedBox(
+                  width: 26, child: MayaImages().imageToneWhiteVertical[tone]),
               const SizedBox(width: 4),
-              SizedBox(width: 62, child: signNahual[nahual]),
+              SizedBox(width: 62, child: MayaImages().signNahual[nahual]),
               const SizedBox(width: 4)
             ]))),
         Container(

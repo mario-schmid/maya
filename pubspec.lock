@@ -5,10 +5,10 @@ packages:
     dependency: "direct main"
     description:
       name: alarm
-      sha256: "6c7e5276040c7e5b0f3536ffab1e2a39ce93656c2c8fc86e0034f2b4b7d7d6cc"
+      sha256: b41a5ea526e2333bcf281bf29f764261c43be73df77d031d4fb8d883101865ca
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.1"
   args:
     dependency: transitive
     description:
@@ -686,5 +686,5 @@ packages:
     source: hosted
     version: "6.5.0"
 sdks:
-  dart: ">=3.3.0 <4.0.0"
+  dart: ">=3.3.3 <4.0.0"
   flutter: ">=3.16.0"

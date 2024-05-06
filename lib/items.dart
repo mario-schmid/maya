@@ -10,8 +10,8 @@ import 'package:maya/providers/yeardata.dart';
 import 'package:maya/time_format.dart';
 import 'package:provider/provider.dart';
 
-import 'data/event.dart';
-import 'data/task.dart';
+import 'data/maya_event.dart';
+import 'data/maya_task.dart';
 import 'database_handler.dart';
 import 'event_dialog.dart';
 import 'main.dart';

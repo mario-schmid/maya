@@ -79,8 +79,8 @@ class LocaleString extends Translations {
           'Invalid File Format!': 'Invalid File Format!',
           'Only jpeg/jpg and png files are allowed!':
               'Only jpeg/jpg and png files are allowed!',
-          'Only mp3 or wav files are allowed!':
-              'Only mp3 or wav files are allowed!'
+          'Only mp3, ogg or wav files are allowed!':
+              'Only mp3, ogg or wav files are allowed!'
         },
         //GERMAN LANGUAGE
         'de_DE': {
@@ -160,8 +160,8 @@ class LocaleString extends Translations {
           'Invalid File Format!': 'Ungültiges Dateiformat!',
           'Only jpeg/jpg and png files are allowed!':
               'Es sind nur jpeg/jpg und png Dateien erlaubt!',
-          'Only mp3 or wav files are allowed!':
-              'Es sind nur mp3 oder wav Dateien erlaubt!'
+          'Only mp3, ogg or wav files are allowed!':
+              'Es sind nur mp3, ogg oder wav Dateien erlaubt!'
         },
         //FRENCH LANGUAGE
         'fr_FR': {
@@ -241,8 +241,8 @@ class LocaleString extends Translations {
           'Invalid File Format!': 'Format de fichier invalide!',
           'Only jpeg/jpg and png files are allowed!':
               'Seuls les fichiers jpeg/jpg et png sont autorisés!',
-          'Only mp3 or wav files are allowed!':
-              'Seuls les fichiers mp3 ou wav sont autorisés!'
+          'Only mp3, ogg or wav files are allowed!':
+              'Seuls les fichiers mp3, ogg ou wav sont autorisés!'
         },
         //SPAIN LANGUAGE
         'es_ES': {
@@ -322,8 +322,8 @@ class LocaleString extends Translations {
           'Invalid File Format!': 'Formato de archivo inválido!',
           'Only jpeg/jpg and png files are allowed!':
               'Sólo se permiten archivos lgep/jpg y png!',
-          'Only mp3 or wav files are allowed!':
-              'Sólo se permiten archivos mp3 o wav!'
+          'Only mp3, ogg or wav files are allowed!':
+              'Sólo se permiten archivos mp3, ogg o wav!'
         },
       };
 }

@@ -5,7 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import 'helper/images.dart';
+import 'helper/maya_images.dart';
 import 'maya_cross_container.dart';
 import 'methods/get_kin_nummber.dart';
 import 'methods/update_list.dart';
@@ -120,13 +120,14 @@ class _TheDayState extends State<TheDay> {
                                           child: SizedBox(
                                               height: 37,
                                               width: 80,
-                                              child: imageToneWhiteCurvedBottom[
+                                              child: MayaImages()
+                                                      .imageToneWhiteCurvedBottom[
                                                   widget.chosenTone])),
                                       SizedBox(
                                           height: 93.333,
                                           width: 100,
-                                          child:
-                                              signNahual[widget.chosenNahual])
+                                          child: MayaImages()
+                                              .signNahual[widget.chosenNahual])
                                     ]))),
                             Column(children: [
                               Padding(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:arrow_path/arrow_path.dart';
 
-import 'helper/images.dart';
+import 'helper/maya_images.dart';
 
 class Relationship extends StatefulWidget {
   final ImageProvider backgroundImage;
@@ -75,7 +75,8 @@ class _RelationshipState extends State<Relationship> {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
-                                    child: imageToneWhiteVertical[i])
+                                    child:
+                                        MayaImages().imageToneWhiteVertical[i])
                             ])),
                     SizedBox(width: size.width * 0.01),
                     SizedBox(
@@ -108,7 +109,8 @@ class _RelationshipState extends State<Relationship> {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
-                                    child: signNahual[(i + 10) % 20])
+                                    child:
+                                        MayaImages().signNahual[(i + 10) % 20])
                             ])),
                     SizedBox(width: size.width * 0.02),
                     SizedBox(
@@ -146,7 +148,8 @@ class _RelationshipState extends State<Relationship> {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
-                                    child: imageToneWhiteVertical[i])
+                                    child:
+                                        MayaImages().imageToneWhiteVertical[i])
                             ])),
                     SizedBox(width: size.width * 0.01),
                     SizedBox(
@@ -179,7 +182,8 @@ class _RelationshipState extends State<Relationship> {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
-                                    child: signNahual[(i + 10) % 20])
+                                    child:
+                                        MayaImages().signNahual[(i + 10) % 20])
                             ]))
                   ])
                 ]),
@@ -228,9 +232,10 @@ Widget resultArrow(Size size, bool result, int tone, int nahual) {
   if (result) {
     return Column(children: [
       SizedBox(
-          height: size.width * 0.1, child: imageToneWhiteCurvedBottom[tone]),
+          height: size.width * 0.1,
+          child: MayaImages().imageToneWhiteCurvedBottom[tone]),
       SizedBox(height: size.width * 0.01),
-      signNahual[nahual],
+      MayaImages().signNahual[nahual],
       SizedBox(height: size.width * 0.11)
     ]);
   } else {

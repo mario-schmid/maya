@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:maya/helper/get_text_size.dart';
+import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/helper/maya_style.dart';
 
-import 'helper/lists.dart';
+import 'helper/maya_lists.dart';
 import 'maya_cross_container.dart';
 import 'methods/get_haab_date.dart';
 import 'methods/get_tone_nahual.dart';
@@ -318,7 +318,7 @@ class _HomeState extends State<DateCalculator> {
                             width: size.width * 0.4,
                             child: Center(
                                 child: Text(
-                                    '${strTone[tone]} ${strNahual[nahual]}',
+                                    '${MayaLists().strTone[tone]} ${MayaLists().strNahual[nahual]}',
                                     style: textStyleResult))),
                         SizedBox(height: size.width * 0.02),
                         mayaCrossContainer(size, widget.backgroundImage,
@@ -330,7 +330,7 @@ class _HomeState extends State<DateCalculator> {
                             width: size.width * 0.4,
                             child: Center(
                                 child: Text(
-                                    '${intHaabDate[0]} ${strWinal[intHaabDate[1]]} $haabYear',
+                                    '${intHaabDate[0]} ${MayaLists().strWinal[intHaabDate[1]]} $haabYear',
                                     style: textStyleResult))),
                         SizedBox(height: size.width * 0.02),
                         Container(
@@ -345,23 +345,23 @@ class _HomeState extends State<DateCalculator> {
       }
     } catch (e) {
       Size size = GetTextSize().getTextSize(
-          'Fill in all fields correctly!'.tr, MayaStyle().popUpdialogBody());
+          'Fill in all fields correctly!'.tr, MayaStyle.popUpDialogBody);
       showDialog<void>(
           context: context,
           builder: (BuildContext context) {
             return Center(
                 child: Container(
                     padding: const EdgeInsets.all(20),
-                    decoration: MayaStyle().popUpDialogDecoration(),
+                    decoration: MayaStyle.popUpDialogDecoration,
                     height: 93,
                     width: size.width + 42,
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text('Invalid characters!'.tr,
-                              style: MayaStyle().popUpdialogTitle()),
+                              style: MayaStyle.popUpDialogTitle),
                           Text('\n${'Fill in all fields correctly!'.tr}',
-                              style: MayaStyle().popUpdialogBody())
+                              style: MayaStyle.popUpDialogBody)
                         ])));
           });
     }
@@ -369,20 +369,20 @@ class _HomeState extends State<DateCalculator> {
 
   void dialog() {
     Size size = GetTextSize().getTextSize(
-        '28 ${'or'.tr} 29 ${'Days'.tr}'.tr, MayaStyle().popUpdialogBody());
+        '28 ${'or'.tr} 29 ${'Days'.tr}'.tr, MayaStyle.popUpDialogBody);
     showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return Center(
               child: Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: MayaStyle().popUpDialogDecoration(),
+                  decoration: MayaStyle.popUpDialogDecoration,
                   height: 349,
                   width: 260,
                   child: Column(children: [
-                    Text('Notice'.tr, style: MayaStyle().popUpdialogTitle()),
+                    Text('Notice'.tr, style: MayaStyle.popUpDialogTitle),
                     Text('\n${'Enter valid date!'.tr}\n',
-                        style: MayaStyle().popUpdialogBody()),
+                        style: MayaStyle.popUpDialogTitle),
                     Table(
                         columnWidths: <int, TableColumnWidth>{
                           0: FixedColumnWidth(260 - 42 - size.width),
@@ -393,81 +393,81 @@ class _HomeState extends State<DateCalculator> {
                         children: <TableRow>[
                           TableRow(children: <Widget>[
                             Text('${'January'.tr}(1)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'February'.tr}(2)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('28 ${'or'.tr} 29 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'March'.tr}(3)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'April'.tr}(4)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('30 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'May'.tr}(5)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'June'.tr}(6)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('30 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'July'.tr}(7)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'August'.tr}(8)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'Septemper'.tr}(9)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('30 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'October'.tr}(10)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'November'.tr}(11)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('30 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                           TableRow(children: <Widget>[
                             Text('${'December'.tr}(12)',
-                                style: MayaStyle().popUpdialogBody()),
+                                style: MayaStyle.popUpDialogBody),
                             Text('31 ${'Days'.tr}',
-                                style: MayaStyle().popUpdialogBody())
+                                style: MayaStyle.popUpDialogBody)
                           ]),
                         ]),
                     Text('\n${'The month from 1 to 12'.tr}',
-                        style: MayaStyle().popUpdialogBody()),
+                        style: MayaStyle.popUpDialogBody),
                     Text('The year from 1601 to 2099'.tr,
-                        style: MayaStyle().popUpdialogBody())
+                        style: MayaStyle.popUpDialogBody)
                   ])));
         });
   }

@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
 
 class MayaStyle {
-  TextStyle popUpdialogTitle() {
-    return const TextStyle(
-        fontFamily: 'Roboto',
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        decoration: TextDecoration.none);
-  }
+  static const TextStyle popUpDialogTitle = TextStyle(
+      fontFamily: 'Robot',
+      color: Colors.white,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      decoration: TextDecoration.none);
 
-  TextStyle popUpdialogBody() {
-    return const TextStyle(
-        fontFamily: 'Roboto',
-        color: Colors.white,
-        fontSize: 14,
-        fontWeight: FontWeight.normal,
-        decoration: TextDecoration.none);
-  }
+  static const TextStyle popUpDialogBody = TextStyle(
+      fontFamily: 'Robot',
+      color: Colors.white,
+      fontSize: 14,
+      fontWeight: FontWeight.normal,
+      decoration: TextDecoration.none);
 
-  Decoration popUpDialogDecoration() {
-    return BoxDecoration(
-        color: Colors.pink[900],
-        border: Border.all(width: 1, color: Colors.white),
-        borderRadius: const BorderRadius.all(Radius.circular(10)));
-  }
+  static BoxDecoration popUpDialogDecoration = BoxDecoration(
+      color: Colors.pink[900],
+      border: Border.all(width: 1, color: Colors.white),
+      borderRadius: const BorderRadius.all(Radius.circular(10)));
 
   ButtonStyle dialogButtonStyle(Color? overlayColor) {
     return ButtonStyle(

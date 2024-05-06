@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'helper/images.dart';
+import 'helper/maya_images.dart';
 
 Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
     Color mainColor, int tone, int nahual) {
@@ -56,11 +56,12 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
               SizedBox(height: paddingToneNahual),
               SizedBox(
                   height: heightTone,
-                  child: imageToneWhiteCurvedBottom[tonesDirections[0]]),
+                  child: MayaImages()
+                      .imageToneWhiteCurvedBottom[tonesDirections[0]]),
               SizedBox(height: paddingToneNahual),
               SizedBox(
                   height: heightNahual,
-                  child: signNahual[nahualesDirections[0]])
+                  child: MayaImages().signNahual[nahualesDirections[0]])
             ])),
         SizedBox(height: padding),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -83,11 +84,12 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
                 SizedBox(height: paddingToneNahual),
                 SizedBox(
                     height: heightTone,
-                    child: imageToneWhiteCurvedBottom[tonesDirections[2]]),
+                    child: MayaImages()
+                        .imageToneWhiteCurvedBottom[tonesDirections[2]]),
                 SizedBox(height: paddingToneNahual),
                 SizedBox(
                     height: heightNahual,
-                    child: signNahual[nahualesDirections[2]])
+                    child: MayaImages().signNahual[nahualesDirections[2]])
               ])),
           SizedBox(width: padding),
           Container(
@@ -98,9 +100,11 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
                 SizedBox(height: paddingToneNahual),
                 SizedBox(
                     height: heightTone,
-                    child: imageToneWhiteCurvedBottom[tone]),
+                    child: MayaImages().imageToneWhiteCurvedBottom[tone]),
                 SizedBox(height: paddingToneNahual),
-                SizedBox(height: heightNahual, child: signNahual[nahual])
+                SizedBox(
+                    height: heightNahual,
+                    child: MayaImages().signNahual[nahual])
               ])),
           SizedBox(width: padding),
           Container(
@@ -111,11 +115,12 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
                 SizedBox(height: paddingToneNahual),
                 SizedBox(
                     height: heightTone,
-                    child: imageToneWhiteCurvedBottom[tonesDirections[3]]),
+                    child: MayaImages()
+                        .imageToneWhiteCurvedBottom[tonesDirections[3]]),
                 SizedBox(height: paddingToneNahual),
                 SizedBox(
                     height: heightNahual,
-                    child: signNahual[nahualesDirections[3]])
+                    child: MayaImages().signNahual[nahualesDirections[3]])
               ])),
           SizedBox(
               width: sizeTextBox,
@@ -137,11 +142,12 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
               SizedBox(height: paddingToneNahual),
               SizedBox(
                   height: heightTone,
-                  child: imageToneWhiteCurvedBottom[tonesDirections[1]]),
+                  child: MayaImages()
+                      .imageToneWhiteCurvedBottom[tonesDirections[1]]),
               SizedBox(height: paddingToneNahual),
               SizedBox(
                   height: heightNahual,
-                  child: signNahual[nahualesDirections[1]])
+                  child: MayaImages().signNahual[nahualesDirections[1]])
             ])),
         SizedBox(
             height: sizeTextBox,

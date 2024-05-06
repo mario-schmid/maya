@@ -12,13 +12,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:maya/data/maya_alarm.dart';
-import 'package:maya/data/event.dart';
-import 'package:maya/data/task.dart';
-import 'package:maya/helper/get_text_size.dart';
-import 'package:maya/helper/images.dart';
-import 'package:maya/helper/lists.dart';
+import 'package:maya/data/maya_event.dart';
+import 'package:maya/data/maya_task.dart';
+import 'package:maya/helper/maya_images.dart';
+import 'package:maya/helper/maya_lists.dart';
 import 'package:maya/helper/maya_style.dart';
 import 'package:maya/methods/get_delda_year.dart';
+import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/yeardata.dart';
 import 'package:maya/relationship.dart';
@@ -30,7 +30,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'cholqij.dart';
 import 'classes/position.dart';
 import 'color_picker.dart';
-import 'data/day.dart';
+import 'data/maya_day.dart';
 import 'database_handler.dart';
 import 'date_calculator.dart';
 import 'globals.dart';
@@ -46,7 +46,7 @@ import 'time_format.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
+Future<void> main() async {
 /* ------------------------------------------------------------------------ */
 /* Assets for precacheImage                                                 */
 /*                                                                          */
@@ -58,7 +58,6 @@ void main() async {
     'assets/images/shape_button_moon.png',
     'assets/images/gearNahuales.png',
     'assets/images/gearTones.png',
-    'assets/images/leaves.jpg',
     'assets/images/sandstone.png',
     'assets/images/sandstoneCircle.png',
     'assets/images/sandstoneForm_bottom.png',
@@ -70,6 +69,9 @@ void main() async {
     'assets/images/trecenaRed.png',
     'assets/images/trecenaWhite.png',
     'assets/images/trecenaYellow.png',
+    //
+    'assets/images/transparent.png',
+    'assets/images/bgalarm.jpg',
     //
     'assets/images/icons/hunabku.png',
     //
@@ -178,8 +180,8 @@ void main() async {
     'assets/images/nahuales/18_kawoq.png',
     'assets/images/nahuales/19_ajpu.png',
     //
-    'assets/images/bg_pattern_two.jpg',
     'assets/images/bg_pattern_one.jpg',
+    'assets/images/bg_pattern_two.jpg',
     'assets/images/bg_pattern_three.jpg',
     //
     'assets/images/cholqij_field_red.jpg',
@@ -209,17 +211,18 @@ class MayaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => DayItems()),
-          ChangeNotifierProvider(create: (context) => YearData())
-        ],
-        child: GetMaterialApp(
-            navigatorKey: navigatorKey,
-            translations: LocaleString(),
-            locale: const Locale('en', 'GB'),
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(fontFamily: 'Roboto'),
-            home: const Home()));
+      providers: [
+        ChangeNotifierProvider(create: (context) => DayItems()),
+        ChangeNotifierProvider(create: (context) => YearData())
+      ],
+      child: GetMaterialApp(
+          navigatorKey: navigatorKey,
+          translations: LocaleString(),
+          locale: const Locale('en', 'GB'),
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(fontFamily: 'Roboto'),
+          home: const Home()),
+    );
   }
 }
 
@@ -232,6 +235,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
   DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+
+  late String? bgFilePath;
+  ImageProvider backgroundImage =
+      const AssetImage('assets/images/transparent.png');
+  ImageProvider backgroundAlarm = const AssetImage('assets/images/bgalarm.jpg');
   /* ------------------------------------------------------------------------ */
   /* Positions and Sizes                                                      */
   /*                                                                          */
@@ -338,7 +346,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* Positions and Sizes - END                                       */
   /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* Varibles                                                                 */
   /*                                                                          */
@@ -478,10 +485,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   late List<AlarmSettings> alarms;
   static StreamSubscription<AlarmSettings>? subscription;
+
   /*                                                                          */
   /* Varibles - END                                                           */
   /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* initState                                                                */
   /*                                                                          */
@@ -494,10 +501,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     subscription ??= Alarm.ringStream.stream.listen(
       (alarmSettings) => navigateToRingScreen(alarmSettings),
     );
-    Alarm.setNotificationOnAppKillContent(
-        'NotificationOnAppKillContentTitle'.tr,
-        'NotificationOnAppKillContentBody'.tr);
-    checkAudioFiles(Alarm.getAlarms());
+    //TODO: remove
+    //checkAudioFiles(Alarm.getAlarms());
 
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
@@ -591,8 +596,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     currTrecenaMask = trecenaMask[trecenaColor];
 
-    strTextToneNahual = '${strTone[tone]}\n${strNahual[nahual]}';
-
+    strTextToneNahual =
+        '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
     super.initState();
   }
 
@@ -667,14 +672,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   enableNotificationOnKill:
                       alarmList[i][12] == 0 ? false : true),
               alarmList[i][13] == 0 ? false : true));
-
-      /*if (alarmList[i][13] == 1) {
-        await Alarm.set(
-            alarmSettings: YearData()
-                .yearData[alarmList[i][0]][alarmList[i][1]]
-                .alarmList[i]
-                .alarmSettings);
-      }*/
     }
     for (int i = 0; i < arrangementList.length; i++) {
       int l = 0;
@@ -826,24 +823,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* loadMainColor - END                                                      */
   /* ------------------------------------------------------------------------ */
-  late String? bgFilePath;
-  ImageProvider backgroundImage = const AssetImage('assets/images/leaves.jpg');
   /* ------------------------------------------------------------------------ */
   /* loadBgFilePath                                                           */
-  /*                                                                          */
   loadBgFilePath() async {
     backgroundImage = await readBgFilePath();
   }
 
   /*                                                                          */
-  /* loadBgFilePath - END                                                     */
+  /* loadBgFilePath - END                                                      */
+  /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AlarmRingScreen(
-            backgroundImage: backgroundImage, alarmSettings: alarmSettings),
+            backgroundImage: backgroundAlarm, alarmSettings: alarmSettings),
       ),
     );
   }
@@ -888,7 +883,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         cNahual = 0;
       }
 
-      strTextToneNahual = '${strTone[cTone]}\n${strNahual[cNahual]}';
+      strTextToneNahual =
+          '${MayaLists().strTone[cTone]}\n${MayaLists().strNahual[cNahual]}';
 
       kin++;
       if (kin > 19) {
@@ -955,7 +951,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       cNahual = nahual;
       nAngle = 0;
 
-      strTextToneNahual = '${strTone[tone]}\n${strNahual[nahual]}';
+      strTextToneNahual =
+          '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
 
       baktun = cBaktun;
       katun = cKatun;
@@ -1010,8 +1007,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Padding(
                       padding: EdgeInsets.all(size.width * 0.03),
                       child: Image(
-                          image: const AssetImage(
-                              "assets/images/icons/hunabku.png"),
+                          image: AssetImage("assets/images/icons/hunabku.png"),
                           height: size.width * 0.34,
                           width: size.width * 0.34))),
               Divider(
@@ -1649,8 +1645,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             height: double.infinity,
             width: double.infinity,
             decoration: BoxDecoration(
-                image:
-                    DecorationImage(image: backgroundImage, fit: BoxFit.cover)),
+              image: DecorationImage(
+                image: backgroundImage,
+                fit: BoxFit.cover,
+              ),
+            ),
             child: Stack(children: [
               Positioned(
                   top: posBoxTime.top,
@@ -1763,7 +1762,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                                       .width,
                                                               child: Center(
                                                                   child: Text(
-                                                                      strWinal[i],
+                                                                      MayaLists()
+                                                                          .strWinal[i],
                                                                       style: textStyleStrWinal))))))
                                           ])))),
                             Positioned(
@@ -1852,8 +1852,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                                     .width,
                                                             child: Center(
                                                                 child: Text(
-                                                                    strWinal[
-                                                                        18],
+                                                                    MayaLists()
+                                                                        .strWinal[18],
                                                                     style: textStyleStrWinal)))))),
                                           Positioned(
                                               top: posBoxTextWinalWayeb.top,
@@ -1876,7 +1876,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                                   .width,
                                                           child: Center(
                                                               child: Text(
-                                                                  strWinal[0],
+                                                                  MayaLists()
+                                                                          .strWinal[
+                                                                      0],
                                                                   style:
                                                                       textStyleStrWinal))))))
                                         ]))))
@@ -2022,7 +2024,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   }
 
                                   strTextToneNahual =
-                                      '${strTone[cTone]}\n${strNahual[cNahual]}';
+                                      '${MayaLists().strTone[cTone]}\n${MayaLists().strNahual[cNahual]}';
 
                                   kin++;
                                   if (kin > 19) {
@@ -2056,7 +2058,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   }
 
                                   strTextToneNahual =
-                                      '${strTone[cTone]}\n${strNahual[cNahual]}';
+                                      '${MayaLists().strTone[cTone]}\n${MayaLists().strNahual[cNahual]}';
 
                                   kin--;
                                   if (kin < 0) {
@@ -2126,7 +2128,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             child: SizedBox(
                                                 height: sizeSignNahual.height,
                                                 width: sizeSignNahual.width,
-                                                child: signNahual[i])))
+                                                child: MayaImages()
+                                                    .signNahual[i])))
                                 ])));
                       }))),
               Positioned(
@@ -2168,7 +2171,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         child: SizedBox(
                                             height: sizeSignTone.height,
                                             width: sizeSignTone.width,
-                                            child: imageToneWhiteVertical[i])))
+                                            child: MayaImages()
+                                                .imageToneWhiteVertical[i])))
                             ])
                           ])))),
               Positioned(
@@ -2461,15 +2465,11 @@ deleteMainColor() async {
 Future<ImageProvider> readBgFilePath() async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'bgFilePath';
-  String bgFilePath = prefs.getString(key) ?? '';
-  if (bgFilePath.isEmpty) {
+  String bgFilePath = prefs.getString(key) ?? 'assets/images/leaves.jpg';
+  if (!await File(bgFilePath).exists()) {
     return const AssetImage('assets/images/leaves.jpg');
   } else {
-    if (await File(bgFilePath).exists()) {
-      return FileImage(File(bgFilePath));
-    } else {
-      return const AssetImage('assets/images/leaves.jpg');
-    }
+    return FileImage(File(bgFilePath));
   }
 }
 
@@ -2509,24 +2509,23 @@ Future<void> checkAndroidNotificationPermission() async {
 
 showImageFileFormatDialog(BuildContext context, Size size) {
   Size size = GetTextSize().getTextSize(
-      'Only jpeg/jpg and png files are allowed!'.tr,
-      MayaStyle().popUpdialogBody());
+      'Only jpeg/jpg and png files are allowed!'.tr, MayaStyle.popUpDialogBody);
   showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return Center(
             child: Container(
                 padding: const EdgeInsets.all(20),
-                decoration: MayaStyle().popUpDialogDecoration(),
+                decoration: MayaStyle.popUpDialogDecoration,
                 height: 93,
                 width: size.width + 42,
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text('Invalid File Format!'.tr,
-                          style: MayaStyle().popUpdialogTitle()),
+                          style: MayaStyle.popUpDialogTitle),
                       Text('\n${'Only jpeg/jpg and png files are allowed!'.tr}',
-                          style: MayaStyle().popUpdialogBody())
+                          style: MayaStyle.popUpDialogBody)
                     ])));
       });
 }

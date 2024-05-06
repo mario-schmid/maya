@@ -1,6 +1,6 @@
 import 'maya_alarm.dart';
-import 'event.dart';
-import 'task.dart';
+import 'maya_event.dart';
+import 'maya_task.dart';
 
 class Day {
   List<Event> eventList = <Event>[];
