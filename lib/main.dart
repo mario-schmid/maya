@@ -71,7 +71,6 @@ Future<void> main() async {
     'assets/images/trecenaYellow.png',
     //
     'assets/images/transparent.png',
-    'assets/images/bgalarm.jpg',
     //
     'assets/images/icons/hunabku.png',
     //
@@ -239,7 +238,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late String? bgFilePath;
   ImageProvider backgroundImage =
       const AssetImage('assets/images/transparent.png');
-  ImageProvider backgroundAlarm = const AssetImage('assets/images/bgalarm.jpg');
   /* ------------------------------------------------------------------------ */
   /* Positions and Sizes                                                      */
   /*                                                                          */
@@ -837,8 +835,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AlarmRingScreen(
-            backgroundImage: backgroundAlarm, alarmSettings: alarmSettings),
+        builder: (context) => AlarmRingScreen(alarmSettings: alarmSettings),
       ),
     );
   }
@@ -1007,7 +1004,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Padding(
                       padding: EdgeInsets.all(size.width * 0.03),
                       child: Image(
-                          image: AssetImage("assets/images/icons/hunabku.png"),
+                          image: const AssetImage("assets/images/icons/hunabku.png"),
                           height: size.width * 0.34,
                           width: size.width * 0.34))),
               Divider(

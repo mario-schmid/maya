@@ -9,11 +9,9 @@ import 'package:maya/providers/yeardata.dart';
 import 'package:provider/provider.dart';
 
 class AlarmRingScreen extends StatelessWidget {
-  final ImageProvider backgroundImage;
   final AlarmSettings alarmSettings;
 
-  const AlarmRingScreen(
-      {super.key, required this.backgroundImage, required this.alarmSettings});
+  const AlarmRingScreen({super.key, required this.alarmSettings});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +19,12 @@ class AlarmRingScreen extends StatelessWidget {
         body: Container(
             height: double.infinity,
             width: double.infinity,
-            decoration: BoxDecoration(
-                image:
-                    DecorationImage(image: backgroundImage, fit: BoxFit.cover)),
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                    colorFilter:
+                        ColorFilter.mode(Colors.red, BlendMode.modulate),
+                    image: AssetImage('assets/images/bg_pattern_one.jpg'),
+                    fit: BoxFit.cover)),
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [

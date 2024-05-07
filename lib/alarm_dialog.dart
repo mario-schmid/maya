@@ -154,247 +154,294 @@ class _ADialogState extends State<ADialog> {
         home: Scaffold(
             backgroundColor: Colors.black12,
             body: Align(
-              alignment: const Alignment(0, -0.9),
-              child: Container(
-                  height: size.width * 1.218,
-                  width: size.width * 0.9,
-                  decoration: BoxDecoration(
-                      image: const DecorationImage(
-                          colorFilter:
-                              ColorFilter.mode(Colors.red, BlendMode.modulate),
-                          image: AssetImage('assets/images/bg_pattern_one.jpg'),
-                          fit: BoxFit.cover),
-                      border: Border.all(color: Colors.white, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                      shape: BoxShape.rectangle),
-                  child: Padding(
-                    padding: EdgeInsets.all(size.width * 0.028),
-                    child: SizedBox(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(bottom: size.width * 0.028),
-                              child: GestureDetector(
-                                onTap: () {
-                                  _selectTime(context);
-                                },
-                                child: Container(
-                                  height: size.width * 0.12,
-                                  width: size.width * 0.3,
-                                  decoration: boxDecoration,
-                                  child: Center(
-                                      child: Text(_time,
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: size.width * 0.06))),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                                padding:
-                                    EdgeInsets.only(bottom: size.width * 0.028),
-                                child: SizedBox(
-                                    height: size.width * 0.14,
-                                    child: TextField(
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                        obscureText: false,
-                                        decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.symmetric(
-                                                vertical: size.width * 0.036,
-                                                horizontal: size.width * 0.03),
-                                            focusedBorder: const OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Colors.white,
-                                                    width: 2)),
-                                            enabledBorder: const OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Colors.white54,
-                                                    width: 1)),
-                                            filled: false,
-                                            labelText: 'Title'.tr,
-                                            labelStyle: const TextStyle(
-                                                color: Colors.white54,
-                                                fontWeight: FontWeight.w300),
-                                            floatingLabelStyle: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w300)),
-                                        controller: _alarmControllerTitle))),
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(bottom: size.width * 0.028),
-                              child: SizedBox(
-                                  height: size.width * 0.21,
-                                  child: TextField(
-                                      textAlignVertical: TextAlignVertical.top,
-                                      keyboardType: TextInputType.multiline,
-                                      minLines: null,
-                                      maxLines: null,
-                                      expands: true,
-                                      style: const TextStyle(
-                                          color: Colors.white),
-                                      obscureText: false,
-                                      decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              vertical: size.width * 0.036,
-                                              horizontal: size.width * 0.03),
-                                          focusedBorder:
-                                              const OutlineInputBorder(
+                alignment: const Alignment(0, -0.9),
+                child: Container(
+                    height: size.width * 1.218,
+                    width: size.width * 0.9,
+                    decoration: BoxDecoration(
+                        image: const DecorationImage(
+                            colorFilter: ColorFilter.mode(
+                                Colors.red, BlendMode.modulate),
+                            image:
+                                AssetImage('assets/images/bg_pattern_one.jpg'),
+                            fit: BoxFit.cover),
+                        border: Border.all(color: Colors.white, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        shape: BoxShape.rectangle),
+                    child: Padding(
+                        padding: EdgeInsets.all(size.width * 0.028),
+                        child: SizedBox(
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                              Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: size.width * 0.028),
+                                  child: GestureDetector(
+                                      onTap: () {
+                                        _selectTime(context);
+                                      },
+                                      child: Container(
+                                          height: size.width * 0.12,
+                                          width: size.width * 0.3,
+                                          decoration: boxDecoration,
+                                          child: Center(
+                                              child: Text(_time,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: size.width *
+                                                          0.06)))))),
+                              Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: size.width * 0.028),
+                                  child: SizedBox(
+                                      height: size.width * 0.14,
+                                      child: TextField(
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                          obscureText: false,
+                                          decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.symmetric(
+                                                  vertical: size.width * 0.036,
+                                                  horizontal:
+                                                      size.width * 0.03),
+                                              focusedBorder: const OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors.white,
                                                       width: 2)),
-                                          enabledBorder:
-                                              const OutlineInputBorder(
+                                              enabledBorder:
+                                                  const OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: Colors.white54,
+                                                          width: 1)),
+                                              filled: false,
+                                              labelText: 'Title'.tr,
+                                              labelStyle: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontWeight: FontWeight.w300),
+                                              floatingLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w300)),
+                                          controller: _alarmControllerTitle))),
+                              Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: size.width * 0.028),
+                                  child: SizedBox(
+                                      height: size.width * 0.21,
+                                      child: TextField(
+                                          textAlignVertical:
+                                              TextAlignVertical.top,
+                                          keyboardType: TextInputType.multiline,
+                                          minLines: null,
+                                          maxLines: null,
+                                          expands: true,
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                          obscureText: false,
+                                          decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.symmetric(
+                                                  vertical: size.width * 0.036,
+                                                  horizontal:
+                                                      size.width * 0.03),
+                                              focusedBorder: const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 2)),
+                                              enabledBorder: const OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors.white54,
                                                       width: 1)),
-                                          filled: false,
-                                          labelText: 'Description'.tr,
-                                          labelStyle: const TextStyle(
-                                              color: Colors.white54,
-                                              fontWeight: FontWeight.w300),
-                                          floatingLabelStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w300)),
-                                      controller: _alarmControllerDescription)),
-                            ),
-                            SizedBox(
-                              height: size.width * 0.12,
-                              child: SwitchListTile(
-                                  inactiveThumbColor: Colors.indigo[400],
-                                  activeColor: Colors.white,
-                                  title: Text('Loop alarm audio'.tr,
-                                      style: textStyle),
-                                  value: loopAudio,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      loopAudio = value!;
-                                    });
-                                  }),
-                            ),
-                            SizedBox(
-                              height: size.width * 0.12,
-                              child: SwitchListTile(
-                                  inactiveThumbColor: Colors.indigo[400],
-                                  activeColor: Colors.white,
-                                  title: Text('Vibrate'.tr, style: textStyle),
-                                  value: vibrate,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      vibrate = value!;
-                                    });
-                                  }),
-                            ),
-                            SizedBox(
-                              height: size.width * 0.1,
-                              width: size.width * 0.1,
-                              child: RawMaterialButton(
-                                onPressed: () async {
-                                  const params = OpenFileDialogParams(
-                                    dialogType: OpenFileDialogType.document,
-                                    sourceType: SourceType.camera,
-                                  );
-                                  alarmSoundPath =
-                                      (await FlutterFileDialog.pickFile(
-                                          params: params));
-                                  if (alarmSoundPath != null) {
-                                    String ext =
-                                        alarmSoundPath!.split('.').last;
-                                    if (ext == 'mp3' ||
-                                        ext == 'wav' ||
-                                        ext == 'ogg') {
-                                      saveAlarmSoundPath(alarmSoundPath!);
-                                      alarmSoundPathChanged = true;
-                                    } else {
-                                      if (!context.mounted) return;
-                                      showAudioFileFormatDialog(context, size);
-                                      loadAlarmSoundPath();
-                                    }
-                                  } else {
-                                    loadAlarmSoundPath();
-                                  }
-                                },
-                                onLongPress: () {
-                                  alarmSoundPath = 'assets/audio/ringtone.mp3';
-                                  deleteAlarmSoundPath();
-                                  alarmSoundPathChanged = true;
-                                },
-                                child: SvgPicture.asset(
-                                    'assets/vector_graphics/music_icon.svg',
-                                    height: size.width * 0.1,
-                                    width: size.width * 0.1),
-                              ),
-                            ),
-                            SizedBox(
-                              height: size.width * 0.134,
-                              child: Slider(
-                                  activeColor: Colors.indigo[400],
-                                  min: 0.0,
-                                  max: 1.0,
-                                  value: volume,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      volume = value;
-                                    });
-                                  }),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      top: size.width * 0.028,
-                                      right: size.width * 0.028),
-                                  child: SizedBox(
-                                      height: size.width * 0.1,
-                                      width: size.width * 0.3,
-                                      child: ElevatedButton(
-                                          onPressed: () {
-                                            if (widget.flagCreateChange) {
-                                              Navigator.of(context,
-                                                      rootNavigator: true)
-                                                  .pop();
-                                            } else {
-                                              Navigator.of(context,
-                                                      rootNavigator: true)
-                                                  .pop([false]);
-                                            }
-                                          },
-                                          style: MayaStyle().dialogButtonStyle(
-                                              Colors.indigo[400]),
-                                          child: Text('Cancel'.tr))),
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(top: size.width * 0.028),
-                                  child: SizedBox(
-                                      height: size.width * 0.1,
-                                      width: size.width * 0.3,
-                                      child: ElevatedButton(
-                                          onPressed: () async {
-                                            if (widget.flagCreateChange) {
-                                              dateTime = dateTime.add(Duration(
-                                                  hours: int.parse(_hour) - 1,
-                                                  minutes: int.parse(_minute)));
-                                              Navigator.of(context,
-                                                      rootNavigator: true)
-                                                  .pop();
-                                              Provider.of<DayItems>(context, listen: false).add(
-                                                  widget.yearIndex,
-                                                  widget.dayIndex,
-                                                  alarmItem(
-                                                      widget.yearIndex,
-                                                      widget.dayIndex,
+                                              filled: false,
+                                              labelText: 'Description'.tr,
+                                              labelStyle: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontWeight: FontWeight.w300),
+                                              floatingLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w300)),
+                                          controller: _alarmControllerDescription))),
+                              SizedBox(
+                                  height: size.width * 0.12,
+                                  child: SwitchListTile(
+                                      inactiveThumbColor: Colors.indigo[400],
+                                      activeColor: Colors.white,
+                                      title: Text('Loop alarm audio'.tr,
+                                          style: textStyle),
+                                      value: loopAudio,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          loopAudio = value!;
+                                        });
+                                      })),
+                              SizedBox(
+                                  height: size.width * 0.12,
+                                  child: SwitchListTile(
+                                      inactiveThumbColor: Colors.indigo[400],
+                                      activeColor: Colors.white,
+                                      title:
+                                          Text('Vibrate'.tr, style: textStyle),
+                                      value: vibrate,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          vibrate = value!;
+                                        });
+                                      })),
+                              SizedBox(
+                                  height: size.width * 0.1,
+                                  width: size.width * 0.1,
+                                  child: RawMaterialButton(
+                                      onPressed: () async {
+                                        const params = OpenFileDialogParams(
+                                          dialogType:
+                                              OpenFileDialogType.document,
+                                          sourceType: SourceType.camera,
+                                        );
+                                        alarmSoundPath =
+                                            (await FlutterFileDialog.pickFile(
+                                                params: params));
+                                        if (alarmSoundPath != null) {
+                                          String ext =
+                                              alarmSoundPath!.split('.').last;
+                                          if (ext == 'mp3' ||
+                                              ext == 'wav' ||
+                                              ext == 'ogg') {
+                                            saveAlarmSoundPath(alarmSoundPath!);
+                                            alarmSoundPathChanged = true;
+                                          } else {
+                                            if (!context.mounted) return;
+                                            showAudioFileFormatDialog(
+                                                context, size);
+                                            loadAlarmSoundPath();
+                                          }
+                                        } else {
+                                          loadAlarmSoundPath();
+                                        }
+                                      },
+                                      onLongPress: () {
+                                        alarmSoundPath =
+                                            'assets/audio/ringtone.mp3';
+                                        deleteAlarmSoundPath();
+                                        alarmSoundPathChanged = true;
+                                      },
+                                      child: SvgPicture.asset(
+                                          'assets/vector_graphics/music_icon.svg',
+                                          height: size.width * 0.1,
+                                          width: size.width * 0.1))),
+                              SizedBox(
+                                  height: size.width * 0.134,
+                                  child: Slider(
+                                      activeColor: Colors.indigo[400],
+                                      min: 0.0,
+                                      max: 1.0,
+                                      value: volume,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          volume = value;
+                                        });
+                                      })),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            top: size.width * 0.028,
+                                            right: size.width * 0.028),
+                                        child: SizedBox(
+                                            height: size.width * 0.1,
+                                            width: size.width * 0.3,
+                                            child: ElevatedButton(
+                                                onPressed: () {
+                                                  if (widget.flagCreateChange) {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                  } else {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop([false]);
+                                                  }
+                                                },
+                                                style: MayaStyle()
+                                                    .dialogButtonStyle(
+                                                        Colors.indigo[400]),
+                                                child: Text('Cancel'.tr)))),
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            top: size.width * 0.028),
+                                        child: SizedBox(
+                                            height: size.width * 0.1,
+                                            width: size.width * 0.3,
+                                            child: ElevatedButton(
+                                                onPressed: () async {
+                                                  if (widget.flagCreateChange) {
+                                                    dateTime = dateTime.add(
+                                                        Duration(
+                                                            hours: int.parse(
+                                                                    _hour) -
+                                                                1,
+                                                            minutes: int.parse(
+                                                                _minute)));
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
+                                                    Provider.of<DayItems>(context, listen: false).add(
+                                                        widget.yearIndex,
+                                                        widget.dayIndex,
+                                                        alarmItem(
+                                                            widget.yearIndex,
+                                                            widget.dayIndex,
+                                                            AlarmSettings(
+                                                                id: dateTime
+                                                                        .millisecondsSinceEpoch ~/
+                                                                    60000,
+                                                                dateTime:
+                                                                    dateTime,
+                                                                assetAudioPath:
+                                                                    alarmSoundPath!,
+                                                                loopAudio:
+                                                                    loopAudio,
+                                                                vibrate:
+                                                                    vibrate,
+                                                                volume: volume,
+                                                                fadeDuration:
+                                                                    0.5,
+                                                                notificationTitle:
+                                                                    _alarmControllerTitle
+                                                                        .text,
+                                                                notificationBody:
+                                                                    _alarmControllerDescription
+                                                                        .text,
+                                                                enableNotificationOnKill:
+                                                                    true),
+                                                            true,
+                                                            true,
+                                                            0));
+                                                  } else {
+                                                    DateFormat dateTimeFormat =
+                                                        DateFormat(
+                                                            "dd.MM.yyyy HH:mm");
+                                                    DateFormat dateFormat =
+                                                        DateFormat(
+                                                            "dd.MM.yyyy");
+                                                    String strDate = dateFormat
+                                                        .format(dateTime);
+                                                    dateTime = dateTimeFormat.parse(
+                                                        '$strDate $_hour:$_minute');
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop([
+                                                      true,
                                                       AlarmSettings(
                                                           id: dateTime
                                                                   .millisecondsSinceEpoch ~/
                                                               60000,
                                                           dateTime: dateTime,
                                                           assetAudioPath:
-                                                              alarmSoundPath!,
+                                                              alarmSoundPathChanged
+                                                                  ? alarmSoundPath!
+                                                                  : await File(alarmSettings
+                                                                              .assetAudioPath)
+                                                                          .exists()
+                                                                      ? alarmSettings
+                                                                          .assetAudioPath
+                                                                      : 'assets/audio/ringtone.mp3',
                                                           loopAudio: loopAudio,
                                                           vibrate: vibrate,
                                                           volume: volume,
@@ -406,63 +453,16 @@ class _ADialogState extends State<ADialog> {
                                                               _alarmControllerDescription
                                                                   .text,
                                                           enableNotificationOnKill:
-                                                              true),
-                                                      true,
-                                                      true,
-                                                      0));
-                                            } else {
-                                              DateFormat dateTimeFormat =
-                                                  DateFormat(
-                                                      "dd.MM.yyyy HH:mm");
-                                              DateFormat dateFormat =
-                                                  DateFormat("dd.MM.yyyy");
-                                              String strDate =
-                                                  dateFormat.format(dateTime);
-                                              dateTime = dateTimeFormat.parse(
-                                                  '$strDate $_hour:$_minute');
-                                              Navigator.of(context,
-                                                      rootNavigator: true)
-                                                  .pop([
-                                                true,
-                                                AlarmSettings(
-                                                    id: dateTime
-                                                            .millisecondsSinceEpoch ~/
-                                                        60000,
-                                                    dateTime: dateTime,
-                                                    assetAudioPath:
-                                                        alarmSoundPathChanged
-                                                            ? alarmSoundPath!
-                                                            : await File(alarmSettings
-                                                                        .assetAudioPath)
-                                                                    .exists()
-                                                                ? alarmSettings
-                                                                    .assetAudioPath
-                                                                : 'assets/audio/ringtone.mp3',
-                                                    loopAudio: loopAudio,
-                                                    vibrate: vibrate,
-                                                    volume: volume,
-                                                    fadeDuration: 0.5,
-                                                    notificationTitle:
-                                                        _alarmControllerTitle
-                                                            .text,
-                                                    notificationBody:
-                                                        _alarmControllerDescription
-                                                            .text,
-                                                    enableNotificationOnKill:
-                                                        true)
-                                              ]);
-                                            }
-                                          },
-                                          style: MayaStyle().dialogButtonStyle(
-                                              Colors.red[400]),
-                                          child: Text('Save'.tr))),
-                                )
-                              ],
-                            ),
-                          ]),
-                    ),
-                  )),
-            )));
+                                                              true)
+                                                    ]);
+                                                  }
+                                                },
+                                                style: MayaStyle()
+                                                    .dialogButtonStyle(
+                                                        Colors.red[400]),
+                                                child: Text('Save'.tr))))
+                                  ])
+                            ])))))));
   }
 }
 
