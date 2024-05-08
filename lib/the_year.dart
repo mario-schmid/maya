@@ -1,4 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -247,7 +251,7 @@ class _TheYearState extends State<TheYear> {
                                 bottom: BorderSide(
                                     color: Colors.white, width: 1)))),
                     SizedBox(
-                        height: size.height - statusBarHeight /*- 33*/ - 40,
+                        height: size.height - statusBarHeight,
                         child: ScrollablePositionedList.builder(
                             padding: const EdgeInsets.only(top: 0),
                             scrollDirection: Axis.vertical,
@@ -258,40 +262,15 @@ class _TheYearState extends State<TheYear> {
                                   key: UniqueKey(),
                                   child: dateColumn(size, dayIndex));
                             })),
-                    SizedBox(
-                      height: 40,
-                      width: size.width,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                colorFilter: ColorFilter.mode(
-                                    widget.mainColor, BlendMode.modulate),
-                                image: const AssetImage(
-                                    'assets/images/bg_pattern_one.jpg'),
-                                fit: BoxFit.cover),
-                          ),
-                          child: MaterialButton(
-                              shape: const Border(
-                                  top: BorderSide(
-                                      color: Colors.white, width: 1)),
-                              splashColor: widget.mainColor,
-                              onPressed: _scrollToHome,
-                              child: const Icon(Icons.unfold_less,
-                                  color: Colors.white, size: 30)),
-                        ),
-                      ),
-                    ),
                   ]),
                   Positioned(
-                      left: size.width * 0.5 - size.width * 0.166666667,
+                      left: size.width * 0.5 - size.width * 0.16,
                       top: statusBarHeight,
                       child: ClipPath(
-                          clipper: TriangleClipper(),
+                          clipper: OvalBottomBorderClipper(),
                           child: Container(
-                              height: size.width * 0.111111111,
-                              width: size.width * 0.333333333,
+                              height: size.width * 0.08,
+                              width: size.width * 0.32,
                               decoration: const BoxDecoration(
                                 color: Color.fromARGB(200, 46, 125, 50),
                               ),
@@ -300,7 +279,35 @@ class _TheYearState extends State<TheYear> {
                                   child: Text('${widget.chosenHaabYear}',
                                       style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: size.width * 0.05))))))
+                                          fontSize: size.width * 0.05)))))),
+                  Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ClipPath(
+                          clipper: OvalTopBorderClipper(),
+                          child: Container(
+                              height: 37,
+                              width: size.width * 0.304,
+                              decoration:
+                                  const BoxDecoration(color: Colors.white)))),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: GestureDetector(
+                      onTap: () {
+                        _scrollToHome();
+                      },
+                      child: ClipPath(
+                          clipper: OvalTopBorderClipper(),
+                          child: Container(
+                              height: 36,
+                              width: size.width * 0.3,
+                              decoration:
+                                  BoxDecoration(color: widget.mainColor),
+                              child: const Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.unfold_less,
+                                      color: Colors.white, size: 30)))),
+                    ),
+                  )
                 ]))));
   }
 /*============================================================================*/

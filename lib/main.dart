@@ -36,7 +36,6 @@ import 'date_calculator.dart';
 import 'globals.dart';
 import 'helper/locale_string.dart';
 import 'items.dart';
-import 'methods/get_haab_date.dart';
 import 'methods/get_kin_nummber.dart';
 import 'methods/get_nahual.dart';
 import 'methods/get_tone.dart';
@@ -1004,7 +1003,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Padding(
                       padding: EdgeInsets.all(size.width * 0.03),
                       child: Image(
-                          image: const AssetImage("assets/images/icons/hunabku.png"),
+                          image: const AssetImage(
+                              "assets/images/icons/hunabku.png"),
                           height: size.width * 0.34,
                           width: size.width * 0.34))),
               Divider(
@@ -2305,8 +2305,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       child: Center(
                           child: GestureDetector(
                               onTap: () {
-                                List<int> intHaabDate = getHaabDate(chosenDay);
-
                                 int chosenTone = getTone(
                                     (offsetGearTones * 180 / pi +
                                             finalAngle / 13 * 20) %
@@ -2334,8 +2332,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             mainColor: mainColor,
                                             chosenYear: chosenYear,
                                             chosenDay: chosenDay,
-                                            strHaabDate:
-                                                '${intHaabDate[0].toString().padLeft(2, '0')}.${(intHaabDate[1] + 1).toString().padLeft(2, '0')}',
                                             chosenTone: chosenTone,
                                             chosenNahual: chosenNahual,
                                             chosenLongCount: [

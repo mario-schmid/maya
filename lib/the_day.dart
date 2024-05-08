@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:maya/methods/get_haab_date.dart';
 import 'package:provider/provider.dart';
 
 import 'helper/maya_images.dart';
@@ -17,7 +20,6 @@ class TheDay extends StatefulWidget {
   final Color mainColor;
   final int chosenYear;
   final int chosenDay;
-  final String strHaabDate;
   final int chosenTone;
   final int chosenNahual;
   final List<int> chosenLongCount;
@@ -28,7 +30,6 @@ class TheDay extends StatefulWidget {
       required this.mainColor,
       required this.chosenYear,
       required this.chosenDay,
-      required this.strHaabDate,
       required this.chosenTone,
       required this.chosenNahual,
       required this.chosenLongCount,
@@ -52,6 +53,15 @@ class _TheDayState extends State<TheDay> {
   late int chosenKinIndex;
   late int trecena;
 
+  late int baktun;
+  late int katun;
+  late int tun;
+  late int winal;
+  late int kin;
+
+  final int itemCountHalf = 20;
+  late final PageController _pageController;
+
   @override
   void initState() {
     initializeDateFormatting();
@@ -59,6 +69,14 @@ class _TheDayState extends State<TheDay> {
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
     chosenKinIndex = getKinNummber(widget.chosenTone, widget.chosenNahual);
     trecena = chosenKinIndex ~/ 13;
+
+    _pageController = PageController(initialPage: itemCountHalf);
+
+    baktun = widget.chosenLongCount[0];
+    katun = widget.chosenLongCount[1];
+    tun = widget.chosenLongCount[2];
+    winal = widget.chosenLongCount[3];
+    kin = widget.chosenLongCount[4];
 
     boxDecoration = BoxDecoration(
         color: widget.mainColor.withOpacity(0.5),
@@ -81,181 +99,271 @@ class _TheDayState extends State<TheDay> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            body: Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: widget.backgroundImage, fit: BoxFit.cover)),
-                child: Padding(
-                    padding:
-                        EdgeInsets.fromLTRB(10, statusBarHeight + 10, 10, 10),
-                    child: SizedBox(
-                        height: 160,
-                        child: Column(children: [
-                          Row(children: [
-                            GestureDetector(
-                                onTap: () {
-                                  showDialog<void>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return Align(
-                                            alignment: const Alignment(0, 0.4),
-                                            child: mayaCrossContainer(
-                                                size,
-                                                widget.backgroundImage,
-                                                widget.mainColor,
-                                                widget.chosenTone,
-                                                widget.chosenNahual));
-                                      });
-                                },
-                                child: Container(
-                                    height: 150,
-                                    width: 120,
-                                    decoration: boxDecoration,
-                                    child: Column(children: [
-                                      Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 6.833, bottom: 4),
-                                          child: SizedBox(
-                                              height: 37,
-                                              width: 80,
-                                              child: MayaImages()
-                                                      .imageToneWhiteCurvedBottom[
-                                                  widget.chosenTone])),
-                                      SizedBox(
-                                          height: 93.333,
-                                          width: 100,
-                                          child: MayaImages()
-                                              .signNahual[widget.chosenNahual])
-                                    ]))),
-                            Column(children: [
-                              Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      (size.width - 140) / 33 - 0.000666667,
-                                      0,
-                                      0,
-                                      0),
-                                  child: Row(children: [
-                                    Container(
-                                        height: 33.333,
-                                        width: (size.width - 140) /
-                                            3.882352941 /*56.667*/,
-                                        decoration: boxDecoration,
-                                        child: Center(
-                                            child: Text(
-                                          ('${trecena + 1}' /*widget.chosenDay + 1*/),
-                                          style: textStyle,
-                                        ))),
-                                    Container(
-                                        height: 40,
-                                        width: (size.width - 140) / 2.2 /*100*/,
-                                        decoration: boxDecoration,
-                                        child: Center(
-                                            child: Text(
-                                          widget.strHaabDate,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 24),
-                                        ))),
-                                    Container(
-                                        height: 33.333,
-                                        width: (size.width - 140) /
-                                            3.882352941 /*56.667*/,
-                                        decoration: boxDecoration,
-                                        child: Center(
-                                            child: Text(
-                                          '${chosenKinIndex + 1}',
-                                          style: textStyle,
-                                        )))
-                                  ])),
-                              Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      (size.width - 140) / 22,
-                                      10,
-                                      (size.width - 140) / 22,
-                                      10),
-                                  child: Container(
-                                      height: 33.333,
-                                      width: (size.width - 140) /
-                                          1.466666667 /*150*/,
-                                      decoration: boxDecoration,
-                                      child: Center(
-                                          child: Text(
-                                        '${widget.chosenLongCount[0]}.${widget.chosenLongCount[1]}.${widget.chosenLongCount[2]}.${widget.chosenLongCount[3]}.${widget.chosenLongCount[4]}',
-                                        style: textStyle,
-                                      )))),
+            body: Stack(children: [
+          PageView.builder(
+              controller: _pageController,
+              itemCount: itemCountHalf * 2 + 1,
+              reverse: false,
+              itemBuilder: (context, position) {
+                final haabDate = getHaabDate(
+                    (widget.chosenDay + position - itemCountHalf) % 365);
+                final dDays = position - itemCountHalf;
+                int ckin = (kin + dDays) % 20;
+                int cwinal = ((winal + 1) * 20 + dDays - ckin) ~/ 20 % 18;
+                int ctun =
+                    ((tun + 1) * 360 + dDays - cwinal * 20 - ckin) ~/ 360;
+                int ckatun = ((katun + 1) * 7200 +
+                        dDays -
+                        ctun * 360 -
+                        cwinal * 20 -
+                        ckin) ~/
+                    7200;
+                int cbaktun = 13; // TODO: baktum?
+                return Container(
+                    height: double.infinity,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: widget.backgroundImage, fit: BoxFit.cover)),
+                    child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                            10, statusBarHeight + 10, 10, 0),
+                        child: SizedBox(
+                            height: 160,
+                            child: Column(children: [
                               Row(children: [
-                                Container(
-                                    height: 33.333,
-                                    width: (size.width - 140) /
-                                        1.466666667 /*150*/,
-                                    decoration: boxDecoration,
-                                    child: Center(
-                                        child: Text(
-                                            dateFormat.format(
-                                                widget.chosenGregorianDate),
-                                            style: textStyle))),
-                                Padding(
-                                    padding: EdgeInsets.only(
-                                        left: (size.width - 140) / 27.5),
+                                GestureDetector(
+                                    onTap: () {
+                                      showDialog<void>(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Align(
+                                                alignment:
+                                                    const Alignment(0, 0.4),
+                                                child: mayaCrossContainer(
+                                                    size,
+                                                    widget.backgroundImage,
+                                                    widget.mainColor,
+                                                    (widget.chosenTone +
+                                                            position -
+                                                            itemCountHalf) %
+                                                        13,
+                                                    (widget.chosenNahual +
+                                                            position -
+                                                            itemCountHalf) %
+                                                        20));
+                                          });
+                                    },
                                     child: Container(
-                                        height: 40,
-                                        width: 40,
-                                        decoration: addIconDecoration,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return selectionDialog(
-                                                      context,
-                                                      widget.chosenYear,
-                                                      widget.chosenDay,
-                                                      widget
-                                                          .chosenGregorianDate);
-                                                });
-                                          },
-                                          child: SizedBox(
-                                            height: 30,
-                                            width: 30,
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(3),
-                                              child: SvgPicture.asset(
-                                                  'assets/vector_graphics/add_icon.svg',
-                                                  height: 30,
-                                                  width: 30),
-                                            ),
-                                          ),
-                                        )))
-                              ])
-                            ])
-                          ]),
-                          const Divider(
-                              color: Colors.white,
-                              height: 25,
-                              thickness: 1,
-                              indent: 0,
-                              endIndent: 0),
-                          Consumer<DayItems>(builder: (context, data, child) {
-                            return SizedBox(
-                                height:
-                                    size.height - 160 - statusBarHeight - 35,
-                                child: ReorderableListView(
-                                    shrinkWrap: true,
-                                    children: data.dayItems[widget.chosenYear]
-                                        [widget.chosenDay],
-                                    onReorder: (int oldIndex, int newIndex) {
-                                      setState(() {
-                                        updateList(
-                                            oldIndex,
-                                            newIndex,
-                                            widget.chosenYear,
-                                            widget.chosenDay);
-                                      });
-                                    }));
-                          })
-                        ]))))));
+                                        height: 150,
+                                        width: 120,
+                                        decoration: boxDecoration,
+                                        child: Column(children: [
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 6.833, bottom: 4),
+                                              child: SizedBox(
+                                                  height: 37,
+                                                  width: 80,
+                                                  child: MayaImages()
+                                                          .imageToneWhiteCurvedBottom[
+                                                      (widget.chosenTone +
+                                                              position -
+                                                              itemCountHalf) %
+                                                          13])),
+                                          SizedBox(
+                                              height: 93.333,
+                                              width: 100,
+                                              child: MayaImages().signNahual[
+                                                  (widget.chosenNahual +
+                                                          position -
+                                                          itemCountHalf) %
+                                                      20])
+                                        ]))),
+                                Column(children: [
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          (size.width - 140) / 33 - 0.000666667,
+                                          0,
+                                          0,
+                                          0),
+                                      child: Row(children: [
+                                        Container(
+                                            height: 33.333,
+                                            width: (size.width - 140) /
+                                                3.882352941 /*56.667*/,
+                                            decoration: boxDecoration,
+                                            child: Center(
+                                                child: Text(
+                                              ('${trecena + 1 + (position - itemCountHalf) ~/ 13}' /*widget.chosenDay + 1*/),
+                                              style: textStyle,
+                                            ))),
+                                        Container(
+                                            height: 40,
+                                            width: (size.width - 140) /
+                                                2.2 /*100*/,
+                                            decoration: boxDecoration,
+                                            child: Center(
+                                                child: Text(
+                                              '${haabDate[0].toString().padLeft(2, '0')}.${(haabDate[1] + 1).toString().padLeft(2, '0')}',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 24),
+                                            ))),
+                                        Container(
+                                            height: 33.333,
+                                            width: (size.width - 140) /
+                                                3.882352941 /*56.667*/,
+                                            decoration: boxDecoration,
+                                            child: Center(
+                                                child: Text(
+                                              '${(chosenKinIndex + 1 + position - itemCountHalf) % 260}',
+                                              style: textStyle,
+                                            )))
+                                      ])),
+                                  Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                          (size.width - 140) / 22,
+                                          10,
+                                          (size.width - 140) / 22,
+                                          10),
+                                      child: Container(
+                                          height: 33.333,
+                                          width: (size.width - 140) /
+                                              1.466666667 /*150*/,
+                                          decoration: boxDecoration,
+                                          child: Center(
+                                              child: Text(
+                                            '$cbaktun.$ckatun.$ctun.$cwinal.$ckin',
+                                            style: textStyle,
+                                          )))),
+                                  Row(children: [
+                                    Container(
+                                        height: 33.333,
+                                        width: (size.width - 140) /
+                                            1.466666667 /*150*/,
+                                        decoration: boxDecoration,
+                                        child: Center(
+                                            child: Text(
+                                                dateFormat.format(widget
+                                                    .chosenGregorianDate
+                                                    .add(Duration(
+                                                        days: position -
+                                                            itemCountHalf))),
+                                                style: textStyle))),
+                                    Padding(
+                                        padding: EdgeInsets.only(
+                                            left: (size.width - 140) / 27.5),
+                                        child: Container(
+                                            height: 40,
+                                            width: 40,
+                                            decoration: addIconDecoration,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return selectionDialog(
+                                                          context,
+                                                          widget.chosenYear +
+                                                              (position -
+                                                                      itemCountHalf) ~/
+                                                                  365,
+                                                          (widget.chosenDay +
+                                                                  position -
+                                                                  itemCountHalf) %
+                                                              365,
+                                                          widget
+                                                              .chosenGregorianDate
+                                                              .add(Duration(
+                                                                  days: position -
+                                                                      itemCountHalf)));
+                                                    });
+                                              },
+                                              child: SizedBox(
+                                                height: 30,
+                                                width: 30,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(3),
+                                                  child: SvgPicture.asset(
+                                                      'assets/vector_graphics/add_icon.svg',
+                                                      height: 30,
+                                                      width: 30),
+                                                ),
+                                              ),
+                                            )))
+                                  ])
+                                ])
+                              ]),
+                              const Divider(
+                                  color: Colors.white,
+                                  height: 25,
+                                  thickness: 1,
+                                  indent: 0,
+                                  endIndent: 0),
+                              Consumer<DayItems>(
+                                  builder: (context, data, child) {
+                                return SizedBox(
+                                    height: size.height -
+                                        160 -
+                                        statusBarHeight -
+                                        25,
+                                    child: ReorderableListView(
+                                        shrinkWrap: true,
+                                        children: data.dayItems[
+                                            widget.chosenYear +
+                                                (position - itemCountHalf) ~/
+                                                    365][(widget.chosenDay +
+                                                position -
+                                                itemCountHalf) %
+                                            365],
+                                        onReorder:
+                                            (int oldIndex, int newIndex) {
+                                          setState(() {
+                                            updateList(
+                                                oldIndex,
+                                                newIndex,
+                                                widget.chosenYear +
+                                                    (position -
+                                                            itemCountHalf) ~/
+                                                        365,
+                                                (widget.chosenDay +
+                                                        position -
+                                                        itemCountHalf) %
+                                                    365);
+                                          });
+                                        }));
+                              })
+                            ]))));
+              }),
+          Align(
+              alignment: Alignment.bottomCenter,
+              child: ClipPath(
+                  clipper: OvalTopBorderClipper(),
+                  child: Container(
+                      height: 37,
+                      width: size.width * 0.304,
+                      decoration: const BoxDecoration(color: Colors.white)))),
+          Align(
+              alignment: Alignment.bottomCenter,
+              child: GestureDetector(
+                  onTap: () {
+                    _pageController.jumpToPage(20);
+                  },
+                  child: ClipPath(
+                      clipper: OvalTopBorderClipper(),
+                      child: Container(
+                          height: 36,
+                          width: size.width * 0.3,
+                          decoration: BoxDecoration(color: widget.mainColor),
+                          child: const Align(
+                              alignment: Alignment.center,
+                              child: RotatedBox(
+                                  quarterTurns: 1,
+                                  child: Icon(Icons.unfold_less,
+                                      color: Colors.white, size: 30)))))))
+        ])));
   }
 }
