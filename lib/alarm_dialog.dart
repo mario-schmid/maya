@@ -399,9 +399,8 @@ class _ADialogState extends State<ADialog> {
                                                                 index: 0)
                                                             .alarm(
                                                                 AlarmSettings(
-                                                                    id: dateTime
-                                                                            .millisecondsSinceEpoch ~/
-                                                                        60000,
+                                                                    id: int.parse(
+                                                                        '${(widget.yearIndex - 5129).toString()}${widget.dayIndex.toString().padLeft(3, '0')}${_hour.padLeft(2, '0')}${_minute.padLeft(2, '0')}'),
                                                                     dateTime:
                                                                         dateTime,
                                                                     assetAudioPath:
@@ -439,9 +438,8 @@ class _ADialogState extends State<ADialog> {
                                                         .pop([
                                                       true,
                                                       AlarmSettings(
-                                                          id: dateTime
-                                                                  .millisecondsSinceEpoch ~/
-                                                              60000,
+                                                          id: int.parse(
+                                                              '${(widget.yearIndex - 5129).toString()}${widget.dayIndex.toString().padLeft(3, '0')}${_hour.padLeft(2, '0')}${_minute.padLeft(2, '0')}'),
                                                           dateTime: dateTime,
                                                           assetAudioPath:
                                                               alarmSoundPathChanged

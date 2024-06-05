@@ -73,41 +73,39 @@ class AlarmRingScreen extends StatelessWidget {
   }
 
   void setIsActive(BuildContext context, int id) {
-    for (var yearIndex in MayaData().mayaData.keys) {
-      for (var dayIndex in MayaData().mayaData[yearIndex].keys) {
-        int k = 0;
-        for (k = 0;
-            k < MayaData().mayaData[yearIndex][dayIndex].alarmList.length;
-            k++) {
-          if (MayaData()
-                      .mayaData[yearIndex][dayIndex]
-                      .alarmList[k]
-                      .alarmSettings !=
-                  null &&
-              MayaData()
-                      .mayaData[yearIndex][dayIndex]
-                      .alarmList[k]
-                      .alarmSettings
-                      .id ==
-                  id) {
-            MayaData().mayaData[yearIndex][dayIndex].alarmList[k].isActive =
-                false;
-            Provider.of<MayaData>(context, listen: false)
-                .setIsActive(yearIndex, dayIndex, k, false);
+    String strId = id.toString().padLeft(10, '0');
+    String strYearIndex = strId.substring(0, 3);
+    String strDayIndex = strId.substring(3, 6);
 
-            int elementIndex = 0;
-            for (int i = 0;
-                i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
-                i++) {
-              if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 3 &&
-                  Globals().arrayIndex[yearIndex][dayIndex][3][i] == k) {
-                elementIndex = Globals().arrayIndex[yearIndex][dayIndex][4][i];
-              }
-            }
-            DatabaseHandlerAlarms()
-                .updateAlarmIsActive(yearIndex, dayIndex, elementIndex, false);
+    int yearIndex = 5129 + int.parse(strYearIndex);
+    int dayIndex = int.parse(strDayIndex);
+    int k = 0;
+    for (k = 0;
+        k < MayaData().mayaData[yearIndex][dayIndex].alarmList.length;
+        k++) {
+      if (MayaData().mayaData[yearIndex][dayIndex].alarmList[k].alarmSettings !=
+              null &&
+          MayaData()
+                  .mayaData[yearIndex][dayIndex]
+                  .alarmList[k]
+                  .alarmSettings
+                  .id ==
+              id) {
+        MayaData().mayaData[yearIndex][dayIndex].alarmList[k].isActive = false;
+        Provider.of<MayaData>(context, listen: false)
+            .setIsActive(yearIndex, dayIndex, k, false);
+
+        int elementIndex = 0;
+        for (int i = 0;
+            i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
+            i++) {
+          if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 3 &&
+              Globals().arrayIndex[yearIndex][dayIndex][3][i] == k) {
+            elementIndex = Globals().arrayIndex[yearIndex][dayIndex][4][i];
           }
         }
+        DatabaseHandlerAlarms()
+            .updateAlarmIsActive(yearIndex, dayIndex, elementIndex, false);
       }
     }
   }

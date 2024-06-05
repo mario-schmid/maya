@@ -25,6 +25,7 @@ import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/mayadata.dart';
 import 'package:maya/relationship.dart';
 import 'package:maya/ring_screen.dart';
+import 'package:maya/character_choise.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
@@ -69,6 +70,7 @@ Future<void> main() async {
     'assets/images/trecenaRed.png',
     'assets/images/trecenaWhite.png',
     'assets/images/trecenaYellow.png',
+    'assets/images/leaves.png',
     //
     'assets/images/transparent.png',
     //
@@ -2367,6 +2369,25 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     backgroundImage: backgroundImage,
                                     mainColor: mainColor,
                                     cKinIndex: cKinIndex)));
+                      },
+                      onLongPress: () {
+                        int chosenTone = getTone((offsetGearTones * 180 / pi +
+                                finalAngle / 13 * 20) %
+                            360);
+
+                        int chosenNahual = getNahuales(
+                            (offsetGearNahuales * 180 / pi + finalAngle) % 360);
+
+                        Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (BuildContext context, __, _) =>
+                                    CharacterChoise(
+                                        backgroundImage: backgroundImage,
+                                        mainColor: mainColor,
+                                        chosenTone: chosenTone,
+                                        chosenNahual: chosenNahual)));
                       },
                       child: Container(
                           height: sizeButtonCholqij.height,
