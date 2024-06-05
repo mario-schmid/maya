@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -53,12 +52,15 @@ class _TheDayState extends State<TheDay> {
   late int chosenKinIndex;
   late int trecena;
 
+  late int longCount;
+
   late int baktun;
   late int katun;
   late int tun;
   late int winal;
   late int kin;
 
+  late int cYear;
   final int itemCountHalf = 20;
   late final PageController _pageController;
 
@@ -70,13 +72,14 @@ class _TheDayState extends State<TheDay> {
     chosenKinIndex = getKinNummber(widget.chosenTone, widget.chosenNahual);
     trecena = chosenKinIndex ~/ 13;
 
-    _pageController = PageController(initialPage: itemCountHalf);
+    longCount = widget.chosenLongCount[0] * 144000 +
+        widget.chosenLongCount[1] * 7200 +
+        widget.chosenLongCount[2] * 360 +
+        widget.chosenLongCount[3] * 20 +
+        widget.chosenLongCount[4];
 
-    baktun = widget.chosenLongCount[0];
-    katun = widget.chosenLongCount[1];
-    tun = widget.chosenLongCount[2];
-    winal = widget.chosenLongCount[3];
-    kin = widget.chosenLongCount[4];
+    cYear = widget.chosenYear;
+    _pageController = PageController(initialPage: itemCountHalf);
 
     boxDecoration = BoxDecoration(
         color: widget.mainColor.withOpacity(0.5),
@@ -88,7 +91,6 @@ class _TheDayState extends State<TheDay> {
         color: widget.mainColor.withOpacity(0.5),
         border: Border.all(color: Colors.white, width: 1),
         shape: BoxShape.circle);
-
     super.initState();
   }
 
@@ -101,6 +103,15 @@ class _TheDayState extends State<TheDay> {
         home: Scaffold(
             body: Stack(children: [
           PageView.builder(
+              onPageChanged: (value) {
+                setState(() {
+                  cYear = (widget.chosenYear * 365 +
+                          widget.chosenDay +
+                          value -
+                          20) ~/
+                      365;
+                });
+              },
               controller: _pageController,
               itemCount: itemCountHalf * 2 + 1,
               reverse: false,
@@ -108,17 +119,27 @@ class _TheDayState extends State<TheDay> {
                 final haabDate = getHaabDate(
                     (widget.chosenDay + position - itemCountHalf) % 365);
                 final dDays = position - itemCountHalf;
-                int ckin = (kin + dDays) % 20;
-                int cwinal = ((winal + 1) * 20 + dDays - ckin) ~/ 20 % 18;
-                int ctun =
-                    ((tun + 1) * 360 + dDays - cwinal * 20 - ckin) ~/ 360;
-                int ckatun = ((katun + 1) * 7200 +
-                        dDays -
-                        ctun * 360 -
-                        cwinal * 20 -
-                        ckin) ~/
-                    7200;
-                int cbaktun = 13; // TODO: baktum?
+
+                baktun = (longCount + dDays) ~/ 144000 % 14;
+                katun = (longCount - baktun * 144000 + dDays) ~/ 7200 % 20;
+                tun = (longCount - baktun * 144000 - katun * 7200 + dDays) ~/
+                    360 %
+                    20;
+                winal = (longCount -
+                        baktun * 144000 -
+                        katun * 7200 -
+                        tun * 360 +
+                        dDays) ~/
+                    20 %
+                    18;
+                kin = (longCount -
+                        baktun * 144000 -
+                        katun * 7200 -
+                        tun * 360 -
+                        winal * 20 +
+                        dDays) %
+                    20;
+
                 return Container(
                     height: double.infinity,
                     width: double.infinity,
@@ -145,12 +166,10 @@ class _TheDayState extends State<TheDay> {
                                                     widget.backgroundImage,
                                                     widget.mainColor,
                                                     (widget.chosenTone +
-                                                            position -
-                                                            itemCountHalf) %
+                                                            dDays) %
                                                         13,
                                                     (widget.chosenNahual +
-                                                            position -
-                                                            itemCountHalf) %
+                                                            dDays) %
                                                         20));
                                           });
                                     },
@@ -168,16 +187,14 @@ class _TheDayState extends State<TheDay> {
                                                   child: MayaImages()
                                                           .imageToneWhiteCurvedBottom[
                                                       (widget.chosenTone +
-                                                              position -
-                                                              itemCountHalf) %
+                                                              dDays) %
                                                           13])),
                                           SizedBox(
                                               height: 93.333,
                                               width: 100,
                                               child: MayaImages().signNahual[
                                                   (widget.chosenNahual +
-                                                          position -
-                                                          itemCountHalf) %
+                                                          dDays) %
                                                       20])
                                         ]))),
                                 Column(children: [
@@ -195,7 +212,7 @@ class _TheDayState extends State<TheDay> {
                                             decoration: boxDecoration,
                                             child: Center(
                                                 child: Text(
-                                              ('${trecena + 1 + (position - itemCountHalf) ~/ 13}' /*widget.chosenDay + 1*/),
+                                              ('${trecena + 1 + dDays ~/ 13}' /*widget.chosenDay + 1*/),
                                               style: textStyle,
                                             ))),
                                         Container(
@@ -217,7 +234,7 @@ class _TheDayState extends State<TheDay> {
                                             decoration: boxDecoration,
                                             child: Center(
                                                 child: Text(
-                                              '${(chosenKinIndex + 1 + position - itemCountHalf) % 260}',
+                                              '${(chosenKinIndex + 1 + dDays) % 260}',
                                               style: textStyle,
                                             )))
                                       ])),
@@ -234,7 +251,7 @@ class _TheDayState extends State<TheDay> {
                                           decoration: boxDecoration,
                                           child: Center(
                                               child: Text(
-                                            '$cbaktun.$ckatun.$ctun.$cwinal.$ckin',
+                                            '$baktun.$katun.$tun.$winal.$kin',
                                             style: textStyle,
                                           )))),
                                   Row(children: [
@@ -247,9 +264,8 @@ class _TheDayState extends State<TheDay> {
                                             child: Text(
                                                 dateFormat.format(widget
                                                     .chosenGregorianDate
-                                                    .add(Duration(
-                                                        days: position -
-                                                            itemCountHalf))),
+                                                    .add(
+                                                        Duration(days: dDays))),
                                                 style: textStyle))),
                                     Padding(
                                         padding: EdgeInsets.only(
@@ -259,41 +275,40 @@ class _TheDayState extends State<TheDay> {
                                             width: 40,
                                             decoration: addIconDecoration,
                                             child: GestureDetector(
-                                              onTap: () {
-                                                showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return selectionDialog(
-                                                          context,
-                                                          widget.chosenYear +
-                                                              (position -
-                                                                      itemCountHalf) ~/
-                                                                  365,
-                                                          (widget.chosenDay +
-                                                                  position -
-                                                                  itemCountHalf) %
-                                                              365,
-                                                          widget
-                                                              .chosenGregorianDate
-                                                              .add(Duration(
-                                                                  days: position -
-                                                                      itemCountHalf)));
-                                                    });
-                                              },
-                                              child: SizedBox(
-                                                height: 30,
-                                                width: 30,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(3),
-                                                  child: SvgPicture.asset(
-                                                      'assets/vector_graphics/add_icon.svg',
-                                                      height: 30,
-                                                      width: 30),
-                                                ),
-                                              ),
-                                            )))
+                                                onTap: () {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return selectionDialog(
+                                                            context,
+                                                            widget.mainColor,
+                                                            widget.chosenYear +
+                                                                (position -
+                                                                        itemCountHalf) ~/
+                                                                    365,
+                                                            (widget.chosenDay +
+                                                                    position -
+                                                                    itemCountHalf) %
+                                                                365,
+                                                            widget
+                                                                .chosenGregorianDate
+                                                                .add(Duration(
+                                                                    days:
+                                                                        dDays)));
+                                                      });
+                                                },
+                                                child: SizedBox(
+                                                    height: 30,
+                                                    width: 30,
+                                                    child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(3),
+                                                        child: SvgPicture.asset(
+                                                            'assets/vector_graphics/add_icon.svg',
+                                                            height: 30,
+                                                            width: 30))))))
                                   ])
                                 ])
                               ]),
@@ -305,39 +320,57 @@ class _TheDayState extends State<TheDay> {
                                   endIndent: 0),
                               Consumer<DayItems>(
                                   builder: (context, data, child) {
-                                return SizedBox(
-                                    height: size.height -
-                                        160 -
-                                        statusBarHeight -
-                                        25,
-                                    child: ReorderableListView(
-                                        shrinkWrap: true,
-                                        children: data.dayItems[
-                                            widget.chosenYear +
-                                                (position - itemCountHalf) ~/
-                                                    365][(widget.chosenDay +
-                                                position -
-                                                itemCountHalf) %
-                                            365],
-                                        onReorder:
-                                            (int oldIndex, int newIndex) {
-                                          setState(() {
-                                            updateList(
-                                                oldIndex,
-                                                newIndex,
-                                                widget.chosenYear +
-                                                    (position -
-                                                            itemCountHalf) ~/
-                                                        365,
-                                                (widget.chosenDay +
-                                                        position -
-                                                        itemCountHalf) %
-                                                    365);
-                                          });
-                                        }));
+                                int cYear = (widget.chosenYear * 365 +
+                                        widget.chosenDay +
+                                        dDays) ~/
+                                    365;
+                                int cDay = (widget.chosenDay + dDays) % 365;
+                                if (data.dayItems.containsKey(cYear)) {
+                                  if (data.dayItems[cYear].containsKey(cDay)) {
+                                    return SizedBox(
+                                        height: size.height -
+                                            160 -
+                                            statusBarHeight -
+                                            25,
+                                        child: ReorderableListView(
+                                            shrinkWrap: true,
+                                            children: data.dayItems[cYear]
+                                                [cDay],
+                                            onReorder:
+                                                (int oldIndex, int newIndex) {
+                                              setState(() {
+                                                updateList(oldIndex, newIndex,
+                                                    cYear, cDay);
+                                              });
+                                            }));
+                                  } else {
+                                    //TODO: maybe change
+                                    return const SizedBox();
+                                  }
+                                } else {
+                                  //TODO: maybe change
+                                  return const SizedBox();
+                                }
                               })
                             ]))));
               }),
+          Positioned(
+              left: size.width * 0.5 - size.width * 0.16,
+              top: statusBarHeight,
+              child: ClipPath(
+                  clipper: OvalBottomBorderClipper(),
+                  child: Container(
+                      height: size.width * 0.08,
+                      width: size.width * 0.32,
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(200, 46, 125, 50),
+                      ),
+                      child: Align(
+                          alignment: Alignment.topCenter,
+                          child: Text('$cYear',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: size.width * 0.05)))))),
           Align(
               alignment: Alignment.bottomCenter,
               child: ClipPath(

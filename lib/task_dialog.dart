@@ -3,16 +3,18 @@ import 'package:get/get.dart';
 import 'package:maya/helper/maya_style.dart';
 import 'package:provider/provider.dart';
 
-import 'items.dart';
+import 'maya_items.dart';
 import 'providers/dayitems.dart';
 
 class TaskDialog extends StatefulWidget {
+  final Color mainColor;
   final int yearIndex;
   final int dayIndex;
   final String? task;
   final bool flagCreateChange;
   const TaskDialog(
       {super.key,
+      required this.mainColor,
       required this.yearIndex,
       required this.dayIndex,
       required this.task,
@@ -131,19 +133,26 @@ class _TaskDialogState extends State<TaskDialog> {
                                                 Navigator.of(context,
                                                         rootNavigator: true)
                                                     .pop();
-                                                Provider.of<DayItems>(context,
+                                                Provider.of<
+                                                            DayItems>(context,
                                                         listen: false)
                                                     .add(
                                                         widget.yearIndex,
                                                         widget.dayIndex,
-                                                        taskItem(
-                                                            widget.yearIndex,
-                                                            widget.dayIndex,
-                                                            _taskController
-                                                                .text,
-                                                            false,
-                                                            true,
-                                                            0));
+                                                        MayaItems(
+                                                                mainColor: widget
+                                                                    .mainColor,
+                                                                yearIndex: widget
+                                                                    .yearIndex,
+                                                                dayIndex: widget
+                                                                    .dayIndex,
+                                                                newListItem:
+                                                                    true,
+                                                                index: 0)
+                                                            .task(
+                                                                _taskController
+                                                                    .text,
+                                                                false));
                                               } else {
                                                 Navigator.of(context,
                                                         rootNavigator: true)

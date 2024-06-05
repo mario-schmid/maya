@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:maya/globals.dart';
 
 import '../database_handler.dart';
-import '../globals.dart';
 import '../methods/set_index.dart';
 import '../providers/dayitems.dart';
-import '../providers/yeardata.dart';
+import '../providers/mayadata.dart';
 
 void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
   if (newIndex > oldIndex) {
@@ -14,14 +14,19 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       DayItems().dayItems[yearIndex][dayIndex].removeAt(oldIndex);
   DayItems().dayItems[yearIndex][dayIndex].insert(newIndex, item);
 
-  int indexItem = arrayIndex[yearIndex][dayIndex][1].removeAt(oldIndex);
-  arrayIndex[yearIndex][dayIndex][1].insert(newIndex, indexItem);
+  int indexItem =
+      Globals().arrayIndex[yearIndex][dayIndex][1].removeAt(oldIndex);
+  Globals().arrayIndex[yearIndex][dayIndex][1].insert(newIndex, indexItem);
 
-  int arrangementItem = arrayIndex[yearIndex][dayIndex][2].removeAt(oldIndex);
-  arrayIndex[yearIndex][dayIndex][2].insert(newIndex, arrangementItem);
+  int arrangementItem =
+      Globals().arrayIndex[yearIndex][dayIndex][2].removeAt(oldIndex);
+  Globals()
+      .arrayIndex[yearIndex][dayIndex][2]
+      .insert(newIndex, arrangementItem);
 
-  int nummberItem = arrayIndex[yearIndex][dayIndex][3].removeAt(oldIndex);
-  arrayIndex[yearIndex][dayIndex][3].insert(newIndex, nummberItem);
+  int nummberItem =
+      Globals().arrayIndex[yearIndex][dayIndex][3].removeAt(oldIndex);
+  Globals().arrayIndex[yearIndex][dayIndex][3].insert(newIndex, nummberItem);
 
   setIndex(yearIndex, dayIndex);
 
@@ -30,27 +35,29 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       DatabaseHandlerEvents().deleteEvents(yearIndex, dayIndex);
       int elementIndexEvent = 0;
       List<Map<String, dynamic>> listMapEvents = [];
-      for (int i = 0; i < arrayIndex[yearIndex][dayIndex][2].length; i++) {
-        if (arrayIndex[yearIndex][dayIndex][2][i] == 0) {
+      for (int i = 0;
+          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
+          i++) {
+        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 0) {
           listMapEvents.add({
             'yearIndex': yearIndex,
             'dayIndex': dayIndex,
             'elementIndex': elementIndexEvent,
-            'begin': YearData()
-                .yearData[yearIndex][dayIndex]
-                .eventList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'begin': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .eventList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
                 .event[0],
-            'end': YearData()
-                .yearData[yearIndex][dayIndex]
-                .eventList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'end': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .eventList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
                 .event[1],
-            'title': YearData()
-                .yearData[yearIndex][dayIndex]
-                .eventList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'title': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .eventList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
                 .event[2],
-            'description': YearData()
-                .yearData[yearIndex][dayIndex]
-                .eventList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'description': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .eventList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
                 .event[3]
           });
           elementIndexEvent++;
@@ -62,15 +69,17 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       DatabaseHandlerNotes().deleteNotes(yearIndex, dayIndex);
       int elementIndexNote = 0;
       List<Map<String, dynamic>> listMapNotes = [];
-      for (int i = 0; i < arrayIndex[yearIndex][dayIndex][2].length; i++) {
-        if (arrayIndex[yearIndex][dayIndex][2][i] == 1) {
+      for (int i = 0;
+          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
+          i++) {
+        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 1) {
           listMapNotes.add({
             'yearIndex': yearIndex,
             'dayIndex': dayIndex,
             'elementIndex': elementIndexNote,
-            'note': YearData()
-                .yearData[yearIndex][dayIndex]
-                .noteList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'note': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .noteList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
           });
           elementIndexNote++;
         }
@@ -81,20 +90,24 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       DatabaseHandlerTasks().deleteTasks(yearIndex, dayIndex);
       int elementIndexTask = 0;
       List<Map<String, dynamic>> listMapTasks = [];
-      for (int i = 0; i < arrayIndex[yearIndex][dayIndex][2].length; i++) {
-        if (arrayIndex[yearIndex][dayIndex][2][i] == 2) {
+      for (int i = 0;
+          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
+          i++) {
+        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 2) {
           listMapTasks.add({
             'yearIndex': yearIndex,
             'dayIndex': dayIndex,
             'elementIndex': elementIndexTask,
-            'text': YearData()
-                .yearData[yearIndex][dayIndex]
-                .taskList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'text': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .taskList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
                 .text,
-            'isChecked': YearData()
-                .yearData[yearIndex][dayIndex]
-                .taskList[arrayIndex[yearIndex][dayIndex][3][i]]
-                .isChecked
+            'isChecked': MayaData()
+                    .mayaData[yearIndex][dayIndex]
+                    .taskList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
+                    .isChecked
+                ? 1
+                : 0
           });
           elementIndexTask++;
         }
@@ -105,20 +118,24 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       DatabaseHandlerAlarms().deleteAlarms(yearIndex, dayIndex);
       int elementIndexAlarm = 0;
       List<Map<String, dynamic>> listMapAlarms = [];
-      for (int i = 0; i < arrayIndex[yearIndex][dayIndex][2].length; i++) {
-        if (arrayIndex[yearIndex][dayIndex][2][i] == 3) {
+      for (int i = 0;
+          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
+          i++) {
+        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 3) {
           listMapAlarms.add({
             'yearIndex': yearIndex,
             'dayIndex': dayIndex,
             'elementIndex': elementIndexAlarm,
-            'alarmSettings': YearData()
-                .yearData[yearIndex][dayIndex]
-                .alarmList[arrayIndex[yearIndex][dayIndex][3][i]]
+            'alarmSettings': MayaData()
+                .mayaData[yearIndex][dayIndex]
+                .alarmList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
                 .alarmSettings,
-            'isActive': YearData()
-                .yearData[yearIndex][dayIndex]
-                .alarmList[arrayIndex[yearIndex][dayIndex][3][i]]
-                .isActive
+            'isActive': MayaData()
+                    .mayaData[yearIndex][dayIndex]
+                    .alarmList[Globals().arrayIndex[yearIndex][dayIndex][3][i]]
+                    .isActive
+                ? 1
+                : 0
           });
           elementIndexAlarm++;
         }
@@ -127,6 +144,6 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       break;
   }
 
-  DatabaseHandlerArrangements().updateArrangement(
-      yearIndex, dayIndex, arrayIndex[yearIndex][dayIndex][2].toString());
+  DatabaseHandlerArrangements().updateArrangement(yearIndex, dayIndex,
+      Globals().arrayIndex[yearIndex][dayIndex][2].toString());
 }

@@ -8,20 +8,23 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:maya/helper/maya_style.dart';
 import 'package:maya/methods/get_text_size.dart';
+import 'package:maya/providers/mayadata.dart';
 import 'package:maya/time_format.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'items.dart';
+import 'maya_items.dart';
 import 'providers/dayitems.dart';
 
 class ADialog extends StatefulWidget {
+  final Color mainColor;
   final int yearIndex;
   final int dayIndex;
   final AlarmSettings alarmSettings;
   final bool flagCreateChange;
   const ADialog(
       {super.key,
+      required this.mainColor,
       required this.yearIndex,
       required this.dayIndex,
       required this.alarmSettings,
@@ -306,8 +309,8 @@ class _ADialogState extends State<ADialog> {
                                             alarmSoundPathChanged = true;
                                           } else {
                                             if (!context.mounted) return;
-                                            showAudioFileFormatDialog(
-                                                context, size);
+                                            showAudioFileFormatDialog(context,
+                                                widget.mainColor, size);
                                             loadAlarmSoundPath();
                                           }
                                         } else {
@@ -384,35 +387,42 @@ class _ADialogState extends State<ADialog> {
                                                     Provider.of<DayItems>(context, listen: false).add(
                                                         widget.yearIndex,
                                                         widget.dayIndex,
-                                                        alarmItem(
-                                                            widget.yearIndex,
-                                                            widget.dayIndex,
-                                                            AlarmSettings(
-                                                                id: dateTime
-                                                                        .millisecondsSinceEpoch ~/
-                                                                    60000,
-                                                                dateTime:
-                                                                    dateTime,
-                                                                assetAudioPath:
-                                                                    alarmSoundPath!,
-                                                                loopAudio:
-                                                                    loopAudio,
-                                                                vibrate:
-                                                                    vibrate,
-                                                                volume: volume,
-                                                                fadeDuration:
-                                                                    0.5,
-                                                                notificationTitle:
-                                                                    _alarmControllerTitle
-                                                                        .text,
-                                                                notificationBody:
-                                                                    _alarmControllerDescription
-                                                                        .text,
-                                                                enableNotificationOnKill:
-                                                                    true),
-                                                            true,
-                                                            true,
-                                                            0));
+                                                        MayaItems(
+                                                                mainColor: widget
+                                                                    .mainColor,
+                                                                yearIndex: widget
+                                                                    .yearIndex,
+                                                                dayIndex: widget
+                                                                    .dayIndex,
+                                                                newListItem:
+                                                                    true,
+                                                                index: 0)
+                                                            .alarm(
+                                                                AlarmSettings(
+                                                                    id: dateTime
+                                                                            .millisecondsSinceEpoch ~/
+                                                                        60000,
+                                                                    dateTime:
+                                                                        dateTime,
+                                                                    assetAudioPath:
+                                                                        alarmSoundPath!,
+                                                                    loopAudio:
+                                                                        loopAudio,
+                                                                    vibrate:
+                                                                        vibrate,
+                                                                    volume:
+                                                                        volume,
+                                                                    fadeDuration:
+                                                                        0.5,
+                                                                    notificationTitle:
+                                                                        _alarmControllerTitle
+                                                                            .text,
+                                                                    notificationBody:
+                                                                        _alarmControllerDescription
+                                                                            .text,
+                                                                    enableNotificationOnKill:
+                                                                        true),
+                                                                true));
                                                   } else {
                                                     DateFormat dateTimeFormat =
                                                         DateFormat(
@@ -490,7 +500,7 @@ deleteAlarmSoundPath() async {
   prefs.remove('alarmSoundPath');
 }
 
-showAudioFileFormatDialog(BuildContext context, Size size) {
+showAudioFileFormatDialog(BuildContext context, Color mainColor, Size size) {
   Size size = GetTextSize().getTextSize(
       'Only mp3, ogg or wav files are allowed!'.tr, MayaStyle.popUpDialogBody);
   showDialog<void>(
@@ -499,16 +509,17 @@ showAudioFileFormatDialog(BuildContext context, Size size) {
       builder: (BuildContext context) {
         return Center(
             child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: MayaStyle.popUpDialogDecoration,
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                decoration: MayaStyle().popUpDialogDecoration(mainColor),
                 height: 93,
-                width: size.width + 42,
+                width: size.width + 52,
                 child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text('Invalid File Format!'.tr,
                           style: MayaStyle.popUpDialogTitle),
-                      Text('\n${'Only mp3, ogg or wav files are allowed!'.tr}',
+                      Text('Only mp3, ogg or wav files are allowed!'.tr,
                           style: MayaStyle.popUpDialogBody)
                     ])));
       });

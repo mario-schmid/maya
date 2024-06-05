@@ -33,6 +33,29 @@ class MayaImages {
     Image.asset('assets/images/tones/13_white_curved_bottom.png')
   ];
 
+  final List<Image> imageToneWhiteFlatCenter = [
+    Image.asset('assets/images/tones/00_white_center.png'),
+    Image.asset('assets/images/tones/01_white_flat_center.png'),
+    Image.asset('assets/images/tones/02_white_flat_center.png'),
+    Image.asset('assets/images/tones/03_white_flat_center.png'),
+    Image.asset('assets/images/tones/04_white_flat_center.png'),
+    Image.asset('assets/images/tones/05_white_flat_center.png'),
+    Image.asset('assets/images/tones/06_white_flat_center.png'),
+    Image.asset('assets/images/tones/07_white_flat_center.png'),
+    Image.asset('assets/images/tones/08_white_flat_center.png'),
+    Image.asset('assets/images/tones/09_white_flat_center.png'),
+    Image.asset('assets/images/tones/10_white_flat_center.png'),
+    Image.asset('assets/images/tones/11_white_flat_center.png'),
+    Image.asset('assets/images/tones/12_white_flat_center.png'),
+    Image.asset('assets/images/tones/13_white_flat_center.png'),
+    Image.asset('assets/images/tones/14_white_flat_center.png'),
+    Image.asset('assets/images/tones/15_white_flat_center.png'),
+    Image.asset('assets/images/tones/16_white_flat_center.png'),
+    Image.asset('assets/images/tones/17_white_flat_center.png'),
+    Image.asset('assets/images/tones/18_white_flat_center.png'),
+    Image.asset('assets/images/tones/19_white_flat_center.png')
+  ];
+
   final List<Image> signNahual = [
     Image.asset('assets/images/nahuales/00_imox.png'),
     Image.asset('assets/images/nahuales/01_iq.png'),

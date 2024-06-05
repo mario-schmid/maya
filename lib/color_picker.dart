@@ -49,22 +49,22 @@ class _ColorPickerState extends State<ColorPicker> {
                         },
                         style: ButtonStyle(
                             foregroundColor:
-                                const MaterialStatePropertyAll(Colors.white),
-                            backgroundColor: MaterialStateProperty.all(
+                                const WidgetStatePropertyAll(Colors.white),
+                            backgroundColor: WidgetStateProperty.all(
                                 mainColor.withOpacity(0.5)),
                             shadowColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                            side: MaterialStateProperty.all(const BorderSide(
+                                WidgetStateProperty.all(Colors.transparent),
+                            side: WidgetStateProperty.all(const BorderSide(
                               color: Colors.white,
                               width: 1,
                             )),
-                            shape: MaterialStateProperty.all<
+                            shape: WidgetStateProperty.all<
                                     RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
-                            textStyle: MaterialStateProperty.all(
+                            textStyle: WidgetStateProperty.all(
                                 const TextStyle(fontSize: 18)),
-                            overlayColor: MaterialStateProperty.all(mainColor)),
+                            overlayColor: WidgetStateProperty.all(mainColor)),
                         child: Text('Cancel'.tr))),
                 SizedBox(width: size.width * 0.06),
                 SizedBox(
@@ -78,22 +78,22 @@ class _ColorPickerState extends State<ColorPicker> {
                         },
                         style: ButtonStyle(
                             foregroundColor:
-                                const MaterialStatePropertyAll(Colors.white),
-                            backgroundColor: MaterialStateProperty.all(
+                                const WidgetStatePropertyAll(Colors.white),
+                            backgroundColor: WidgetStateProperty.all(
                                 mainColor.withOpacity(0.5)),
                             shadowColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                            side: MaterialStateProperty.all(const BorderSide(
+                                WidgetStateProperty.all(Colors.transparent),
+                            side: WidgetStateProperty.all(const BorderSide(
                               color: Colors.white,
                               width: 1,
                             )),
-                            shape: MaterialStateProperty.all<
+                            shape: WidgetStateProperty.all<
                                     RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
-                            textStyle: MaterialStateProperty.all(
+                            textStyle: WidgetStateProperty.all(
                                 const TextStyle(fontSize: 18)),
-                            overlayColor: MaterialStateProperty.all(mainColor)),
+                            overlayColor: WidgetStateProperty.all(mainColor)),
                         child: Text('OK'.tr)))
               ])
             ])));

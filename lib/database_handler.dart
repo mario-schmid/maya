@@ -65,6 +65,32 @@ class DatabaseHandlerEvents {
         queryResult.map((e) => e.values.toList());
     return eventList;
   }
+
+  //TODO: remove in the future
+  Future<bool> updateYear() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> eventResult = await db.query('events');
+
+    if (eventResult.isNotEmpty) {
+      var toRemove = {};
+      for (var e in eventResult) {
+        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+      }
+      List result = toRemove.keys.toList();
+      for (var year in result) {
+        await db.update(
+          'events',
+          {
+            'yearIndex': 5129 + int.parse(year),
+          },
+          where: 'yearIndex = $year',
+        );
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 class DatabaseHandlerNotes {
@@ -128,6 +154,32 @@ class DatabaseHandlerNotes {
         queryResult.map((e) => e.values.toList());
     return noteList;
   }
+
+  //TODO: remove in the future
+  Future<bool> updateYear() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> noteResult = await db.query('notes');
+
+    if (noteResult.isNotEmpty) {
+      var toRemove = {};
+      for (var e in noteResult) {
+        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+      }
+      List result = toRemove.keys.toList();
+      for (var year in result) {
+        await db.update(
+          'notes',
+          {
+            'yearIndex': 5129 + int.parse(year),
+          },
+          where: 'yearIndex = $year',
+        );
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 class DatabaseHandlerTasks {
@@ -153,7 +205,7 @@ class DatabaseHandlerTasks {
       'dayIndex': dayIndex,
       'elementIndex': elementIndex,
       'text': text,
-      'isChecked': isChecked,
+      'isChecked': isChecked ? 1 : 0,
     });
     return result;
   }
@@ -185,7 +237,7 @@ class DatabaseHandlerTasks {
     var result = await db.update(
       'tasks',
       {
-        'isChecked': isChecked,
+        'isChecked': isChecked ? 1 : 0,
       },
       where:
           'yearIndex = $yearIndex AND dayIndex = $dayIndex AND elementIndex = $elementIndex',
@@ -205,6 +257,32 @@ class DatabaseHandlerTasks {
     Iterable<List<Object?>> taskList =
         queryResult.map((e) => e.values.toList());
     return taskList;
+  }
+
+  //TODO: remove in the future
+  Future<bool> updateYear() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> taskResult = await db.query('tasks');
+
+    if (taskResult.isNotEmpty) {
+      var toRemove = {};
+      for (var e in taskResult) {
+        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+      }
+      List result = toRemove.keys.toList();
+      for (var year in result) {
+        await db.update(
+          'tasks',
+          {
+            'yearIndex': 5129 + int.parse(year),
+          },
+          where: 'yearIndex = $year',
+        );
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -266,7 +344,7 @@ class DatabaseHandlerAlarms {
         'notificationBody': elements['alarmSettings'].notificationBody,
         'enableNotificationOnKill':
             elements['alarmSettings'].enableNotificationOnKill ? 1 : 0,
-        'isActive': elements['isActive'] ? 1 : 0,
+        'isActive': elements['isActive'],
       });
     }
   }
@@ -322,6 +400,32 @@ class DatabaseHandlerAlarms {
         queryResult.map((e) => e.values.toList());
     return alarmList;
   }
+
+  //TODO: remove in the future
+  Future<bool> updateYear() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> alarmResult = await db.query('alarms');
+
+    if (alarmResult.isNotEmpty) {
+      var toRemove = {};
+      for (var e in alarmResult) {
+        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+      }
+      List result = toRemove.keys.toList();
+      for (var year in result) {
+        await db.update(
+          'alarms',
+          {
+            'yearIndex': 5129 + int.parse(year),
+          },
+          where: 'yearIndex = $year',
+        );
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 class DatabaseHandlerArrangements {
@@ -372,5 +476,32 @@ class DatabaseHandlerArrangements {
     Iterable<List<Object?>> arrangementList =
         queryResult.map((e) => e.values.toList());
     return arrangementList;
+  }
+
+  //TODO: remove in the future
+  Future<bool> updateYear() async {
+    final Database db = await initializeDB();
+    final List<Map<String, Object?>> arrangementResult =
+        await db.query('arrangements');
+
+    if (arrangementResult.isNotEmpty) {
+      var toRemove = {};
+      for (var e in arrangementResult) {
+        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+      }
+      List result = toRemove.keys.toList();
+      for (var year in result) {
+        await db.update(
+          'arrangements',
+          {
+            'yearIndex': 5129 + int.parse(year),
+          },
+          where: 'yearIndex = $year',
+        );
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 }

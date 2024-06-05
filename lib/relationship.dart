@@ -43,150 +43,156 @@ class _RelationshipState extends State<Relationship> {
                     image: widget.backgroundImage, fit: BoxFit.cover),
               ),
               child: Stack(children: [
-                Column(children: [
-                  SizedBox(height: size.height * 0.08),
-                  Row(children: [
-                    SizedBox(width: size.width * 0.01),
-                    SizedBox(
-                        height: size.height * 0.7,
-                        width: size.width * 0.14,
-                        child: ListWheelScrollView(
-                            physics: const FixedExtentScrollPhysics(),
-                            itemExtent: size.width * 0.2,
-                            diameterRatio: 1.2,
-                            onSelectedItemChanged: (int index) {
-                              // update the UI on selected item changes
-                              setState(() {
-                                toneA = index;
-                              });
-                            },
-                            children: [
-                              for (int i = 0; i < 13; i++)
-                                Container(
-                                    width: size.width * 0.14,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            colorFilter: ColorFilter.mode(
-                                                widget.mainColor,
-                                                BlendMode.modulate),
-                                            image: const AssetImage(
-                                                'assets/images/bg_pattern_three.jpg'),
-                                            fit: BoxFit.cover),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                size.width * 0.02))),
-                                    child:
-                                        MayaImages().imageToneWhiteVertical[i])
-                            ])),
-                    SizedBox(width: size.width * 0.01),
-                    SizedBox(
-                        height: size.height * 0.7,
-                        width: size.width * 0.2,
-                        child: ListWheelScrollView(
-                            physics: const FixedExtentScrollPhysics(),
-                            itemExtent: size.width * 0.2,
-                            diameterRatio: 1.2,
-                            onSelectedItemChanged: (int index) {
-                              // update the UI on selected item changes
-                              setState(() {
-                                nahualA = index;
-                              });
-                            },
-                            children: [
-                              for (int i = 0; i < 20; i++)
-                                Container(
-                                    width: size.width * 0.2,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            colorFilter: ColorFilter.mode(
-                                                widget.mainColor,
-                                                BlendMode.modulate),
-                                            image: const AssetImage(
-                                                'assets/images/bg_pattern_three.jpg'),
-                                            fit: BoxFit.cover),
-                                        /*color: const Color.fromARGB(
-                                            255, 102, 153, 255),*/
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                size.width * 0.02))),
-                                    child:
-                                        MayaImages().signNahual[(i + 10) % 20])
-                            ])),
-                    SizedBox(width: size.width * 0.02),
-                    SizedBox(
-                        width: size.width * 0.24,
-                        child: resultArrow(
-                            size, result, finalTone, (finalNahual + 10) % 20)),
-                    SizedBox(width: size.width * 0.02),
-                    SizedBox(
-                        height: size.height * 0.7,
-                        width: size.width * 0.14,
-                        child: ListWheelScrollView(
-                            physics: const FixedExtentScrollPhysics(),
-                            itemExtent: size.width * 0.2,
-                            diameterRatio: 1.2,
-                            onSelectedItemChanged: (int index) {
-                              // update the UI on selected item changes
-                              setState(() {
-                                toneB = index;
-                              });
-                            },
-                            children: [
-                              for (int i = 0; i < 13; i++)
-                                Container(
-                                    width: size.width * 0.14,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            colorFilter: ColorFilter.mode(
-                                                widget.mainColor,
-                                                BlendMode.modulate),
-                                            image: const AssetImage(
-                                                'assets/images/bg_pattern_three.jpg'),
-                                            fit: BoxFit.cover),
-                                        /*color: const Color.fromARGB(
-                                            255, 102, 153, 255),*/
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                size.width * 0.02))),
-                                    child:
-                                        MayaImages().imageToneWhiteVertical[i])
-                            ])),
-                    SizedBox(width: size.width * 0.01),
-                    SizedBox(
-                        height: size.height * 0.7,
-                        width: size.width * 0.2,
-                        child: ListWheelScrollView(
-                            physics: const FixedExtentScrollPhysics(),
-                            itemExtent: size.width * 0.2,
-                            diameterRatio: 1.2,
-                            onSelectedItemChanged: (int index) {
-                              // update the UI on selected item changes
-                              setState(() {
-                                nahualB = index;
-                              });
-                            },
-                            children: [
-                              for (int i = 0; i < 20; i++)
-                                Container(
-                                    width: size.width * 0.2,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            colorFilter: ColorFilter.mode(
-                                                widget.mainColor,
-                                                BlendMode.modulate),
-                                            image: const AssetImage(
-                                                'assets/images/bg_pattern_three.jpg'),
-                                            fit: BoxFit.cover),
-                                        /*color: const Color.fromARGB(
-                                            255, 102, 153, 255),*/
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                size.width * 0.02))),
-                                    child:
-                                        MayaImages().signNahual[(i + 10) % 20])
-                            ]))
-                  ])
-                ]),
+                Positioned(
+                  top: size.height * 0.08,
+                  child: SizedBox(
+                    height: size.height * 0.7,
+                    width: size.width,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                              width: size.width * 0.126,
+                              child: ListWheelScrollView(
+                                  physics: const FixedExtentScrollPhysics(),
+                                  itemExtent: size.width * 0.2,
+                                  diameterRatio: 1.2,
+                                  onSelectedItemChanged: (int index) {
+                                    // update the UI on selected item changes
+                                    setState(() {
+                                      toneA = index;
+                                    });
+                                  },
+                                  children: [
+                                    for (int i = 0; i < 13; i++)
+                                      Container(
+                                          width: size.width * 0.126,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  colorFilter: ColorFilter.mode(
+                                                      widget.mainColor,
+                                                      BlendMode.modulate),
+                                                  image: const AssetImage(
+                                                      'assets/images/bg_pattern_three.jpg'),
+                                                  fit: BoxFit.cover),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      size.width * 0.02))),
+                                          child: Center(
+                                            child: SizedBox(
+                                                height: size.width * 0.17,
+                                                child: MayaImages()
+                                                    .imageToneWhiteVertical[i]),
+                                          ))
+                                  ])),
+                          SizedBox(
+                              width: size.width * 0.214,
+                              child: ListWheelScrollView(
+                                  physics: const FixedExtentScrollPhysics(),
+                                  itemExtent: size.width * 0.2,
+                                  diameterRatio: 1.2,
+                                  onSelectedItemChanged: (int index) {
+                                    // update the UI on selected item changes
+                                    setState(() {
+                                      nahualA = index;
+                                    });
+                                  },
+                                  children: [
+                                    for (int i = 0; i < 20; i++)
+                                      Container(
+                                          width: size.width * 0.214,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  colorFilter: ColorFilter.mode(
+                                                      widget.mainColor,
+                                                      BlendMode.modulate),
+                                                  image: const AssetImage(
+                                                      'assets/images/bg_pattern_three.jpg'),
+                                                  fit: BoxFit.cover),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      size.width * 0.02))),
+                                          child: Center(
+                                            child: SizedBox(
+                                                width: size.width * 0.2,
+                                                child: MayaImages()
+                                                    .signNahual[(i + 10) % 20]),
+                                          ))
+                                  ])),
+                          resultArrow(
+                              size, result, finalTone, (finalNahual + 10) % 20),
+                          SizedBox(
+                              width: size.width * 0.126,
+                              child: ListWheelScrollView(
+                                  physics: const FixedExtentScrollPhysics(),
+                                  itemExtent: size.width * 0.2,
+                                  diameterRatio: 1.2,
+                                  onSelectedItemChanged: (int index) {
+                                    // update the UI on selected item changes
+                                    setState(() {
+                                      toneB = index;
+                                    });
+                                  },
+                                  children: [
+                                    for (int i = 0; i < 13; i++)
+                                      Container(
+                                          width: size.width * 0.126,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  colorFilter: ColorFilter.mode(
+                                                      widget.mainColor,
+                                                      BlendMode.modulate),
+                                                  image: const AssetImage(
+                                                      'assets/images/bg_pattern_three.jpg'),
+                                                  fit: BoxFit.cover),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      size.width * 0.02))),
+                                          child: Center(
+                                            child: SizedBox(
+                                                height: size.width * 0.17,
+                                                child: MayaImages()
+                                                    .imageToneWhiteVertical[i]),
+                                          ))
+                                  ])),
+                          SizedBox(
+                              width: size.width * 0.214,
+                              child: ListWheelScrollView(
+                                  physics: const FixedExtentScrollPhysics(),
+                                  itemExtent: size.width * 0.2,
+                                  diameterRatio: 1.2,
+                                  onSelectedItemChanged: (int index) {
+                                    // update the UI on selected item changes
+                                    setState(() {
+                                      nahualB = index;
+                                    });
+                                  },
+                                  children: [
+                                    for (int i = 0; i < 20; i++)
+                                      Container(
+                                          width: size.width * 0.214,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  colorFilter: ColorFilter.mode(
+                                                      widget.mainColor,
+                                                      BlendMode.modulate),
+                                                  image: const AssetImage(
+                                                      'assets/images/bg_pattern_three.jpg'),
+                                                  fit: BoxFit.cover),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(
+                                                      size.width * 0.02))),
+                                          child: Center(
+                                            child: SizedBox(
+                                                width: size.width * 0.2,
+                                                child: MayaImages()
+                                                    .signNahual[(i + 10) % 20]),
+                                          ))
+                                  ]))
+                        ]),
+                  ),
+                ),
                 Positioned(
                     left: size.width * 0.35,
                     top: size.height * 0.7,
@@ -230,17 +236,29 @@ class _RelationshipState extends State<Relationship> {
 
 Widget resultArrow(Size size, bool result, int tone, int nahual) {
   if (result) {
-    return Column(children: [
-      SizedBox(
-          height: size.width * 0.1,
-          child: MayaImages().imageToneWhiteCurvedBottom[tone]),
-      SizedBox(height: size.width * 0.01),
-      MayaImages().signNahual[nahual],
-      SizedBox(height: size.width * 0.11)
-    ]);
+    return Padding(
+      padding: EdgeInsets.only(bottom: size.height * 0.052),
+      child: SizedBox(
+        height: size.width * 0.34,
+        width: size.width * 0.24,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                  width: size.width * 0.2,
+                  child: MayaImages().imageToneWhiteCurvedBottom[tone]),
+              MayaImages().signNahual[nahual],
+            ]),
+      ),
+    );
   } else {
-    return CustomPaint(
-      painter: ArrowPainter(),
+    return SizedBox(
+      //height: 0,
+      width: size.width * 0.24,
+      child: CustomPaint(
+        painter: ArrowPainter(),
+      ),
     );
   }
 }

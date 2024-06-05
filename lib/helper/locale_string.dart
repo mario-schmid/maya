@@ -80,7 +80,10 @@ class LocaleString extends Translations {
           'Only jpeg/jpg and png files are allowed!':
               'Only jpeg/jpg and png files are allowed!',
           'Only mp3, ogg or wav files are allowed!':
-              'Only mp3, ogg or wav files are allowed!'
+              'Only mp3, ogg or wav files are allowed!',
+          //
+          'Please restart the app to restore all data!':
+              'Please restart the app to restore all data!'
         },
         //GERMAN LANGUAGE
         'de_DE': {
@@ -161,7 +164,10 @@ class LocaleString extends Translations {
           'Only jpeg/jpg and png files are allowed!':
               'Es sind nur jpeg/jpg und png Dateien erlaubt!',
           'Only mp3, ogg or wav files are allowed!':
-              'Es sind nur mp3, ogg oder wav Dateien erlaubt!'
+              'Es sind nur mp3, ogg oder wav Dateien erlaubt!',
+          //
+          'Please restart the app to restore all data!':
+              'Bitte starte die App neu, um alle Daten wiederherzustellen!'
         },
         //FRENCH LANGUAGE
         'fr_FR': {
@@ -242,7 +248,10 @@ class LocaleString extends Translations {
           'Only jpeg/jpg and png files are allowed!':
               'Seuls les fichiers jpeg/jpg et png sont autorisés!',
           'Only mp3, ogg or wav files are allowed!':
-              'Seuls les fichiers mp3, ogg ou wav sont autorisés!'
+              'Seuls les fichiers mp3, ogg ou wav sont autorisés!',
+          //
+          'Please restart the app to restore all data!':
+              "Veuillez redémarrer l'application pour restaurer toutes les données!"
         },
         //SPAIN LANGUAGE
         'es_ES': {
@@ -323,7 +332,10 @@ class LocaleString extends Translations {
           'Only jpeg/jpg and png files are allowed!':
               'Sólo se permiten archivos lgep/jpg y png!',
           'Only mp3, ogg or wav files are allowed!':
-              'Sólo se permiten archivos mp3, ogg o wav!'
+              'Sólo se permiten archivos mp3, ogg o wav!',
+          //
+          'Please restart the app to restore all data!':
+              'Reinicie la aplicación para restaurar todos los datos!'
         },
       };
 }

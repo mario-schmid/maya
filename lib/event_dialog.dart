@@ -5,10 +5,11 @@ import 'package:maya/helper/maya_style.dart';
 import 'package:maya/time_format.dart';
 import 'package:provider/provider.dart';
 
-import 'items.dart';
+import 'maya_items.dart';
 import 'providers/dayitems.dart';
 
 class EventDialog extends StatefulWidget {
+  final Color mainColor;
   final int yearIndex;
   final int dayIndex;
   final String begin;
@@ -18,6 +19,7 @@ class EventDialog extends StatefulWidget {
   final bool flagCreateChange;
   const EventDialog(
       {super.key,
+      required this.mainColor,
       required this.yearIndex,
       required this.dayIndex,
       required this.begin,
@@ -375,19 +377,26 @@ class _EventDialogState extends State<EventDialog> {
                                                     .add(
                                                         widget.yearIndex,
                                                         widget.dayIndex,
-                                                        eventItem(
-                                                            widget.yearIndex,
-                                                            widget.dayIndex,
-                                                            _timeBeginController
-                                                                .text,
-                                                            _timeEndController
-                                                                .text,
-                                                            _titleController
-                                                                .text,
-                                                            _descriptionController
-                                                                .text,
-                                                            true,
-                                                            0));
+                                                        MayaItems(
+                                                                mainColor: widget
+                                                                    .mainColor,
+                                                                yearIndex:
+                                                                    widget
+                                                                        .yearIndex,
+                                                                dayIndex: widget
+                                                                    .dayIndex,
+                                                                newListItem:
+                                                                    true,
+                                                                index: 0)
+                                                            .event(
+                                                                _timeBeginController
+                                                                    .text,
+                                                                _timeEndController
+                                                                    .text,
+                                                                _titleController
+                                                                    .text,
+                                                                _descriptionController
+                                                                    .text));
                                               } else {
                                                 Navigator.of(context,
                                                         rootNavigator: true)

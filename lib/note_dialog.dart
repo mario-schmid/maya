@@ -3,16 +3,18 @@ import 'package:get/get.dart';
 import 'package:maya/helper/maya_style.dart';
 import 'package:provider/provider.dart';
 
-import 'items.dart';
+import 'maya_items.dart';
 import 'providers/dayitems.dart';
 
 class NoteDialog extends StatefulWidget {
+  final Color mainColor;
   final int yearIndex;
   final int dayIndex;
   final String? note;
   final bool flagCreateChange;
   const NoteDialog(
       {super.key,
+      required this.mainColor,
       required this.yearIndex,
       required this.dayIndex,
       required this.note,
@@ -143,14 +145,21 @@ class _NoteDialogState extends State<NoteDialog> {
                                                         .add(
                                                             widget.yearIndex,
                                                             widget.dayIndex,
-                                                            noteItem(
-                                                                widget
-                                                                    .yearIndex,
-                                                                widget.dayIndex,
-                                                                _noteController
-                                                                    .text,
-                                                                true,
-                                                                0));
+                                                            MayaItems(
+                                                                    mainColor:
+                                                                        widget
+                                                                            .mainColor,
+                                                                    yearIndex:
+                                                                        widget
+                                                                            .yearIndex,
+                                                                    dayIndex: widget
+                                                                        .dayIndex,
+                                                                    newListItem:
+                                                                        true,
+                                                                    index: 0)
+                                                                .note(
+                                                                    _noteController
+                                                                        .text));
                                                   } else {
                                                     Navigator.of(context,
                                                             rootNavigator: true)

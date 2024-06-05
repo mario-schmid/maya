@@ -1,4 +1,9 @@
-var arrayIndex = List.empty(growable: true);
+class Globals {
+  static final Map<int, Map<int, List<List<int>>>> _arrayIndex =
+      <int, Map<int, List<List<int>>>>{};
+
+  get arrayIndex => _arrayIndex;
+}
 
 // 0 -> leading number
 // 1 -> position Index

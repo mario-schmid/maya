@@ -12,30 +12,31 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:maya/data/maya_alarm.dart';
+import 'package:maya/data/maya_day.dart';
 import 'package:maya/data/maya_event.dart';
 import 'package:maya/data/maya_task.dart';
+import 'package:maya/date_choice.dart';
 import 'package:maya/helper/maya_images.dart';
 import 'package:maya/helper/maya_lists.dart';
 import 'package:maya/helper/maya_style.dart';
 import 'package:maya/methods/get_delda_year.dart';
 import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/providers/dayitems.dart';
-import 'package:maya/providers/yeardata.dart';
+import 'package:maya/providers/mayadata.dart';
 import 'package:maya/relationship.dart';
 import 'package:maya/ring_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'cholqij.dart';
 import 'classes/position.dart';
 import 'color_picker.dart';
-import 'data/maya_day.dart';
 import 'database_handler.dart';
 import 'date_calculator.dart';
-import 'globals.dart';
 import 'helper/locale_string.dart';
-import 'items.dart';
+import 'maya_items.dart';
 import 'methods/get_kin_nummber.dart';
 import 'methods/get_nahual.dart';
 import 'methods/get_tone.dart';
@@ -211,7 +212,7 @@ class MayaApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => DayItems()),
-        ChangeNotifierProvider(create: (context) => YearData())
+        ChangeNotifierProvider(create: (context) => MayaData())
       ],
       child: GetMaterialApp(
           navigatorKey: navigatorKey,
@@ -348,6 +349,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   DateTime now = DateTime.now();
 
+  //TODO: remove in the future
+  Future<bool> flagUpdateYear = updateYear();
+
   final Future<Iterable<List<Object?>>> _eventList =
       DatabaseHandlerEvents().retrieveEvents();
   final Future<Iterable<List<Object?>>> _noteList =
@@ -389,8 +393,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   late int currYear;
   late int chosenYear;
-  late int currHaabYear;
-  late int chosenHaabYear;
   int nYear = 1;
 
   late int tone;
@@ -447,29 +449,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/tones/19_white_flat_bottom.png')
   ];
 
-  final List<Image> imageToneWhiteFlatCenter = [
-    Image.asset('assets/images/tones/00_white_center.png'),
-    Image.asset('assets/images/tones/01_white_flat_center.png'),
-    Image.asset('assets/images/tones/02_white_flat_center.png'),
-    Image.asset('assets/images/tones/03_white_flat_center.png'),
-    Image.asset('assets/images/tones/04_white_flat_center.png'),
-    Image.asset('assets/images/tones/05_white_flat_center.png'),
-    Image.asset('assets/images/tones/06_white_flat_center.png'),
-    Image.asset('assets/images/tones/07_white_flat_center.png'),
-    Image.asset('assets/images/tones/08_white_flat_center.png'),
-    Image.asset('assets/images/tones/09_white_flat_center.png'),
-    Image.asset('assets/images/tones/10_white_flat_center.png'),
-    Image.asset('assets/images/tones/11_white_flat_center.png'),
-    Image.asset('assets/images/tones/12_white_flat_center.png'),
-    Image.asset('assets/images/tones/13_white_flat_center.png'),
-    Image.asset('assets/images/tones/14_white_flat_center.png'),
-    Image.asset('assets/images/tones/15_white_flat_center.png'),
-    Image.asset('assets/images/tones/16_white_flat_center.png'),
-    Image.asset('assets/images/tones/17_white_flat_center.png'),
-    Image.asset('assets/images/tones/18_white_flat_center.png'),
-    Image.asset('assets/images/tones/19_white_flat_center.png')
-  ];
-
   final List<Image> trecenaMask = [
     Image.asset('assets/images/trecenaRed.png'),
     Image.asset('assets/images/trecenaWhite.png'),
@@ -491,6 +470,46 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   @override
   void initState() {
+    loadMainColor();
+    loadLanguage();
+    //TODO: remove in the future
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (await flagUpdateYear) {
+        await showDialog(
+            // ignore: use_build_context_synchronously
+            context: context,
+            builder: (BuildContext context) => Center(
+                    child: AlertDialog(
+                        insetPadding: const EdgeInsets.all(0),
+                        contentPadding: const EdgeInsets.all(0),
+                        actionsPadding: const EdgeInsets.all(0),
+                        actionsAlignment: MainAxisAlignment.center,
+                        content: Container(
+                          height: 120,
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          padding: const EdgeInsets.all(20),
+                          decoration:
+                              MayaStyle().popUpDialogDecoration(mainColor),
+                          child: Text(
+                              'Please restart the app to restore all data!'.tr,
+                              style: MayaStyle.popUpDialogBody),
+                        ),
+                        actions: <Widget>[
+                      RawMaterialButton(
+                          child: const Text('Restart',
+                              style: TextStyle(
+                                  fontFamily: 'Robot',
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.none)),
+                          onPressed: () {
+                            Restart.restartApp();
+                          }),
+                    ])));
+      }
+    });
+
     if (Alarm.android) {
       checkAndroidNotificationPermission();
       checkAndroidScheduleExactAlarmPermission();
@@ -511,8 +530,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     });
 
     loadTimeFormat();
-    loadLanguage();
-    loadMainColor();
     loadBgFilePath();
 
     Future.delayed(
@@ -539,11 +556,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             86400000;
 
     const int dDays = 62;
-    baktun = 13; // TODO baktum?
-    katun = (daysGoneBy + dDays) ~/ 7200;
-    tun = (daysGoneBy + dDays - katun * 7200) ~/ 360;
-    winal = (daysGoneBy + dDays - katun * 7200 - tun * 360) ~/ 20;
-    kin = daysGoneBy + dDays - katun * 7200 - tun * 360 - winal * 20;
+    baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
+    katun = (daysGoneBy + dDays) ~/ 7200 % 20;
+    tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
+    winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
+    kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
 
     cBaktun = baktun;
     cKatun = katun;
@@ -555,20 +572,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     chosenDay = currDay;
     xDayTotal = currDay;
 
-    currYear = daysGoneBy ~/ 365;
+    //TODO
+    currYear = 5129 + daysGoneBy ~/ 365;
     chosenYear = currYear;
-    currHaabYear = currYear + 5129;
-    chosenHaabYear = currHaabYear;
 
-    for (int i = 0; i <= currYear + 1; i++) {
-      YearData().yearData.add(List.generate(365, (index) => Day()));
-      DayItems().dayItems.add(List.generate(
-          365, (index) => List<Dismissible>.empty(growable: true)));
-      arrayIndex.add(List.generate(
-          365,
-          (index) =>
-              List.generate(5, (index) => List<int>.empty(growable: true))));
-    }
     loadData();
 
     tone = (startTone + daysGoneBy) % 13;
@@ -597,11 +604,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
     super.initState();
   }
-
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
-  checkAudioFiles(List<AlarmSettings> alarms) async {
+  /*checkAudioFiles(List<AlarmSettings> alarms) async {
     for (int i = 0; i < alarms.length; i++) {
       if (!await File(alarms[i].assetAudioPath).exists() &&
           alarms[i].assetAudioPath != 'assets/audio/ringtone.mp3') {
@@ -620,7 +626,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         Alarm.set(alarmSettings: tmpAlarmSettings);
       }
     }
-  }
+  }*/
 
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
@@ -632,90 +638,123 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     alarmList = (await _alarmList).toList();
     arrangementList = (await _arrangementList).toList();
 
-    for (int i = 0; i < eventList.length; i++) {
-      YearData().yearData[eventList[i][0]][eventList[i][1]].eventList.add(
-              Event([
-            eventList[i][3],
-            eventList[i][4],
-            eventList[i][5],
-            eventList[i][6]
-          ]));
+    for (var event in eventList) {
+      if (!MayaData().mayaData.containsKey(event[0])) {
+        MayaData().mayaData[event[0]] = <int, Day>{};
+        MayaData().mayaData[event[0]][event[1]] = Day();
+      } else if (!MayaData().mayaData[event[0]].containsKey(event[1])) {
+        MayaData().mayaData[event[0]][event[1]] = Day();
+      }
+
+      MayaData()
+          .mayaData[event[0]][event[1]]
+          .eventList
+          .add(Event([event[3], event[4], event[5], event[6]]));
     }
-    for (int i = 0; i < noteList.length; i++) {
-      YearData()
-          .yearData[noteList[i][0]][noteList[i][1]]
-          .noteList
-          .add(noteList[i][3]);
+    for (var note in noteList) {
+      if (!MayaData().mayaData.containsKey(note[0])) {
+        MayaData().mayaData[note[0]] = <int, Day>{};
+        MayaData().mayaData[note[0]][note[1]] = Day();
+      } else if (!MayaData().mayaData[note[0]].containsKey(note[1])) {
+        MayaData().mayaData[note[0]][note[1]] = Day();
+      }
+
+      MayaData().mayaData[note[0]][note[1]].noteList.add(note[3]);
     }
-    for (int i = 0; i < taskList.length; i++) {
-      YearData()
-          .yearData[taskList[i][0]][taskList[i][1]]
+    for (var task in taskList) {
+      if (!MayaData().mayaData.containsKey(task[0])) {
+        MayaData().mayaData[task[0]] = <int, Day>{};
+        MayaData().mayaData[task[0]][task[1]] = Day();
+      } else if (!MayaData().mayaData[task[0]].containsKey(task[1])) {
+        MayaData().mayaData[task[0]][task[1]] = Day();
+      }
+
+      MayaData()
+          .mayaData[task[0]][task[1]]
           .taskList
-          .add(Task(taskList[i][3], taskList[i][4] == 0 ? false : true));
+          .add(Task(task[3], task[4] == 0 ? false : true));
     }
-    for (int i = 0; i < alarmList.length; i++) {
-      YearData().yearData[alarmList[i][0]][alarmList[i][1]].alarmList.add(
-          MayaAlarm(
-              AlarmSettings(
-                  id: alarmList[i][3],
-                  dateTime: dateTimeformat.parse(alarmList[i][4]),
-                  assetAudioPath: alarmList[i][5],
-                  loopAudio: alarmList[i][6] == 0 ? false : true,
-                  vibrate: alarmList[i][7] == 0 ? false : true,
-                  volume: alarmList[i][8],
-                  fadeDuration: alarmList[i][9],
-                  notificationTitle: alarmList[i][10],
-                  notificationBody: alarmList[i][11],
-                  enableNotificationOnKill:
-                      alarmList[i][12] == 0 ? false : true),
-              alarmList[i][13] == 0 ? false : true));
+    for (var alarm in alarmList) {
+      if (!MayaData().mayaData.containsKey(alarm[0])) {
+        MayaData().mayaData[alarm[0]] = <int, Day>{};
+        MayaData().mayaData[alarm[0]][alarm[1]] = Day();
+      } else if (!MayaData().mayaData[alarm[0]].containsKey(alarm[1])) {
+        MayaData().mayaData[alarm[0]][alarm[1]] = Day();
+      }
+
+      MayaData().mayaData[alarm[0]][alarm[1]].alarmList.add(MayaAlarm(
+          AlarmSettings(
+              id: alarm[3],
+              dateTime: dateTimeformat.parse(alarm[4]),
+              assetAudioPath: alarm[5],
+              loopAudio: alarm[6] == 0 ? false : true,
+              vibrate: alarm[7] == 0 ? false : true,
+              volume: alarm[8],
+              fadeDuration: alarm[9],
+              notificationTitle: alarm[10],
+              notificationBody: alarm[11],
+              enableNotificationOnKill: alarm[12] == 0 ? false : true),
+          alarm[13] == 0 ? false : true));
     }
-    for (int i = 0; i < arrangementList.length; i++) {
+    for (var arrangement in arrangementList) {
       int l = 0;
       int m = 0;
       int n = 0;
       int o = 0;
       String removedBrackets =
-          arrangementList[i][2].substring(1, arrangementList[i][2].length - 1);
+          arrangement[2].substring(1, arrangement[2].length - 1);
       List<String> strArrangements = removedBrackets.split(',');
       List<int> arrangements =
           strArrangements.map((data) => int.parse(data)).toList();
       for (int j = 0; j < arrangements.length; j++) {
+        if (!DayItems().dayItems.containsKey(arrangement[0])) {
+          DayItems().dayItems[arrangement[0]] = <int, List<Dismissible>>{};
+          DayItems().dayItems[arrangement[0]][arrangement[1]] = <Dismissible>[];
+        } else if (!DayItems()
+            .dayItems[arrangement[0]]
+            .containsKey(arrangement[1])) {
+          DayItems().dayItems[arrangement[0]][arrangement[1]] = <Dismissible>[];
+        }
+
         if (arrangements[j] == 0) {
-          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
-              eventItem(
-                  arrangementList[i][0],
-                  arrangementList[i][1],
-                  eventList[l][3],
-                  eventList[l][4],
-                  eventList[l][5],
-                  eventList[l][6],
-                  false,
-                  l));
+          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
+                  mainColor: mainColor,
+                  yearIndex: arrangement[0],
+                  dayIndex: arrangement[1],
+                  newListItem: false,
+                  index: l)
+              .event(eventList[l][3], eventList[l][4], eventList[l][5],
+                  eventList[l][6]));
           l++;
         }
         if (arrangements[j] == 1) {
-          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
-              noteItem(arrangementList[i][0], arrangementList[i][1],
-                  noteList[m][3], false, m));
+          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
+                  mainColor: mainColor,
+                  yearIndex: arrangement[0],
+                  dayIndex: arrangement[1],
+                  newListItem: false,
+                  index: m)
+              .note(noteList[m][3]));
           m++;
         }
         if (arrangements[j] == 2) {
-          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
-              taskItem(
-                  arrangementList[i][0],
-                  arrangementList[i][1],
-                  taskList[n][3],
-                  taskList[n][4] == 0 ? false : true,
-                  false,
-                  n));
+          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
+                  mainColor: mainColor,
+                  yearIndex: arrangement[0],
+                  dayIndex: arrangement[1],
+                  newListItem: false,
+                  index: n)
+              .task(taskList[n][3], taskList[n][4] == 0 ? false : true));
           n++;
         }
         if (arrangements[j] == 3) {
-          DayItems().dayItems[arrangementList[i][0]][arrangementList[i][1]].add(
-              alarmItem(
-                  arrangementList[i][0],
-                  arrangementList[i][1],
+          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
+                  mainColor: mainColor,
+                  yearIndex: arrangement[0],
+                  dayIndex: arrangement[1],
+                  newListItem: false,
+                  index: o)
+              .alarm(
                   AlarmSettings(
                       id: alarmList[o][3],
                       dateTime: dateTimeformat.parse(alarmList[o][4]),
@@ -728,9 +767,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       notificationBody: alarmList[o][11],
                       enableNotificationOnKill:
                           alarmList[o][12] == 0 ? false : true),
-                  alarmList[o][13] == 0 ? false : true,
-                  false,
-                  o));
+                  alarmList[o][13] == 0 ? false : true));
           o++;
         }
       }
@@ -853,7 +890,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       if (chosenDay > 364) {
         chosenDay = 0;
         chosenYear++;
-        chosenHaabYear++;
       }
       xDayTotal = chosenDay; // TODO: check if correct!
 
@@ -894,6 +930,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             katun++;
             if (katun > 19) {
               katun = 0;
+              baktun++;
             }
           }
         }
@@ -911,6 +948,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             cKatun++;
             if (cKatun > 19) {
               cKatun = 0;
+              cBaktun++;
             }
           }
         }
@@ -960,7 +998,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       chosenDay = currDay;
       xDayTotal = currDay;
       chosenYear = currYear;
-      chosenHaabYear = currHaabYear;
     });
   }
 
@@ -981,6 +1018,35 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   void dispose() {
     subscription?.cancel();
     super.dispose();
+  }
+
+  bool inticators(int i, Map<int, Map<int, Day>> mayaData) {
+    int cYear = (currYear + (xDayTotal + i) / 365).floor();
+    int cDay = (xDayTotal + i) % 365;
+    if (mayaData.containsKey(cYear)) {
+      if (mayaData[cYear]!.containsKey(cDay)) {
+        if (mayaData[cYear]![cDay]!
+                .eventList
+                .any((element) => element.event != null) ||
+            mayaData[cYear]![cDay]!
+                .noteList
+                .any((element) => element != null) ||
+            mayaData[cYear]![cDay]!
+                .taskList
+                .any((element) => element.isChecked == false) ||
+            mayaData[cYear]![cDay]!
+                .alarmList
+                .any((element) => element.isActive == true)) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   /* ------------------------------------------------------------------------ */
@@ -1157,19 +1223,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         },
                         style: ButtonStyle(
                             foregroundColor:
-                                const MaterialStatePropertyAll(Colors.white),
-                            backgroundColor: MaterialStateProperty.all(
+                                const WidgetStatePropertyAll(Colors.white),
+                            backgroundColor: WidgetStateProperty.all(
                                 mainColor.withOpacity(0.5)),
                             shadowColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                            side: MaterialStateProperty.all(const BorderSide(
+                                WidgetStateProperty.all(Colors.transparent),
+                            side: WidgetStateProperty.all(const BorderSide(
                                 color: Colors.white, width: 1)),
-                            shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        size.width * 0.01))),
-                            overlayColor: MaterialStateProperty.all(mainColor)),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            size.width * 0.01))),
+                            overlayColor: WidgetStateProperty.all(mainColor)),
                         child: SvgPicture.asset(
                             "assets/vector_graphics/rby_icon.svg",
                             height: size.width * 0.08,
@@ -1193,7 +1259,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               backgroundImage = FileImage(File(bgFilePath!));
                             } else {
                               if (!context.mounted) return;
-                              showImageFileFormatDialog(context, size);
+                              showImageFileFormatDialog(
+                                  context, mainColor, size);
                             }
                           }
                         },
@@ -1204,19 +1271,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         },
                         style: ButtonStyle(
                             foregroundColor:
-                                const MaterialStatePropertyAll(Colors.white),
-                            backgroundColor: MaterialStateProperty.all(
+                                const WidgetStatePropertyAll(Colors.white),
+                            backgroundColor: WidgetStateProperty.all(
                                 mainColor.withOpacity(0.5)),
                             shadowColor:
-                                MaterialStateProperty.all(Colors.transparent),
-                            side: MaterialStateProperty.all(const BorderSide(
+                                WidgetStateProperty.all(Colors.transparent),
+                            side: WidgetStateProperty.all(const BorderSide(
                                 color: Colors.white, width: 1)),
-                            shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        size.width * 0.01))),
-                            overlayColor: MaterialStateProperty.all(mainColor)),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            size.width * 0.01))),
+                            overlayColor: WidgetStateProperty.all(mainColor)),
                         child: SvgPicture.asset(
                             "assets/vector_graphics/image_icon.svg",
                             height: size.width * 0.08,
@@ -1235,9 +1302,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             kofiName: "mario_schmid",
                             kofiColor: KofiColor.Blue,
                             style: ButtonStyle(
-                                foregroundColor: const MaterialStatePropertyAll(
-                                    Colors.white),
-                                shape: MaterialStateProperty.all<
+                                foregroundColor:
+                                    const WidgetStatePropertyAll(Colors.white),
+                                shape: WidgetStateProperty.all<
                                         RoundedRectangleBorder>(
                                     RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
@@ -1255,12 +1322,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         paypalButtonId: "S9YDP9YQ2KHVL",
                         style: ButtonStyle(
                             foregroundColor:
-                                const MaterialStatePropertyAll(Colors.white),
-                            shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        size.width * 0.014)))),
+                                const WidgetStatePropertyAll(Colors.white),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            size.width * 0.014)))),
                       )),
                 ),
                 Padding(
@@ -1272,14 +1339,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         patreonName: "mario_schmid",
                         style: ButtonStyle(
                             backgroundColor:
-                                const MaterialStatePropertyAll(Colors.red),
+                                const WidgetStatePropertyAll(Colors.red),
                             foregroundColor:
-                                const MaterialStatePropertyAll(Colors.white),
-                            shape: MaterialStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                        size.width * 0.014)))),
+                                const WidgetStatePropertyAll(Colors.white),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            size.width * 0.014)))),
                       )),
                 ),
                 SizedBox(
@@ -1290,7 +1357,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       color: BuyMeACoffeeColor.Green,
                       style: ButtonStyle(
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           size.width * 0.014)))),
@@ -1734,9 +1801,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                           width:
                                                               sizeImageToneWhiteFlatCenter
                                                                   .width,
-                                                          child:
-                                                              imageToneWhiteFlatCenter[
-                                                                  j]))),
+                                                          child: MayaImages()
+                                                                  .imageToneWhiteFlatCenter[
+                                                              j]))),
                                             for (int j = 0; j < 20; j++)
                                               Positioned(
                                                   top: posBoxTextWinal.top,
@@ -1803,9 +1870,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                         width:
                                                             sizeImageToneWhiteFlatCenterWayeb
                                                                 .width,
-                                                        child:
-                                                            imageToneWhiteFlatCenter[
-                                                                i]))),
+                                                        child: MayaImages()
+                                                                .imageToneWhiteFlatCenter[
+                                                            i]))),
                                           Positioned(
                                               top:
                                                   posImageToneWhiteFlatCenterWayeb
@@ -1824,9 +1891,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                       width:
                                                           sizeImageToneWhiteFlatCenterWayeb
                                                               .width,
-                                                      child:
-                                                          imageToneWhiteFlatCenter[
-                                                              0]))),
+                                                      child: MayaImages()
+                                                              .imageToneWhiteFlatCenter[
+                                                          0]))),
                                           for (int i = 0; i < 5; i++)
                                             Positioned(
                                                 top: posBoxTextWinalWayeb.top,
@@ -1888,31 +1955,33 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
-                          child: Consumer<YearData>(
+                          child: Consumer<MayaData>(
                               builder: (context, data, child) {
                             return Stack(children: [
                               for (int i = -20; i < 21; i++)
-                                if (data.yearData[(currYear + (xDayTotal + i) / 365).floor()][(xDayTotal + i) % 365].eventList.any((element) => element.event != null) ||
-                                    data
-                                        .yearData[(currYear + (xDayTotal + i) / 365).floor()]
-                                            [(xDayTotal + i) % 365]
-                                        .noteList
-                                        .any((element) => element != null) ||
-                                    data
-                                        .yearData[(currYear + (xDayTotal + i) / 365).floor()]
-                                            [(xDayTotal + i) % 365]
-                                        .taskList
-                                        .any((element) =>
-                                            element.isChecked == false) ||
-                                    data.yearData[(currYear + (xDayTotal + i) / 365).floor()][(xDayTotal + i) % 365].alarmList.any(
-                                        (element) => element.isActive == true))
+                                if (inticators(i, data.mayaData))
                                   Positioned(
                                       top: posFrame.top,
                                       left: posFrame.left,
                                       child: Transform.rotate(
-                                          angle: 360 / 365 * ((xDayTotal + i) % 365) / 180 * pi,
+                                          angle: 360 /
+                                              365 *
+                                              ((xDayTotal + i) % 365) /
+                                              180 *
+                                              pi,
                                           origin: offsetFrame,
-                                          child: Container(height: sizeFrame.height, width: sizeFrame.width, decoration: BoxDecoration(color: const Color.fromARGB(32, 255, 255, 255), border: Border.all(color: Colors.white, width: 1), borderRadius: BorderRadius.circular(5), shape: BoxShape.rectangle))))
+                                          child: Container(
+                                              height: sizeFrame.height,
+                                              width: sizeFrame.width,
+                                              decoration: BoxDecoration(
+                                                  color: const Color.fromARGB(
+                                                      32, 255, 255, 255),
+                                                  border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  shape: BoxShape.rectangle))))
                             ]);
                           })))),
               Positioned(
@@ -2001,7 +2070,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 // get chosenYear, chosenHaabYear
                                 chosenYear = currYear +
                                     ((angle + 180 / 365) / 360).floor();
-                                chosenHaabYear = chosenYear + 5129;
 
                                 if (chosenDayTotal % 10 == 0) {
                                   xDayTotal = chosenDayTotal;
@@ -2035,6 +2103,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         katun++;
                                         if (katun > 19) {
                                           katun = 0;
+                                          baktun++;
                                         }
                                       }
                                     }
@@ -2069,6 +2138,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         katun--;
                                         if (katun < 0) {
                                           katun = 19;
+                                          baktun--;
                                         }
                                       }
                                     }
@@ -2201,29 +2271,37 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   left: posButtonTheYear.left,
                   child: GestureDetector(
                       onTap: () {
-                        int beginTone = (startTone + 365 * chosenYear) % 13;
-                        int beginNahual = (startNahual + 365 * chosenYear) % 20;
+                        int beginTone =
+                            (startTone + 365 * (chosenYear - 5129)) % 13;
+                        int beginNahual =
+                            (startNahual + 365 * (chosenYear - 5129)) % 20;
                         int beginKinIndex =
-                            (startKinIndex + 365 * chosenYear) % 260;
+                            (startKinIndex + 365 * (chosenYear - 5129)) % 260;
 
                         const int dDays = 62;
                         int sBaktun = 13; // ?
-                        int sKatun = (365 * chosenYear + dDays) ~/ 7200;
-                        int sTun =
-                            (365 * chosenYear + dDays - sKatun * 7200) ~/ 360;
-                        int sWinal = (365 * chosenYear +
+                        int sKatun =
+                            (365 * (chosenYear - 5129) + dDays) ~/ 7200 % 20;
+                        int sTun = (365 * (chosenYear - 5129) +
+                                dDays -
+                                sKatun * 7200) ~/
+                            360 %
+                            20;
+                        int sWinal = (365 * (chosenYear - 5129) +
                                 dDays -
                                 sKatun * 7200 -
                                 sTun * 360) ~/
+                            20 %
+                            18;
+                        int sKin = (365 * (chosenYear - 5129) +
+                                dDays -
+                                sKatun * 7200 -
+                                sTun * 360 -
+                                sWinal * 20) %
                             20;
-                        int sKin = 365 * chosenYear +
-                            dDays -
-                            sKatun * 7200 -
-                            sTun * 360 -
-                            sWinal * 20;
 
-                        DateTime chosenBeginGregorianDate =
-                            startDate.add(Duration(days: 365 * (chosenYear)));
+                        DateTime chosenBeginGregorianDate = startDate
+                            .add(Duration(days: 365 * ((chosenYear - 5129))));
 
                         Navigator.push(
                             context,
@@ -2232,7 +2310,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       backgroundImage: backgroundImage,
                                       mainColor: mainColor,
                                       chosenYear: chosenYear,
-                                      chosenHaabYear: chosenHaabYear,
                                       chosenDay: chosenDay,
                                       beginTone: beginTone,
                                       beginNahual: beginNahual,
@@ -2321,7 +2398,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
-                                        days: 365 * (currYear + dYear) +
+                                        days: 365 * (currYear - 5129 + dYear) +
                                             chosenDay));
 
                                 Navigator.push(
@@ -2343,6 +2420,50 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             ],
                                             chosenGregorianDate:
                                                 chosenGregorianDate)));
+                              },
+                              onLongPress: () {
+                                int chosenTone = getTone(
+                                    (offsetGearTones * 180 / pi +
+                                            finalAngle / 13 * 20) %
+                                        360);
+
+                                int chosenNahual = getNahuales(
+                                    (offsetGearNahuales * 180 / pi +
+                                            finalAngle) %
+                                        360);
+
+                                int dYear = getDeldaYear(
+                                    -offsetGearHaab * 180 / pi +
+                                        finalAngle / 365 * 20);
+
+                                DateTime chosenGregorianDate = startDate.add(
+                                    Duration(
+                                        days: 365 * (currYear - 5129 + dYear) +
+                                            chosenDay));
+
+                                Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                        opaque: false,
+                                        pageBuilder:
+                                            (BuildContext context, __, _) =>
+                                                DateChoice(
+                                                    backgroundImage:
+                                                        backgroundImage,
+                                                    mainColor: mainColor,
+                                                    chosenYear: chosenYear,
+                                                    chosenDay: chosenDay,
+                                                    chosenTone: chosenTone,
+                                                    chosenNahual: chosenNahual,
+                                                    chosenLongCount: [
+                                                      baktun,
+                                                      katun,
+                                                      tun,
+                                                      winal,
+                                                      kin
+                                                    ],
+                                                    chosenGregorianDate:
+                                                        chosenGregorianDate)));
                               },
                               child: Text(strTextToneNahual,
                                   textAlign: TextAlign.center,
@@ -2500,7 +2621,7 @@ Future<void> checkAndroidNotificationPermission() async {
   }
 }
 
-showImageFileFormatDialog(BuildContext context, Size size) {
+showImageFileFormatDialog(BuildContext context, Color mainColor, Size size) {
   Size size = GetTextSize().getTextSize(
       'Only jpeg/jpg and png files are allowed!'.tr, MayaStyle.popUpDialogBody);
   showDialog<void>(
@@ -2509,7 +2630,7 @@ showImageFileFormatDialog(BuildContext context, Size size) {
         return Center(
             child: Container(
                 padding: const EdgeInsets.all(20),
-                decoration: MayaStyle.popUpDialogDecoration,
+                decoration: MayaStyle().popUpDialogDecoration(mainColor),
                 height: 93,
                 width: size.width + 42,
                 child: Column(
@@ -2521,4 +2642,39 @@ showImageFileFormatDialog(BuildContext context, Size size) {
                           style: MayaStyle.popUpDialogBody)
                     ])));
       });
+}
+
+//TODO: remove in the future
+Future<bool> updateYear() async {
+  bool flagUpdateYear = await readFlagUpdateYear() == 'true' ? true : false;
+  if (flagUpdateYear) {
+    bool flagEvents = await DatabaseHandlerEvents().updateYear();
+    bool flagNotes = await DatabaseHandlerNotes().updateYear();
+    bool flagTasks = await DatabaseHandlerTasks().updateYear();
+    bool flagAlarms = await DatabaseHandlerAlarms().updateYear();
+    bool flagArrangement = await DatabaseHandlerArrangements().updateYear();
+    if (flagEvents || flagNotes || flagTasks || flagAlarms || flagArrangement) {
+      saveFlagUpdateYear(false.toString());
+      return true;
+    } else {
+      saveFlagUpdateYear(false.toString());
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+//TODO: remove in the future
+Future<Object> readFlagUpdateYear() async {
+  final prefs = await SharedPreferences.getInstance();
+  const key = 'flagUpdateYear';
+  return prefs.getString(key) ?? 'true';
+}
+
+//TODO: remove in the future
+saveFlagUpdateYear(String flagUpdateYear) async {
+  final prefs = await SharedPreferences.getInstance();
+  const key = 'flagUpdateYear';
+  prefs.setString(key, flagUpdateYear);
 }

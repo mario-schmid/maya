@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -22,7 +18,6 @@ class TheYear extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
   final int chosenYear;
-  final int chosenHaabYear;
   final int chosenDay;
   final int beginTone;
   final int beginKinIndex;
@@ -34,7 +29,6 @@ class TheYear extends StatefulWidget {
       required this.backgroundImage,
       required this.mainColor,
       required this.chosenYear,
-      required this.chosenHaabYear,
       required this.chosenDay,
       required this.beginTone,
       required this.beginKinIndex,
@@ -63,6 +57,8 @@ class _TheYearState extends State<TheYear> {
 
   late int kinIndex;
 
+  late int longCount;
+
   late int baktun;
   late int katun;
   late int tun;
@@ -78,6 +74,12 @@ class _TheYearState extends State<TheYear> {
     initializeDateFormatting();
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
+
+    longCount = widget.beginLongCount[0] * 144000 +
+        widget.beginLongCount[1] * 7200 +
+        widget.beginLongCount[2] * 360 +
+        widget.beginLongCount[3] * 20 +
+        widget.beginLongCount[4];
 
     tableBoxDecoration = BoxDecoration(
         color: widget.mainColor.withOpacity(0.5),
@@ -102,18 +104,20 @@ class _TheYearState extends State<TheYear> {
     nahual = (widget.beginNahual + dayIndex) % 20;
     kinIndex = (widget.beginKinIndex + dayIndex) % 260;
 
-    kin = (widget.beginLongCount[4] + dayIndex) % 20;
-    winal = ((widget.beginLongCount[3] + 1) * 20 + dayIndex - kin) ~/ 20 % 18;
-    tun =
-        ((widget.beginLongCount[2] + 1) * 360 + dayIndex - winal * 20 - kin) ~/
-            360;
-    katun = ((widget.beginLongCount[1] + 1) * 7200 +
-            dayIndex -
+    baktun = (longCount + dayIndex) ~/ 144000 % 14;
+    katun = (longCount - baktun * 144000 + dayIndex) ~/ 7200 % 20;
+    tun = (longCount - baktun * 144000 - katun * 7200 + dayIndex) ~/ 360 % 20;
+    winal =
+        (longCount - baktun * 144000 - katun * 7200 - tun * 360 + dayIndex) ~/
+            20 %
+            18;
+    kin = (longCount -
+            baktun * 144000 -
+            katun * 7200 -
             tun * 360 -
-            winal * 20 -
-            kin) ~/
-        7200;
-    baktun = 13; // TODO: baktum?
+            winal * 20 +
+            dayIndex) %
+        20;
 
     gregorianDate =
         widget.chosenBeginGregorianDate.add(Duration(days: dayIndex));
@@ -197,6 +201,7 @@ class _TheYearState extends State<TheYear> {
                       builder: (BuildContext context) {
                         return selectionDialog(
                             context,
+                            widget.mainColor,
                             widget.chosenYear,
                             dayIndex,
                             widget.chosenBeginGregorianDate
@@ -212,15 +217,26 @@ class _TheYearState extends State<TheYear> {
       SizedBox(
           width: size.width,
           child: Consumer<DayItems>(builder: (context, data, child) {
-            return ReorderableListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: data.dayItems[widget.chosenYear][dayIndex],
-                onReorder: (int oldIndex, int newIndex) {
-                  setState(() {
-                    updateList(oldIndex, newIndex, widget.chosenYear, dayIndex);
-                  });
-                });
+            if (data.dayItems.containsKey(widget.chosenYear)) {
+              if (data.dayItems[widget.chosenYear].containsKey(dayIndex)) {
+                return ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: data.dayItems[widget.chosenYear][dayIndex],
+                    onReorder: (int oldIndex, int newIndex) {
+                      setState(() {
+                        updateList(
+                            oldIndex, newIndex, widget.chosenYear, dayIndex);
+                      });
+                    });
+              } else {
+                //TODO: maybe change
+                return const SizedBox();
+              }
+            } else {
+              //TODO: maybe change
+              return const SizedBox();
+            }
           }))
     ]);
   }
@@ -276,7 +292,7 @@ class _TheYearState extends State<TheYear> {
                               ),
                               child: Align(
                                   alignment: Alignment.topCenter,
-                                  child: Text('${widget.chosenHaabYear}',
+                                  child: Text('${widget.chosenYear}',
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: size.width * 0.05)))))),

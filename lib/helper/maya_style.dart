@@ -15,23 +15,25 @@ class MayaStyle {
       fontWeight: FontWeight.normal,
       decoration: TextDecoration.none);
 
-  static BoxDecoration popUpDialogDecoration = BoxDecoration(
-      color: Colors.pink[900],
-      border: Border.all(width: 1, color: Colors.white),
-      borderRadius: const BorderRadius.all(Radius.circular(10)));
+  BoxDecoration popUpDialogDecoration(Color mainColor) {
+    return BoxDecoration(
+        color: mainColor,
+        border: Border.all(width: 1, color: Colors.white),
+        borderRadius: const BorderRadius.all(Radius.circular(10)));
+  }
 
   ButtonStyle dialogButtonStyle(Color? overlayColor) {
     return ButtonStyle(
-        padding: const MaterialStatePropertyAll(EdgeInsets.all(1)),
-        foregroundColor: const MaterialStatePropertyAll(Colors.white),
-        backgroundColor: MaterialStateProperty.all(Colors.transparent),
-        shadowColor: MaterialStateProperty.all(Colors.transparent),
-        side: MaterialStateProperty.all(
+        padding: const WidgetStatePropertyAll(EdgeInsets.all(1)),
+        foregroundColor: const WidgetStatePropertyAll(Colors.white),
+        backgroundColor: WidgetStateProperty.all(Colors.transparent),
+        shadowColor: WidgetStateProperty.all(Colors.transparent),
+        side: WidgetStateProperty.all(
             const BorderSide(color: Colors.white, width: 1)),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 18)),
-        overlayColor: MaterialStateProperty.all(overlayColor));
+        textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 18)),
+        overlayColor: WidgetStateProperty.all(overlayColor));
   }
 
   //TODO: implement dialogPadding
