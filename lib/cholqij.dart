@@ -23,8 +23,8 @@ class _CholqijState extends State<Cholqij> {
 
   @override
   initState() {
-    col = widget.cKinIndex ~/ 20;
-    row = widget.cKinIndex % 20;
+    col = ((widget.cKinIndex - 150) % 260) ~/ 20;
+    row = ((widget.cKinIndex - 150) % 260) % 20;
     super.initState();
   }
 
@@ -77,7 +77,8 @@ class _CholqijState extends State<Cholqij> {
                                           crossAxisCount: 1,
                                         ),
                                         itemBuilder: (context, index) {
-                                          return MayaImages().signNahual[index];
+                                          return MayaImages()
+                                              .signNahual[(index + 10) % 20];
                                         })),
                                 SizedBox(
                                     height: size.width * 1.333333333,
@@ -116,7 +117,8 @@ class _CholqijState extends State<Cholqij> {
                                           crossAxisCount: 1,
                                         ),
                                         itemBuilder: (context, index) {
-                                          return MayaImages().signNahual[index];
+                                          return MayaImages()
+                                              .signNahual[(index + 10) % 20];
                                         }))
                               ])))),
                   Positioned(
@@ -160,9 +162,9 @@ GestureDetector kinIndex(BuildContext context, Size size,
   ];
 
   int kinIndex = index % 13 * 20 + index ~/ 13;
-  int tone = kinIndex % 13;
-  int nahual = kinIndex % 20;
-  int colorValue = (kinIndex ~/ 13) % 4;
+  int tone = (kinIndex - 6) % 13;
+  int nahual = (kinIndex + 10) % 20;
+  int colorValue = (((kinIndex - 110) % 260) ~/ 13) % 4;
 
   switch (colorValue) {
     case 0:

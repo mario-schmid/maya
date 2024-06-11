@@ -352,7 +352,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   DateTime now = DateTime.now();
 
   //TODO: remove in the future
-  Future<bool> flagUpdateYear = updateYear();
+  Future<bool> adjustDatabase = updateYear();
 
   final Future<Iterable<List<Object?>>> _eventList =
       DatabaseHandlerEvents().retrieveEvents();
@@ -476,7 +476,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     loadLanguage();
     //TODO: remove in the future
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (await flagUpdateYear) {
+      if (await adjustDatabase) {
         await showDialog(
             // ignore: use_build_context_synchronously
             context: context,
@@ -2233,8 +2233,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     alignment: const Alignment(0.9, 0),
                                     child: Transform.rotate(
                                         origin: offsetSignTone,
-                                        angle: -27.692307692 /
-                                            180 *
+                                        angle: -2 /
+                                            13 * // -360 / 13 / 180 = -2 / 13
                                             pi *
                                             i.toDouble(),
                                         child: SizedBox(
@@ -2281,7 +2281,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             (startKinIndex + 365 * (chosenYear - 5129)) % 260;
 
                         const int dDays = 62;
-                        int sBaktun = 13; // ?
+                        int sBaktun = 13 +
+                            (365 * (chosenYear - 5129) + dDays) ~/ 144000 % 14;
                         int sKatun =
                             (365 * (chosenYear - 5129) + dDays) ~/ 7200 % 20;
                         int sTun = (365 * (chosenYear - 5129) +
@@ -2303,7 +2304,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             20;
 
                         DateTime chosenBeginGregorianDate = startDate
-                            .add(Duration(days: 365 * ((chosenYear - 5129))));
+                            .add(Duration(days: 365 * (chosenYear - 5129)));
 
                         Navigator.push(
                             context,
@@ -2667,18 +2668,18 @@ showImageFileFormatDialog(BuildContext context, Color mainColor, Size size) {
 
 //TODO: remove in the future
 Future<bool> updateYear() async {
-  bool flagUpdateYear = await readFlagUpdateYear() == 'true' ? true : false;
-  if (flagUpdateYear) {
+  bool adjustDatabase = await readAdjustDatabase() == 'true' ? true : false;
+  if (adjustDatabase) {
     bool flagEvents = await DatabaseHandlerEvents().updateYear();
     bool flagNotes = await DatabaseHandlerNotes().updateYear();
     bool flagTasks = await DatabaseHandlerTasks().updateYear();
     bool flagAlarms = await DatabaseHandlerAlarms().updateYear();
     bool flagArrangement = await DatabaseHandlerArrangements().updateYear();
     if (flagEvents || flagNotes || flagTasks || flagAlarms || flagArrangement) {
-      saveFlagUpdateYear(false.toString());
+      saveAdjustDatabase(false.toString());
       return true;
     } else {
-      saveFlagUpdateYear(false.toString());
+      saveAdjustDatabase(false.toString());
       return false;
     }
   } else {
@@ -2687,15 +2688,15 @@ Future<bool> updateYear() async {
 }
 
 //TODO: remove in the future
-Future<Object> readFlagUpdateYear() async {
+Future<Object> readAdjustDatabase() async {
   final prefs = await SharedPreferences.getInstance();
-  const key = 'flagUpdateYear';
+  const key = 'adjustDatabase';
   return prefs.getString(key) ?? 'true';
 }
 
 //TODO: remove in the future
-saveFlagUpdateYear(String flagUpdateYear) async {
+saveAdjustDatabase(String adjustDatabase) async {
   final prefs = await SharedPreferences.getInstance();
-  const key = 'flagUpdateYear';
-  prefs.setString(key, flagUpdateYear);
+  const key = 'adjustDatabase';
+  prefs.setString(key, adjustDatabase);
 }

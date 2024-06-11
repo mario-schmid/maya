@@ -30,10 +30,10 @@ class _CharacterChoiseState extends State<CharacterChoise> {
 
   @override
   void initState() {
-    initTone = widget.chosenTone;
-    indexTone = widget.chosenTone;
-    initNahual = widget.chosenNahual;
-    indexNahual = widget.chosenNahual;
+    initTone = (widget.chosenTone + 6) % 13;
+    indexTone = (widget.chosenTone + 6) % 13;
+    initNahual = (widget.chosenNahual + 10) % 20;
+    indexNahual = (widget.chosenNahual + 10) % 20;
 
     _controllerTone = FixedExtentScrollController(initialItem: initTone);
     _controllerNahual = FixedExtentScrollController(initialItem: initNahual);
@@ -58,8 +58,8 @@ class _CharacterChoiseState extends State<CharacterChoise> {
                               size,
                               widget.backgroundImage,
                               widget.mainColor,
-                              indexTone,
-                              indexNahual));
+                              (indexTone + 7) % 13,
+                              (indexNahual + 10) % 20));
                     });
               },
               child: Row(
@@ -95,8 +95,10 @@ class _CharacterChoiseState extends State<CharacterChoise> {
                                                 child: FittedBox(
                                                     fit: BoxFit.cover,
                                                     child: MayaImages()
-                                                            .imageToneWhiteFlatCenter[
-                                                        i]))),
+                                                        .imageToneWhiteFlatCenter[i <
+                                                            7
+                                                        ? (i + 7) % 14
+                                                        : (i + 8) % 14]))),
                                       ],
                                     ))
                             ])),
@@ -127,8 +129,9 @@ class _CharacterChoiseState extends State<CharacterChoise> {
                                               width: size.width * 0.22,
                                               child: FittedBox(
                                                   fit: BoxFit.cover,
-                                                  child: MayaImages()
-                                                      .signNahual[i])))
+                                                  child:
+                                                      MayaImages().signNahual[
+                                                          (i + 10) % 20])))
                                     ]))
                             ]))
                   ]),

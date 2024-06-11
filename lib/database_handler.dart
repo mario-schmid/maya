@@ -72,11 +72,11 @@ class DatabaseHandlerEvents {
     final List<Map<String, Object?>> eventResult = await db.query('events');
 
     if (eventResult.isNotEmpty) {
-      var toRemove = {};
+      var existingYears = {};
       for (var e in eventResult) {
-        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+        existingYears.putIfAbsent("${e['yearIndex']}", () => e);
       }
-      List result = toRemove.keys.toList();
+      List result = existingYears.keys.toList();
       for (var year in result) {
         await db.update(
           'events',
@@ -161,11 +161,11 @@ class DatabaseHandlerNotes {
     final List<Map<String, Object?>> noteResult = await db.query('notes');
 
     if (noteResult.isNotEmpty) {
-      var toRemove = {};
+      var existingYears = {};
       for (var e in noteResult) {
-        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+        existingYears.putIfAbsent("${e['yearIndex']}", () => e);
       }
-      List result = toRemove.keys.toList();
+      List result = existingYears.keys.toList();
       for (var year in result) {
         await db.update(
           'notes',
@@ -265,11 +265,11 @@ class DatabaseHandlerTasks {
     final List<Map<String, Object?>> taskResult = await db.query('tasks');
 
     if (taskResult.isNotEmpty) {
-      var toRemove = {};
+      var existingYears = {};
       for (var e in taskResult) {
-        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+        existingYears.putIfAbsent("${e['yearIndex']}", () => e);
       }
-      List result = toRemove.keys.toList();
+      List result = existingYears.keys.toList();
       for (var year in result) {
         await db.update(
           'tasks',
@@ -407,11 +407,11 @@ class DatabaseHandlerAlarms {
     final List<Map<String, Object?>> alarmResult = await db.query('alarms');
 
     if (alarmResult.isNotEmpty) {
-      var toRemove = {};
+      var existingYears = {};
       for (var e in alarmResult) {
-        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+        existingYears.putIfAbsent("${e['yearIndex']}", () => e);
       }
-      List result = toRemove.keys.toList();
+      List result = existingYears.keys.toList();
       for (var year in result) {
         await db.update(
           'alarms',
@@ -485,11 +485,11 @@ class DatabaseHandlerArrangements {
         await db.query('arrangements');
 
     if (arrangementResult.isNotEmpty) {
-      var toRemove = {};
+      var existingYears = {};
       for (var e in arrangementResult) {
-        toRemove.putIfAbsent("${e['yearIndex']}", () => e);
+        existingYears.putIfAbsent("${e['yearIndex']}", () => e);
       }
-      List result = toRemove.keys.toList();
+      List result = existingYears.keys.toList();
       for (var year in result) {
         await db.update(
           'arrangements',
