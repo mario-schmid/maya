@@ -30,6 +30,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'cholqij.dart';
 import 'classes/position.dart';
@@ -70,6 +71,7 @@ Future<void> main() async {
     'assets/images/trecenaRed.png',
     'assets/images/trecenaWhite.png',
     'assets/images/trecenaYellow.png',
+    'assets/images/leaves.jpg',
     'assets/images/leaves.png',
     //
     'assets/images/transparent.png',
@@ -1073,8 +1075,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       child: Image(
                           image: const AssetImage(
                               "assets/images/icons/hunabku.png"),
-                          height: size.width * 0.34,
-                          width: size.width * 0.34))),
+                          height: size.width * 0.27,
+                          width: size.width * 0.27))),
               Divider(
                   color: Colors.white,
                   height: 0,
@@ -1293,7 +1295,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               ]),
               SizedBox(height: size.width * 0.04),
               SizedBox(
-                  height: size.height - size.width * 1.78 - statusBarHeight),
+                  height: size.height - size.width * 1.82 - statusBarHeight),
               Column(children: [
                 Padding(
                     padding: EdgeInsets.only(bottom: size.width * 0.02),
@@ -1364,7 +1366,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       borderRadius: BorderRadius.circular(
                                           size.width * 0.014)))),
                     ))
-              ])
+              ]),
+              SizedBox(height: size.width * 0.02),
+              ElevatedButton(
+                style: ButtonStyle(
+                    foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                    backgroundColor:
+                        WidgetStateProperty.all(mainColor.withOpacity(0.5)),
+                    shadowColor: WidgetStateProperty.all(Colors.transparent),
+                    side: WidgetStateProperty.all(
+                        const BorderSide(color: Colors.white, width: 1)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(size.width * 0.01))),
+                    overlayColor: WidgetStateProperty.all(mainColor)),
+                onPressed: _launchPrivacyPolicy,
+                child: const Text('Privacy Policy'),
+              ),
             ])));
   }
 
@@ -2664,6 +2683,14 @@ showImageFileFormatDialog(BuildContext context, Color mainColor, Size size) {
                           style: MayaStyle.popUpDialogBody)
                     ])));
       });
+}
+
+Future<void> _launchPrivacyPolicy() async {
+  final Uri urlPrivacyPolicy =
+      Uri.parse('https://sites.google.com/view/privacy-policy-of-maya');
+  if (!await launchUrl(urlPrivacyPolicy)) {
+    throw Exception('Could not launch $urlPrivacyPolicy');
+  }
 }
 
 //TODO: remove in the future
