@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:alarm/alarm.dart';
 import 'package:alarm/model/alarm_settings.dart';
+import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
@@ -245,6 +246,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* Positions and Sizes                                                      */
   /*                                                                          */
+  late Size sizeSettings;
+  late Position posSettings;
+  //
   late Size sizeBoxTime;
   late Position posBoxTime;
   //
@@ -606,6 +610,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     strTextToneNahual =
         '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
+
     super.initState();
   }
   /*                                                                          */
@@ -1071,19 +1076,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               SizedBox(height: statusBarHeight),
               SizedBox(
                   child: Padding(
-                      padding: EdgeInsets.all(size.width * 0.03),
+                      padding: EdgeInsets.all(size.width * 0.02),
                       child: Image(
                           image: const AssetImage(
                               "assets/images/icons/hunabku.png"),
-                          height: size.width * 0.27,
-                          width: size.width * 0.27))),
+                          height: size.width * 0.3,
+                          width: size.width * 0.3))),
               Divider(
                   color: Colors.white,
                   height: 0,
                   thickness: size.width * 0.003,
                   indent: 0,
                   endIndent: 0),
-              SizedBox(height: size.width * 0.03),
+              SizedBox(height: size.width * 0.02),
               SizedBox(
                   height: size.width * 0.12,
                   child: CheckboxListTile(
@@ -1295,7 +1300,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               ]),
               SizedBox(height: size.width * 0.04),
               SizedBox(
-                  height: size.height - size.width * 1.82 - statusBarHeight),
+                  height: size.height - size.width * 1.78 - statusBarHeight),
               Column(children: [
                 Padding(
                     padding: EdgeInsets.only(bottom: size.width * 0.02),
@@ -1368,35 +1373,43 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     ))
               ]),
               SizedBox(height: size.width * 0.02),
-              ElevatedButton(
-                style: ButtonStyle(
+              SizedBox(
+                height: size.width * 0.08,
+                width: size.width * 0.36,
+                child: ElevatedButton(
+                  style: ButtonStyle(
                     foregroundColor: const WidgetStatePropertyAll(Colors.white),
                     backgroundColor:
-                        WidgetStateProperty.all(mainColor.withOpacity(0.5)),
+                        WidgetStateProperty.all(Colors.transparent),
                     shadowColor: WidgetStateProperty.all(Colors.transparent),
-                    side: WidgetStateProperty.all(
-                        const BorderSide(color: Colors.white, width: 1)),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(size.width * 0.01))),
-                    overlayColor: WidgetStateProperty.all(mainColor)),
-                onPressed: _launchPrivacyPolicy,
-                child: const Text('Privacy Policy'),
+                  ),
+                  onPressed: _launchPrivacyPolicy,
+                  child: Text(
+                    'Privacy Policy',
+                    style: TextStyle(fontSize: size.width * 0.034),
+                  ),
+                ),
               ),
             ])));
   }
-
   /*                                                                          */
   /* Drawer - END                                                             */
   /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
   /* Build                                                                    */
   /*                                                                          */
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double statusBarHeight = MediaQuery.of(context).viewPadding.top;
     if (size.height / size.width >= 692 / 360) {
+      //
+      sizeSettings = const Size(16, 120);
+      posSettings =
+          Position(statusBarHeight + 10, size.width - sizeSettings.width);
       //
       sizeBoxTime = Size(size.width * 0.555555556, size.width * 0.088888889);
       posBoxTime = Position(size.width * 0.111111111,
@@ -1556,6 +1569,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.width * 0.019444444, 0, size.width * 0.013888889, 0);
       //
     } else {
+      //
+      sizeSettings = const Size(16, 120);
+      posSettings =
+          Position(statusBarHeight + 10, size.width - sizeSettings.width);
       //
       sizeBoxTime = Size(size.height * 0.289017341, size.height * 0.046242775);
       posBoxTime = Position(size.height * 0.057803468,
@@ -1725,7 +1742,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       //
     }
     return Scaffold(
+        key: _scaffoldKey,
         endDrawer: _customDrawer(context, size),
+        endDrawerEnableOpenDragGesture: false,
         body: Container(
             height: double.infinity,
             width: double.infinity,
@@ -2573,7 +2592,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               child: SizedBox(
                                   width: sizeNummbers.width,
                                   child: imageToneWhiteFlatBottom[kin]))
-                        ])))
+                        ]))),
+                Positioned(
+                    top: posSettings.top,
+                    left: posSettings.left,
+                    child: GestureDetector(
+                        onHorizontalDragUpdate: (details) {
+                          _scaffoldKey.currentState!.openEndDrawer();
+                        },
+                        child: AndroidGestureExclusionContainer(
+                          child: Container(
+                              height: sizeSettings.height,
+                              width: sizeSettings.width,
+                              decoration: BoxDecoration(
+                                  color: mainColor.withOpacity(0.5),
+                                  border:
+                                      Border.all(width: 1, color: Colors.white),
+                                  borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      bottomLeft: Radius.circular(10)))),
+                        ))),
               ])
             ])));
   }
