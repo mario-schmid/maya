@@ -330,7 +330,7 @@ class _HomeState extends State<DateCalculator> {
                             width: size.width * 0.4,
                             child: Center(
                                 child: Text(
-                                    '${intHaabDate[0]} ${MayaLists().strWinal[intHaabDate[1]]} $haabYear',
+                                    '${intHaabDate[0]} ${MayaLists().strWinal[intHaabDate[1]]} ${haabYear + 12}',
                                     style: textStyleResult))),
                         SizedBox(height: size.width * 0.02),
                         Container(
