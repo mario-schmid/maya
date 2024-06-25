@@ -34,7 +34,7 @@ class AlarmRingScreen extends StatelessWidget {
                         style:
                             const TextStyle(color: Colors.white, fontSize: 18))
                   ]),
-                  Image.asset('assets/images/icons/hunabku.png',
+                  Image.asset('assets/images/icons/quetzalcoatl.png',
                       height: 160, width: 160),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,

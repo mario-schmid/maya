@@ -77,7 +77,7 @@ Future<void> main() async {
     //
     'assets/images/transparent.png',
     //
-    'assets/images/icons/hunabku.png',
+    'assets/images/icons/quetzalcoatl.png',
     //
     'assets/images/tones/01_white_curved_bottom.png',
     'assets/images/tones/02_white_curved_bottom.png',
@@ -1079,7 +1079,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       padding: EdgeInsets.all(size.width * 0.02),
                       child: Image(
                           image: const AssetImage(
-                              "assets/images/icons/hunabku.png"),
+                              "assets/images/icons/quetzalcoatl.png"),
                           height: size.width * 0.3,
                           width: size.width * 0.3))),
               Divider(
