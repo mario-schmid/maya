@@ -231,20 +231,24 @@ class _TheDayState extends State<TheDay> {
                                           SizedBox(
                                               height: 70,
                                               width: 48,
-                                              child: Column(children: [
-                                                SizedBox(
-                                                    height: 20,
-                                                    child: MayaImages()
-                                                            .imageToneWhiteCurved[
-                                                        (widget.beginTone +
+                                              child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SizedBox(
+                                                        width: 42,
+                                                        child: MayaImages()
+                                                                .imageToneWhiteCurved[
+                                                            (widget.beginTone +
+                                                                    dYear *
+                                                                        365) %
+                                                                13]),
+                                                    const SizedBox(height: 2),
+                                                    MayaImages().signNahual[
+                                                        (widget.beginNahual +
                                                                 dYear * 365) %
-                                                            13]),
-                                                const SizedBox(height: 2),
-                                                MayaImages().signNahual[
-                                                    (widget.beginNahual +
-                                                            dYear * 365) %
-                                                        20]
-                                              ]))
+                                                            20]
+                                                  ]))
                                         ]),
                                     Padding(
                                       padding:
