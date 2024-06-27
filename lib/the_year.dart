@@ -19,8 +19,8 @@ class TheYear extends StatefulWidget {
   final Color mainColor;
   final int chosenYear;
   final int chosenDay;
-  final int beginTone;
   final int beginKinIndex;
+  final int beginTone;
   final int beginNahual;
   final List<int> beginLongCount;
   final DateTime chosenBeginGregorianDate;
@@ -30,8 +30,8 @@ class TheYear extends StatefulWidget {
       required this.mainColor,
       required this.chosenYear,
       required this.chosenDay,
-      required this.beginTone,
       required this.beginKinIndex,
+      required this.beginTone,
       required this.beginNahual,
       required this.beginLongCount,
       required this.chosenBeginGregorianDate});
@@ -98,8 +98,8 @@ class _TheYearState extends State<TheYear> {
   }
 
   Column dateColumn(Size size, int dayIndex) {
-    day = dayIndex % 20;
-    winalNr = dayIndex ~/ 20;
+    day = (dayIndex % 365) % 20;
+    winalNr = (dayIndex % 365) ~/ 20;
     tone = (widget.beginTone + dayIndex) % 13;
     nahual = (widget.beginNahual + dayIndex) % 20;
     kinIndex = (widget.beginKinIndex + dayIndex) % 260;
@@ -137,14 +137,15 @@ class _TheYearState extends State<TheYear> {
             width: (size.width - 100) / 3.513513514 /*74*/,
             decoration: tableBoxDecoration,
             child: Center(
-                child: Text(MayaLists().strWinal[winalNr],
+                child: Text(MayaLists().strWinal[winalNr % 19],
                     style: tableTextStyle))),
         Container(
             height: 33,
             width: (size.width - 100) / 4.193548387 /*62*/,
             decoration: tableBoxDecoration,
             child: Center(
-                child: Text('${kinIndex ~/ 13 + 1}', style: tableTextStyle))),
+                child: Text('${((winalNr + 1) * 20 + day - 20) % 365 + 1}',
+                    style: tableTextStyle))),
         GestureDetector(
             onTap: () {
               showDialog<void>(
@@ -172,8 +173,9 @@ class _TheYearState extends State<TheYear> {
             height: 33,
             width: (size.width - 100) / 4.193548387 /*62*/,
             decoration: tableBoxDecoration,
-            child:
-                Center(child: Text('${kinIndex + 1}', style: tableTextStyle)))
+            child: Center(
+                child: Text('${(kinIndex - 150) % 260 + 1}',
+                    style: tableTextStyle)))
       ]),
       Row(key: UniqueKey(), children: [
         Container(
@@ -202,8 +204,8 @@ class _TheYearState extends State<TheYear> {
                         return selectionDialog(
                             context,
                             widget.mainColor,
-                            widget.chosenYear,
-                            dayIndex,
+                            (widget.chosenYear + dayIndex / 365).toInt(),
+                            dayIndex % 365,
                             widget.chosenBeginGregorianDate
                                 .add(Duration(days: dayIndex)));
                       });
@@ -217,16 +219,16 @@ class _TheYearState extends State<TheYear> {
       SizedBox(
           width: size.width,
           child: Consumer<DayItems>(builder: (context, data, child) {
-            if (data.dayItems.containsKey(widget.chosenYear)) {
-              if (data.dayItems[widget.chosenYear].containsKey(dayIndex)) {
+            int cYear = (widget.chosenYear + dayIndex / 365).toInt();
+            if (data.dayItems.containsKey(cYear)) {
+              if (data.dayItems[cYear].containsKey(dayIndex % 365)) {
                 return ReorderableListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    children: data.dayItems[widget.chosenYear][dayIndex],
+                    children: data.dayItems[cYear][dayIndex % 365],
                     onReorder: (int oldIndex, int newIndex) {
                       setState(() {
-                        updateList(
-                            oldIndex, newIndex, widget.chosenYear, dayIndex);
+                        updateList(oldIndex, newIndex, cYear, dayIndex % 365);
                       });
                     });
               } else {
@@ -272,11 +274,11 @@ class _TheYearState extends State<TheYear> {
                             padding: const EdgeInsets.only(top: 0),
                             scrollDirection: Axis.vertical,
                             itemScrollController: _scrollController,
-                            itemCount: 365,
+                            itemCount: 445,
                             itemBuilder: (context, dayIndex) {
                               return SizedBox(
                                   key: UniqueKey(),
-                                  child: dateColumn(size, dayIndex));
+                                  child: dateColumn(size, dayIndex - 40));
                             })),
                   ]),
                   Positioned(
@@ -330,12 +332,12 @@ class _TheYearState extends State<TheYear> {
 /*============================================================================*/
 
   void executeAfterWholeBuildProcess(context) {
-    _scrollController.jumpTo(index: widget.chosenDay);
+    _scrollController.jumpTo(index: widget.chosenDay + 40);
   }
 
   void _scrollToHome() {
     _scrollController.scrollTo(
-        index: widget.chosenDay,
+        index: widget.chosenDay + 40,
         duration: const Duration(seconds: 1),
         curve: Curves.easeInOut);
   }

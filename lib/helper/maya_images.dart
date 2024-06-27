@@ -33,6 +33,22 @@ class MayaImages {
     Image.asset('assets/images/tones/13_white_curved_bottom.png')
   ];
 
+  final List<Image> imageToneWhiteCurved = [
+    Image.asset('assets/images/tones/01_white_curved.png'),
+    Image.asset('assets/images/tones/02_white_curved.png'),
+    Image.asset('assets/images/tones/03_white_curved.png'),
+    Image.asset('assets/images/tones/04_white_curved.png'),
+    Image.asset('assets/images/tones/05_white_curved.png'),
+    Image.asset('assets/images/tones/06_white_curved.png'),
+    Image.asset('assets/images/tones/07_white_curved.png'),
+    Image.asset('assets/images/tones/08_white_curved.png'),
+    Image.asset('assets/images/tones/09_white_curved.png'),
+    Image.asset('assets/images/tones/10_white_curved.png'),
+    Image.asset('assets/images/tones/11_white_curved.png'),
+    Image.asset('assets/images/tones/12_white_curved.png'),
+    Image.asset('assets/images/tones/13_white_curved.png')
+  ];
+
   final List<Image> imageToneWhiteFlatCenter = [
     Image.asset('assets/images/tones/00_white_center.png'),
     Image.asset('assets/images/tones/01_white_flat_center.png'),

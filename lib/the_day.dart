@@ -21,6 +21,8 @@ class TheDay extends StatefulWidget {
   final int chosenDay;
   final int chosenTone;
   final int chosenNahual;
+  final int beginTone;
+  final int beginNahual;
   final List<int> chosenLongCount;
   final DateTime chosenGregorianDate;
   const TheDay(
@@ -31,6 +33,8 @@ class TheDay extends StatefulWidget {
       required this.chosenDay,
       required this.chosenTone,
       required this.chosenNahual,
+      required this.beginTone,
+      required this.beginNahual,
       required this.chosenLongCount,
       required this.chosenGregorianDate});
 
@@ -50,7 +54,6 @@ class _TheDayState extends State<TheDay> {
   late Image imageNahual;
 
   late int chosenKinIndex;
-  late int trecena;
 
   late int longCount;
 
@@ -61,6 +64,7 @@ class _TheDayState extends State<TheDay> {
   late int kin;
 
   late int cYear;
+  int dYear = 0;
   final int itemCountHalf = 20;
   late final PageController _pageController;
 
@@ -70,8 +74,6 @@ class _TheDayState extends State<TheDay> {
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
     chosenKinIndex = getKinNummber(widget.chosenTone, widget.chosenNahual);
-    trecena = chosenKinIndex ~/ 13;
-
     longCount = widget.chosenLongCount[0] * 144000 +
         widget.chosenLongCount[1] * 7200 +
         widget.chosenLongCount[2] * 360 +
@@ -110,6 +112,7 @@ class _TheDayState extends State<TheDay> {
                           value -
                           20) ~/
                       365;
+                  dYear = cYear - widget.chosenYear;
                 });
               },
               controller: _pageController,
@@ -197,120 +200,117 @@ class _TheDayState extends State<TheDay> {
                                                           dDays) %
                                                       20])
                                         ]))),
-                                Column(children: [
-                                  Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                          (size.width - 140) / 33 - 0.000666667,
-                                          0,
-                                          0,
-                                          0),
-                                      child: Row(children: [
-                                        Container(
-                                            height: 33.333,
-                                            width: (size.width - 140) /
-                                                3.882352941 /*56.667*/,
-                                            decoration: boxDecoration,
-                                            child: Center(
-                                                child: Text(
-                                              ('${trecena + 1 + dDays ~/ 13}' /*widget.chosenDay + 1*/),
-                                              style: textStyle,
-                                            ))),
-                                        Container(
-                                            height: 40,
-                                            width: (size.width - 140) /
-                                                2.2 /*100*/,
-                                            decoration: boxDecoration,
-                                            child: Center(
-                                                child: Text(
-                                              '${haabDate[0].toString().padLeft(2, '0')}.${(haabDate[1] + 1).toString().padLeft(2, '0')}',
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 24),
-                                            ))),
-                                        Container(
-                                            height: 33.333,
-                                            width: (size.width - 140) /
-                                                3.882352941 /*56.667*/,
-                                            decoration: boxDecoration,
-                                            child: Center(
-                                                child: Text(
-                                              '${(chosenKinIndex + 1 + dDays) % 260}',
-                                              style: textStyle,
-                                            )))
-                                      ])),
-                                  Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                          (size.width - 140) / 22,
-                                          10,
-                                          (size.width - 140) / 22,
-                                          10),
+                                SizedBox(
+                                  //height: 150,
+                                  width: size.width - 140,
+                                  child: Column(children: [
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          SizedBox(
+                                              height: 58,
+                                              width: 58,
+                                              child: MayaImages().signNahual[
+                                                  (((chosenKinIndex + dDays) ~/
+                                                              13) %
+                                                          20) *
+                                                      13 %
+                                                      20]),
+                                          Container(
+                                              height: 40,
+                                              width: size.width * 0.26,
+                                              decoration: boxDecoration,
+                                              child: Center(
+                                                  child: Text(
+                                                '${haabDate[0].toString().padLeft(2, '0')}.${(haabDate[1] + 1).toString().padLeft(2, '0')}',
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 24),
+                                              ))),
+                                          SizedBox(
+                                              height: 70,
+                                              width: 48,
+                                              child: Column(children: [
+                                                SizedBox(
+                                                    height: 20,
+                                                    child: MayaImages()
+                                                            .imageToneWhiteCurved[
+                                                        (widget.beginTone +
+                                                                dYear * 365) %
+                                                            13]),
+                                                const SizedBox(height: 2),
+                                                MayaImages().signNahual[
+                                                    (widget.beginNahual +
+                                                            dYear * 365) %
+                                                        20]
+                                              ]))
+                                        ]),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(0, 0, 0, 4),
                                       child: Container(
-                                          height: 33.333,
-                                          width: (size.width - 140) /
-                                              1.466666667 /*150*/,
+                                          height: 30,
+                                          width: size.width * 0.34,
                                           decoration: boxDecoration,
                                           child: Center(
                                               child: Text(
                                             '$baktun.$katun.$tun.$winal.$kin',
                                             style: textStyle,
-                                          )))),
-                                  Row(children: [
-                                    Container(
-                                        height: 33.333,
-                                        width: (size.width - 140) /
-                                            1.466666667 /*150*/,
-                                        decoration: boxDecoration,
-                                        child: Center(
-                                            child: Text(
-                                                dateFormat.format(widget
-                                                    .chosenGregorianDate
-                                                    .add(
-                                                        Duration(days: dDays))),
-                                                style: textStyle))),
-                                    Padding(
-                                        padding: EdgeInsets.only(
-                                            left: (size.width - 140) / 27.5),
-                                        child: Container(
-                                            height: 40,
-                                            width: 40,
-                                            decoration: addIconDecoration,
-                                            child: GestureDetector(
-                                                onTap: () {
-                                                  showDialog(
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                          context) {
-                                                        return selectionDialog(
-                                                            context,
-                                                            widget.mainColor,
-                                                            widget.chosenYear +
-                                                                (position -
-                                                                        itemCountHalf) ~/
-                                                                    365,
-                                                            (widget.chosenDay +
-                                                                    position -
-                                                                    itemCountHalf) %
-                                                                365,
-                                                            widget
-                                                                .chosenGregorianDate
-                                                                .add(Duration(
-                                                                    days:
-                                                                        dDays)));
-                                                      });
-                                                },
-                                                child: SizedBox(
-                                                    height: 30,
-                                                    width: 30,
-                                                    child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(3),
-                                                        child: SvgPicture.asset(
-                                                            'assets/vector_graphics/add_icon.svg',
-                                                            height: 30,
-                                                            width: 30))))))
-                                  ])
-                                ])
+                                          ))),
+                                    ),
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Container(
+                                              height: 30,
+                                              width: size.width * 0.40,
+                                              decoration: boxDecoration,
+                                              child: Center(
+                                                  child: Text(
+                                                      dateFormat.format(widget
+                                                          .chosenGregorianDate
+                                                          .add(Duration(
+                                                              days: dDays))),
+                                                      style: textStyle))),
+                                          Container(
+                                              height: 40,
+                                              width: 40,
+                                              decoration: addIconDecoration,
+                                              child: GestureDetector(
+                                                  onTap: () {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return selectionDialog(
+                                                              context,
+                                                              widget.mainColor,
+                                                              widget.chosenYear +
+                                                                  (position -
+                                                                          itemCountHalf) ~/
+                                                                      365,
+                                                              (widget.chosenDay +
+                                                                      position -
+                                                                      itemCountHalf) %
+                                                                  365,
+                                                              widget
+                                                                  .chosenGregorianDate
+                                                                  .add(Duration(
+                                                                      days:
+                                                                          dDays)));
+                                                        });
+                                                  },
+                                                  child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                      child: SvgPicture.asset(
+                                                          'assets/vector_graphics/add_icon.svg'))))
+                                        ])
+                                  ]),
+                                )
                               ]),
                               const Divider(
                                   color: Colors.white,

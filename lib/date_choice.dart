@@ -11,6 +11,8 @@ class DateChoice extends StatefulWidget {
   final int chosenDay;
   final int chosenTone;
   final int chosenNahual;
+  final int beginTone;
+  final int beginNahual;
   final List<int> chosenLongCount;
   final DateTime chosenGregorianDate;
   const DateChoice(
@@ -21,6 +23,8 @@ class DateChoice extends StatefulWidget {
       required this.chosenDay,
       required this.chosenTone,
       required this.chosenNahual,
+      required this.beginTone,
+      required this.beginNahual,
       required this.chosenLongCount,
       required this.chosenGregorianDate});
 
@@ -118,13 +122,25 @@ class _DateChoiceState extends State<DateChoice> {
                                   Container(
                                       width: size.width * 0.3,
                                       decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                              colorFilter: ColorFilter.mode(
-                                                  widget.mainColor,
-                                                  BlendMode.modulate),
-                                              image: const AssetImage(
-                                                  'assets/images/bg_pattern_three.jpg'),
-                                              fit: BoxFit.cover),
+                                          image: (widget.chosenYear +
+                                                              indexYear -
+                                                              108 +
+                                                              12) %
+                                                          52 ==
+                                                      0 &&
+                                                  i == 0 &&
+                                                  indexWinal == 0
+                                              ? const DecorationImage(
+                                                  image: AssetImage(
+                                                      'assets/images/sandstone.jpg'),
+                                                  fit: BoxFit.cover)
+                                              : DecorationImage(
+                                                  colorFilter: ColorFilter.mode(
+                                                      widget.mainColor,
+                                                      BlendMode.modulate),
+                                                  image: const AssetImage(
+                                                      'assets/images/bg_pattern_three.jpg'),
+                                                  fit: BoxFit.cover),
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(
                                                   size.width * 0.02))),
@@ -145,8 +161,8 @@ class _DateChoiceState extends State<DateChoice> {
                             itemExtent: size.width * 0.2,
                             diameterRatio: 1.2,
                             onSelectedItemChanged: (int index) {
-                              indexWinal = index;
                               setState(() {
+                                indexWinal = index;
                                 if (index == 18) {
                                   wayeb = true;
                                   indexDay > 4 ? indexDay = 4 : null;
@@ -160,13 +176,24 @@ class _DateChoiceState extends State<DateChoice> {
                                 Container(
                                     width: size.width * 0.3,
                                     decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            colorFilter: ColorFilter.mode(
-                                                widget.mainColor,
-                                                BlendMode.modulate),
-                                            image: const AssetImage(
-                                                'assets/images/bg_pattern_three.jpg'),
-                                            fit: BoxFit.cover),
+                                        image: (widget.chosenYear +
+                                                            indexYear -
+                                                            108 +
+                                                            12) %
+                                                        52 ==
+                                                    0 &&
+                                                i == 0
+                                            ? const DecorationImage(
+                                                image: AssetImage(
+                                                    'assets/images/sandstone.jpg'),
+                                                fit: BoxFit.cover)
+                                            : DecorationImage(
+                                                colorFilter: ColorFilter.mode(
+                                                    widget.mainColor,
+                                                    BlendMode.modulate),
+                                                image: const AssetImage(
+                                                    'assets/images/bg_pattern_three.jpg'),
+                                                fit: BoxFit.cover),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
@@ -189,25 +216,35 @@ class _DateChoiceState extends State<DateChoice> {
                             itemExtent: size.width * 0.2,
                             diameterRatio: 1.2,
                             onSelectedItemChanged: (int index) {
-                              indexYear = index;
+                              setState(() {
+                                indexYear = index;
+                              });
                             },
                             children: [
                               for (int i = -108; i < 109; i++)
                                 Container(
                                     width: size.width * 0.3,
                                     decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            colorFilter: ColorFilter.mode(
-                                                widget.mainColor,
-                                                BlendMode.modulate),
-                                            image: const AssetImage(
-                                                'assets/images/bg_pattern_three.jpg'),
-                                            fit: BoxFit.cover),
+                                        image: (widget.chosenYear + i + 12) %
+                                                    52 ==
+                                                0
+                                            ? const DecorationImage(
+                                                image: AssetImage(
+                                                    'assets/images/sandstone.jpg'),
+                                                fit: BoxFit.cover)
+                                            : DecorationImage(
+                                                colorFilter: ColorFilter.mode(
+                                                    widget.mainColor,
+                                                    BlendMode.modulate),
+                                                image: const AssetImage(
+                                                    'assets/images/bg_pattern_three.jpg'),
+                                                fit: BoxFit.cover),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
                                     child: Center(
-                                      child: Text('${widget.chosenYear + i + 12}',
+                                      child: Text(
+                                          '${widget.chosenYear + i + 12}',
                                           style: TextStyle(
                                               fontFamily: 'Robot',
                                               color: Colors.white,
@@ -259,6 +296,8 @@ class _DateChoiceState extends State<DateChoice> {
                         widget.chosenDay +
                         newChosenDay) %
                     20,
+                beginTone: (widget.beginTone + dChosenYear * 365) % 13,
+                beginNahual: (widget.beginNahual + dChosenYear * 365) % 20,
                 chosenLongCount: [
                   baktun,
                   katun,

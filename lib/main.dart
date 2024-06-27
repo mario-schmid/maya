@@ -77,7 +77,7 @@ Future<void> main() async {
     //
     'assets/images/transparent.png',
     //
-    'assets/images/icons/quetzalcoatl.png',
+    'assets/images/icons/sign.png',
     //
     'assets/images/tones/01_white_curved_bottom.png',
     'assets/images/tones/02_white_curved_bottom.png',
@@ -92,6 +92,20 @@ Future<void> main() async {
     'assets/images/tones/11_white_curved_bottom.png',
     'assets/images/tones/12_white_curved_bottom.png',
     'assets/images/tones/13_white_curved_bottom.png',
+    //
+    'assets/images/tones/01_white_curved.png',
+    'assets/images/tones/02_white_curved.png',
+    'assets/images/tones/03_white_curved.png',
+    'assets/images/tones/04_white_curved.png',
+    'assets/images/tones/05_white_curved.png',
+    'assets/images/tones/06_white_curved.png',
+    'assets/images/tones/07_white_curved.png',
+    'assets/images/tones/08_white_curved.png',
+    'assets/images/tones/09_white_curved.png',
+    'assets/images/tones/10_white_curved.png',
+    'assets/images/tones/11_white_curved.png',
+    'assets/images/tones/12_white_curved.png',
+    'assets/images/tones/13_white_curved.png',
     //
     'assets/images/tones/01_white_vertical.png',
     'assets/images/tones/02_white_vertical.png',
@@ -216,8 +230,8 @@ class MayaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => DayItems()),
-        ChangeNotifierProvider(create: (context) => MayaData())
+        ChangeNotifierProvider(create: (context) => MayaData()),
+        ChangeNotifierProvider(create: (context) => DayItems())
       ],
       child: GetMaterialApp(
           navigatorKey: navigatorKey,
@@ -1058,6 +1072,22 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     }
   }
 
+  Container tunContainer(Size size, int value) {
+    return Container(
+      height: sizeSandstones.height,
+      width: sizeSandstones.width,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(size.width * 0.02)),
+          image: const DecorationImage(
+              image: AssetImage('assets/images/sandstone.jpg'),
+              fit: BoxFit.cover)),
+      child: Center(
+        child: SizedBox(
+            width: sizeNummbers.width, child: imageToneWhiteFlatBottom[value]),
+      ),
+    );
+  }
+
   /* ------------------------------------------------------------------------ */
   /* Drawer                                                                   */
   /*                                                                          */
@@ -1078,8 +1108,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Padding(
                       padding: EdgeInsets.all(size.width * 0.02),
                       child: Image(
-                          image: const AssetImage(
-                              "assets/images/icons/quetzalcoatl.png"),
+                          image:
+                              const AssetImage("assets/images/icons/sign.png"),
                           height: size.width * 0.3,
                           width: size.width * 0.3))),
               Divider(
@@ -2442,6 +2472,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       child: Center(
                           child: GestureDetector(
                               onTap: () {
+                                int beginTone =
+                                    (startTone + 365 * (chosenYear - 5129)) %
+                                        13;
+                                int beginNahual =
+                                    (startNahual + 365 * (chosenYear - 5129)) %
+                                        20;
+
                                 int chosenTone = getTone(
                                     (offsetGearTones * 180 / pi +
                                             finalAngle / 13 * 20) %
@@ -2471,6 +2508,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             chosenDay: chosenDay,
                                             chosenTone: chosenTone,
                                             chosenNahual: chosenNahual,
+                                            beginTone: beginTone,
+                                            beginNahual: beginNahual,
                                             chosenLongCount: [
                                               baktun,
                                               katun,
@@ -2482,6 +2521,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                 chosenGregorianDate)));
                               },
                               onLongPress: () {
+                                int beginTone =
+                                    (startTone + 365 * (chosenYear - 5129)) %
+                                        13;
+                                int beginNahual =
+                                    (startNahual + 365 * (chosenYear - 5129)) %
+                                        20;
+
                                 int chosenTone = getTone(
                                     (offsetGearTones * 180 / pi +
                                             finalAngle / 13 * 20) %
@@ -2515,6 +2561,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                     chosenDay: chosenDay,
                                                     chosenTone: chosenTone,
                                                     chosenNahual: chosenNahual,
+                                                    beginTone: beginTone,
+                                                    beginNahual: beginNahual,
                                                     chosenLongCount: [
                                                       baktun,
                                                       katun,
@@ -2538,60 +2586,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         child: Row(children: [
                           Padding(
                               padding: paddingSandstones,
-                              child: Image.asset('assets/images/sandstone.png',
-                                  height: sizeSandstones.height,
-                                  /*50*/ width: sizeSandstones.width)),
+                              child: tunContainer(size, baktun)),
                           Padding(
                               padding: paddingSandstones,
-                              child: Image.asset('assets/images/sandstone.png',
-                                  height: sizeSandstones.height,
-                                  /*50*/ width: sizeSandstones.width)),
+                              child: tunContainer(size, katun)),
                           Padding(
                               padding: paddingSandstones,
-                              child: Image.asset('assets/images/sandstone.png',
-                                  height: sizeSandstones.height,
-                                  /*50*/ width: sizeSandstones.width)),
+                              child: tunContainer(size, tun)),
                           Padding(
                               padding: paddingSandstones,
-                              child: Image.asset('assets/images/sandstone.png',
-                                  height: sizeSandstones.height,
-                                  /*50*/ width: sizeSandstones.width)),
-                          Image.asset('assets/images/sandstone.png',
-                              height: sizeSandstones.height,
-                              /*50*/ width: sizeSandstones.width)
-                        ]))),
-                Positioned(
-                    top: posBoxLongCount.top,
-                    left: posBoxLongCount.left,
-                    child: SizedBox(
-                        height: sizeBoxLongCount.height,
-                        width: sizeBoxLongCount.width,
-                        child: Row(children: [
-                          Padding(
-                              padding: paddingNummbersBaktun,
-                              child: SizedBox(
-                                  width: sizeNummbers.width,
-                                  child: imageToneWhiteFlatBottom[baktun])),
-                          Padding(
-                              padding: paddingNummbersKatun,
-                              child: SizedBox(
-                                  width: sizeNummbers.width,
-                                  child: imageToneWhiteFlatBottom[katun])),
-                          Padding(
-                              padding: paddingNummbersTun,
-                              child: SizedBox(
-                                  width: sizeNummbers.width,
-                                  child: imageToneWhiteFlatBottom[tun])),
-                          Padding(
-                              padding: paddingNummbersWinal,
-                              child: SizedBox(
-                                  width: sizeNummbers.width,
-                                  child: imageToneWhiteFlatBottom[winal])),
-                          Padding(
-                              padding: paddingNummbersKin,
-                              child: SizedBox(
-                                  width: sizeNummbers.width,
-                                  child: imageToneWhiteFlatBottom[kin]))
+                              child: tunContainer(size, winal)),
+                          tunContainer(size, kin)
                         ]))),
                 Positioned(
                     top: posSettings.top,
