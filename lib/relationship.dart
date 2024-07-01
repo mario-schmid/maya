@@ -214,7 +214,6 @@ class _RelationshipState extends State<Relationship> {
                                     image: const AssetImage(
                                         'assets/images/bg_pattern_three.jpg'),
                                     fit: BoxFit.cover),
-                                /*color: const Color.fromARGB(255, 102, 153, 255),*/
                                 border: Border.all(
                                     color: Colors.white,
                                     width: size.width * 0.011),

@@ -5,18 +5,24 @@ import 'dart:math';
 import 'package:alarm/alarm.dart';
 import 'package:alarm/model/alarm_settings.dart';
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flag/flag.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:maya/character_choise.dart';
 import 'package:maya/data/maya_alarm.dart';
 import 'package:maya/data/maya_day.dart';
 import 'package:maya/data/maya_event.dart';
 import 'package:maya/data/maya_task.dart';
-import 'package:maya/date_choice.dart';
+import 'package:maya/date_selection.dart';
 import 'package:maya/helper/maya_images.dart';
 import 'package:maya/helper/maya_lists.dart';
 import 'package:maya/helper/maya_style.dart';
@@ -26,10 +32,10 @@ import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/mayadata.dart';
 import 'package:maya/relationship.dart';
 import 'package:maya/ring_screen.dart';
-import 'package:maya/character_choise.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,6 +44,7 @@ import 'classes/position.dart';
 import 'color_picker.dart';
 import 'database_handler.dart';
 import 'date_calculator.dart';
+import 'firebase_options.dart';
 import 'helper/locale_string.dart';
 import 'maya_items.dart';
 import 'methods/get_kin_nummber.dart';
@@ -48,6 +55,19 @@ import 'the_year.dart';
 import 'time_format.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+final _messageStreamController = BehaviorSubject<RemoteMessage>();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
+  /*if (kDebugMode) {
+    print("Handling a background message: ${message.messageId}");
+    print('Message data: ${message.data}');
+    print('Message notification: ${message.notification?.title}');
+    print('Message notification: ${message.notification?.body}');
+  }*/
+}
 
 Future<void> main() async {
 /* ------------------------------------------------------------------------ */
@@ -61,7 +81,9 @@ Future<void> main() async {
     'assets/images/shape_button_moon.png',
     'assets/images/gearNahuales.png',
     'assets/images/gearTones.png',
-    'assets/images/sandstone.png',
+    'assets/images/sandstone_tun.jpg',
+    'assets/images/sandstone_time.jpg',
+    'assets/images/sandstone_date_selection.jpg',
     'assets/images/sandstoneCircle.png',
     'assets/images/sandstoneForm_bottom.png',
     'assets/images/sandstoneForm_top.png',
@@ -211,6 +233,7 @@ Future<void> main() async {
 /* Assets for precacheImage - END                                           */
 /* ------------------------------------------------------------------------ */
   final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   binding.addPostFrameCallback((_) async {
     Element? context = binding.rootElement;
     if (context != null) {
@@ -219,6 +242,51 @@ Future<void> main() async {
       }
     }
   });
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  final messaging = FirebaseMessaging.instance;
+
+  final settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  if (kDebugMode) {
+    print('Permission granted: ${settings.authorizationStatus}');
+  }
+
+  /*String? token = await messaging.getToken();
+
+  if (kDebugMode) {
+    print('Registration Token=$token');
+  }*/
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    /*if (kDebugMode) {
+      print('Handling a foreground message: ${message.messageId}');
+      print('Message data: ${message.data}');
+      print('Message notification: ${message.notification?.title}');
+      print('Message notification: ${message.notification?.body}');
+    }*/
+
+    _messageStreamController.sink.add(message);
+  });
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  const topicPromotion = 'app_promotion';
+  const topicNotification = 'app_notification';
+  await messaging.subscribeToTopic(topicPromotion);
+  await messaging.subscribeToTopic(topicNotification);
+
   await Alarm.init();
   runApp(const MayaApp());
 }
@@ -266,6 +334,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Size sizeBoxTime;
   late Position posBoxTime;
   //
+  late double sizeIconNotification;
+  late double sizePaddingNotificationTime;
   late TextStyle textStyleTime;
   //
   late Size sizeSandstoneFormTop;
@@ -393,6 +463,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   late DateTime startDate;
   String currTime = '';
+
+  _HomeState() {
+    _messageStreamController.listen((message) {
+      if (message.notification != null) {
+        showNotificationDialog(
+            '${message.notification?.title}', '${message.notification?.body}');
+      }
+    });
+  }
 
   double finalAngle = 0.0;
   double oldAngle = 0.0;
@@ -532,6 +611,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     });
 
+    setupInteractedMessage();
+
     if (Alarm.android) {
       checkAndroidNotificationPermission();
       checkAndroidScheduleExactAlarmPermission();
@@ -625,8 +706,62 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     strTextToneNahual =
         '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
 
+    FlutterNativeSplash.remove();
+    hideScreen();
     super.initState();
   }
+
+  Future<void> hideScreen() async {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      FlutterSplashScreen.hide();
+    });
+  }
+
+  Future<void> setupInteractedMessage() async {
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  Future<void> _handleMessage(RemoteMessage message) async {
+    showNotificationDialog(
+        '${message.notification?.title}', '${message.notification?.body}');
+  }
+
+  void showNotificationDialog(String title, String body) {
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return Center(
+              child: Container(
+                  constraints: const BoxConstraints(minHeight: 80),
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                      color: mainColor,
+                      border: Border.all(color: Colors.white, width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                      shape: BoxShape.rectangle),
+                  child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(title,
+                                textAlign: TextAlign.center,
+                                style: MayaStyle.popUpDialogTitle),
+                            Text(body,
+                                textAlign: TextAlign.center,
+                                style: MayaStyle.popUpDialogBody)
+                          ]))));
+        });
+  }
+
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
@@ -1079,7 +1214,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(size.width * 0.02)),
           image: const DecorationImage(
-              image: AssetImage('assets/images/sandstone.jpg'),
+              image: AssetImage('assets/images/sandstone_tun.jpg'),
               fit: BoxFit.cover)),
       child: Center(
         child: SizedBox(
@@ -1441,13 +1576,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       posSettings =
           Position(statusBarHeight + 10, size.width - sizeSettings.width);
       //
-      sizeBoxTime = Size(size.width * 0.555555556, size.width * 0.088888889);
-      posBoxTime = Position(size.width * 0.111111111,
-          size.width - sizeBoxTime.width - size.width * 0.280555556);
+      sizeBoxTime = Size(size.width * 0.52, size.width * 0.1);
+      posBoxTime = Position(size.height / 2 - size.width * 0.84,
+          size.width - sizeBoxTime.width - size.width * 0.4);
+      //
+      sizeIconNotification = size.width * 0.067;
+      //
+      sizePaddingNotificationTime = size.width * 0.014;
       //
       textStyleTime = TextStyle(
           color: Colors.white,
-          fontSize: size.width * 0.066666667,
+          fontSize: size.width * 0.06,
           fontWeight: FontWeight.normal);
       //
       sizeSandstoneFormTop =
@@ -1604,13 +1743,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       posSettings =
           Position(statusBarHeight + 10, size.width - sizeSettings.width);
       //
-      sizeBoxTime = Size(size.height * 0.289017341, size.height * 0.046242775);
-      posBoxTime = Position(size.height * 0.057803468,
-          size.width - sizeBoxTime.width - size.height * 0.145953757);
+      sizeBoxTime = Size(size.height * 0.270520231, size.height * 0.052023121);
+      posBoxTime = Position(size.height / 2 - size.height * 0.436994220,
+          size.width - sizeBoxTime.width - size.height * 0.208092486);
+      //
+      sizeIconNotification = size.height * 0.034855491;
+      //
+      sizePaddingNotificationTime = size.height * 0.007283237;
       //
       textStyleTime = TextStyle(
           color: Colors.white,
-          fontSize: size.height * 0.034682081,
+          fontSize: size.height * 0.031213873,
           fontWeight: FontWeight.normal);
       //
       sizeSandstoneFormTop =
@@ -1788,11 +1931,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               Positioned(
                   top: posBoxTime.top,
                   left: posBoxTime.left,
-                  child: SizedBox(
-                      height: sizeBoxTime.height,
-                      width: sizeBoxTime.width,
-                      child: Text(currTime,
-                          textAlign: TextAlign.center, style: textStyleTime))),
+                  child: Container(
+                    height: sizeBoxTime.height,
+                    width: sizeBoxTime.width,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                        borderRadius: BorderRadius.all(Radius.elliptical(
+                            sizeBoxTime.width, sizeBoxTime.height)),
+                        image: const DecorationImage(
+                            image:
+                                AssetImage('assets/images/sandstone_time.jpg'),
+                            fit: BoxFit.cover)),
+                    child: Text(currTime,
+                        textAlign: TextAlign.center, style: textStyleTime),
+                  )),
               Positioned(
                   top: posSandstoneFormTop.top,
                   left: posSandstoneFormTop.left,
@@ -2553,7 +2705,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         opaque: false,
                                         pageBuilder:
                                             (BuildContext context, __, _) =>
-                                                DateChoice(
+                                                DateSelection(
                                                     backgroundImage:
                                                         backgroundImage,
                                                     mainColor: mainColor,

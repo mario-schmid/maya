@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -6,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:maya/providers/dayitems.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 import 'helper/maya_images.dart';
 import 'helper/maya_lists.dart';
@@ -51,6 +51,7 @@ class _TheYearState extends State<TheYear> {
   late int currDay;
 
   int day = 0;
+  //late int cYear = widget.chosenYear;
   int winalNr = 0;
   late int tone;
   late int nahual;
@@ -68,12 +69,16 @@ class _TheYearState extends State<TheYear> {
   late DateTime gregorianDate;
 
   final ItemScrollController _scrollController = ItemScrollController();
+  /*final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();*/
 
   @override
   void initState() {
     initializeDateFormatting();
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
+
+    //_itemPositionsListener.itemPositions.addListener(setYear);
 
     longCount = widget.beginLongCount[0] * 144000 +
         widget.beginLongCount[1] * 7200 +
@@ -96,6 +101,22 @@ class _TheYearState extends State<TheYear> {
         .addPostFrameCallback((_) => executeAfterWholeBuildProcess(context));
     super.initState();
   }
+
+  /*void setYear() {
+    int itemPositionsFirst =
+        _itemPositionsListener.itemPositions.value.first.index;
+    int itemPositionsLast =
+        _itemPositionsListener.itemPositions.value.last.index;
+    setState(() {
+      if (itemPositionsLast < 39 && itemPositionsFirst != 0) {
+        cYear = widget.chosenYear - 1;
+      } else if (itemPositionsLast > 405) {
+        cYear = widget.chosenYear + 1;
+      } else if (itemPositionsLast > 39 && itemPositionsLast < 405) {
+        cYear = widget.chosenYear;
+      }
+    });
+  }*/
 
   Column dateColumn(Size size, int dayIndex) {
     day = (dayIndex % 365) % 20;
@@ -274,6 +295,7 @@ class _TheYearState extends State<TheYear> {
                             padding: const EdgeInsets.only(top: 0),
                             scrollDirection: Axis.vertical,
                             itemScrollController: _scrollController,
+                            //itemPositionsListener: _itemPositionsListener,
                             itemCount: 445,
                             itemBuilder: (context, dayIndex) {
                               return SizedBox(
@@ -294,7 +316,8 @@ class _TheYearState extends State<TheYear> {
                               ),
                               child: Align(
                                   alignment: Alignment.topCenter,
-                                  child: Text('${widget.chosenYear + 12}',
+                                  child: Text(
+                                      '${/*cYear*/ widget.chosenYear + 12}',
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: size.width * 0.05)))))),

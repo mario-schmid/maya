@@ -201,7 +201,6 @@ class _TheDayState extends State<TheDay> {
                                                       20])
                                         ]))),
                                 SizedBox(
-                                  //height: 150,
                                   width: size.width - 140,
                                   child: Column(children: [
                                     Row(

@@ -4,7 +4,7 @@ import 'package:maya/helper/maya_lists.dart';
 import 'package:maya/methods/get_haab_date.dart';
 import 'package:maya/the_day.dart';
 
-class DateChoice extends StatefulWidget {
+class DateSelection extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
   final int chosenYear;
@@ -15,7 +15,7 @@ class DateChoice extends StatefulWidget {
   final int beginNahual;
   final List<int> chosenLongCount;
   final DateTime chosenGregorianDate;
-  const DateChoice(
+  const DateSelection(
       {super.key,
       required this.backgroundImage,
       required this.mainColor,
@@ -29,10 +29,10 @@ class DateChoice extends StatefulWidget {
       required this.chosenGregorianDate});
 
   @override
-  State<DateChoice> createState() => _DateChoiceState();
+  State<DateSelection> createState() => _DateSelectionState();
 }
 
-class _DateChoiceState extends State<DateChoice> {
+class _DateSelectionState extends State<DateSelection> {
   bool wayeb = false;
   late final List<int> haabDate;
 
@@ -132,7 +132,7 @@ class _DateChoiceState extends State<DateChoice> {
                                                   indexWinal == 0
                                               ? const DecorationImage(
                                                   image: AssetImage(
-                                                      'assets/images/sandstone.jpg'),
+                                                      'assets/images/sandstone_date_selection.jpg'),
                                                   fit: BoxFit.cover)
                                               : DecorationImage(
                                                   colorFilter: ColorFilter.mode(
@@ -185,7 +185,7 @@ class _DateChoiceState extends State<DateChoice> {
                                                 i == 0
                                             ? const DecorationImage(
                                                 image: AssetImage(
-                                                    'assets/images/sandstone.jpg'),
+                                                    'assets/images/sandstone_date_selection.jpg'),
                                                 fit: BoxFit.cover)
                                             : DecorationImage(
                                                 colorFilter: ColorFilter.mode(
@@ -230,7 +230,7 @@ class _DateChoiceState extends State<DateChoice> {
                                                 0
                                             ? const DecorationImage(
                                                 image: AssetImage(
-                                                    'assets/images/sandstone.jpg'),
+                                                    'assets/images/sandstone_date_selection.jpg'),
                                                 fit: BoxFit.cover)
                                             : DecorationImage(
                                                 colorFilter: ColorFilter.mode(

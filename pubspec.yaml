@@ -43,13 +43,18 @@ dependencies:
   flutter_custom_clippers: ^2.1.0
   flutter_donation_buttons: ^0.4.10
   flutter_file_dialog: ^3.0.2
+  flutter_native_splash: ^2.4.0
+  flutter_splash_screen: ^3.0.0
   flutter_svg: ^2.0.10+1
+  firebase_core: ^3.1.1
+  firebase_messaging: ^15.0.2
   get: ^4.6.6
   intl: ^0.19.0
   permission_handler: ^11.3.1
   path: ^1.8.3
   provider: ^6.1.2
   restart_app: ^1.2.1
+  rxdart: ^0.28.0
   scrollable_positioned_list: ^0.3.8
   shared_preferences: ^2.2.3
   sqflite: ^2.3.3+1
