@@ -467,8 +467,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   _HomeState() {
     _messageStreamController.listen((message) {
       if (message.notification != null) {
-        showNotificationDialog(
-            '${message.notification?.title}', '${message.notification?.body}');
+        showNotificationDialog(message);
       }
     });
   }
@@ -729,11 +728,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
   Future<void> _handleMessage(RemoteMessage message) async {
-    showNotificationDialog(
-        '${message.notification?.title}', '${message.notification?.body}');
+    showNotificationDialog(message);
   }
 
-  void showNotificationDialog(String title, String body) {
+  void showNotificationDialog(RemoteMessage message) {
     showDialog<void>(
         context: context,
         builder: (BuildContext context) {
@@ -752,10 +750,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Text(title,
+                            Text('${message.notification?.title}',
                                 textAlign: TextAlign.center,
                                 style: MayaStyle.popUpDialogTitle),
-                            Text(body,
+                            Text('${message.notification?.body}',
                                 textAlign: TextAlign.center,
                                 style: MayaStyle.popUpDialogBody)
                           ]))));
