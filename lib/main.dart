@@ -1646,24 +1646,71 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                           size.width * 0.014)))),
                     ))
               ]),
-              SizedBox(height: size.width * 0.02),
-              SizedBox(
-                height: size.width * 0.08,
-                width: size.width * 0.36,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    foregroundColor: const WidgetStatePropertyAll(Colors.white),
-                    backgroundColor:
-                        WidgetStateProperty.all(Colors.transparent),
-                    shadowColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                  onPressed: _launchPrivacyPolicy,
-                  child: Text(
-                    'Privacy Policy',
-                    style: TextStyle(fontSize: size.width * 0.034),
+              SizedBox(height: size.width * 0.03),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                SizedBox(
+                    height: size.width * 0.08,
+                    width: size.width * 0.22,
+                    child: ElevatedButton(
+                        onPressed: _launchGithub,
+                        style: ButtonStyle(
+                            padding:
+                                const WidgetStatePropertyAll(EdgeInsets.zero),
+                            foregroundColor:
+                                const WidgetStatePropertyAll(Colors.white),
+                            backgroundColor: WidgetStateProperty.all(
+                                mainColor.withOpacity(0.5)),
+                            shadowColor:
+                                WidgetStateProperty.all(Colors.transparent),
+                            side: WidgetStateProperty.all(const BorderSide(
+                                color: Colors.white, width: 1)),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            size.width * 0.01))),
+                            overlayColor: WidgetStateProperty.all(mainColor)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                                "assets/vector_graphics/github.svg",
+                                height: size.width * 0.06,
+                                width: size.width * 0.06),
+                            SizedBox(width: size.width * 0.01),
+                            Text('Github',
+                                style: TextStyle(fontSize: size.width * 0.034))
+                          ],
+                        ))),
+                SizedBox(width: size.width * 0.03),
+                SizedBox(
+                  height: size.width * 0.08,
+                  width: size.width * 0.26,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                        foregroundColor:
+                            const WidgetStatePropertyAll(Colors.white),
+                        backgroundColor:
+                            WidgetStateProperty.all(mainColor.withOpacity(0.5)),
+                        shadowColor:
+                            WidgetStateProperty.all(Colors.transparent),
+                        side: WidgetStateProperty.all(
+                            const BorderSide(color: Colors.white, width: 1)),
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(size.width * 0.01))),
+                        overlayColor: WidgetStateProperty.all(mainColor)),
+                    onPressed: _launchPrivacyPolicy,
+                    child: Text(
+                      'Privacy Policy',
+                      style: TextStyle(fontSize: size.width * 0.034),
+                    ),
                   ),
                 ),
-              ),
+              ])
             ])));
   }
   /*                                                                          */
@@ -3080,6 +3127,13 @@ Future<void> _launchPrivacyPolicy() async {
       Uri.parse('https://sites.google.com/view/privacy-policy-of-maya');
   if (!await launchUrl(urlPrivacyPolicy)) {
     throw Exception('Could not launch $urlPrivacyPolicy');
+  }
+}
+
+Future<void> _launchGithub() async {
+  final Uri urlGithub = Uri.parse('https://github.com/mario-schmid/maya');
+  if (!await launchUrl(urlGithub)) {
+    throw Exception('Could not launch $urlGithub');
   }
 }
 
