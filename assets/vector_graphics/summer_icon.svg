@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="80mm"
+   height="80mm"
+   viewBox="0 0 80 80"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <g>
+    <circle
+       style="fill:#ffd500;fill-opacity:1;stroke-width:42.6239;stroke-linejoin:round;stroke-miterlimit:0"
+       id="path1"
+       cx="39.5"
+       cy="39.500004"
+       r="39.5"/>
+    <path
+       d="m 39.500259,8.500085 -5.616712,10.03918 -9.883635,-5.88595 0.156064,11.50266 -11.502657,-0.15606 5.886461,9.88363 -10.0396965,5.61619 10.0396965,5.61672 -5.886462,9.88363 11.502657,-0.15606 -0.156063,11.50265 9.883634,-5.88594 5.616712,10.03918 5.616194,-10.03918 9.883634,5.88594 -0.15555,-11.50265 11.50266,0.15606 -5.88646,-9.88363 10.03918,-5.61672 -10.03918,-5.61619 5.88646,-9.88363 -11.50266,0.15606 0.15555,-11.50266 -9.883634,5.88595 z m 0,10.50013 a 20.5,20.5 0 0 1 20.500037,20.49952 20.5,20.5 0 0 1 -20.500037,20.50005 20.5,20.5 0 0 1 -20.500042,-20.50005 20.5,20.5 0 0 1 20.500042,-20.49952 z"
+       style="fill:#ffffff;fill-opacity:0.92697;stroke-width:13;stroke-linejoin:round;stroke-miterlimit:0"
+       id="path2"/>
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke-width:19.9631;stroke-linejoin:round;stroke-miterlimit:0"
+       id="path3"
+       cx="39.5"
+       cy="39.500004"
+       r="18.5"/>
+  </g>
+</svg>
