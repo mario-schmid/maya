@@ -1,15 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:alarm/alarm.dart';
-import 'package:alarm/model/alarm_settings.dart';
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -32,6 +33,7 @@ import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/mayadata.dart';
 import 'package:maya/relationship.dart';
 import 'package:maya/ring_screen.dart';
+import 'package:moon_phase_plus/moon_phase_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
@@ -400,11 +402,25 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Size sizeWheelTones;
   late Position posWheelTones;
   //
+  late Size sizeBoxSeasons;
+  late Position posBoxSeasons;
+  //
   late Size sizeSignTone;
   late Offset offsetSignTone;
   //
-  late Size sizeSandstoneCircle;
-  late Position posSandstoneCircle;
+  late double sizeMoon;
+  late Position posMoon;
+  //
+  late double sizeBoxSolsticesEquinoxes;
+  late Position posBoxSolsticesEquinoxes;
+  //
+  late EdgeInsets paddingBoxSolsticesEquinoxes;
+  late double mainAxisSpacingBoxSolsticesEquinoxes;
+  late double crossAxisSpacingBoxSolsticesEquinoxes;
+  //
+  late double sizeCircleSeason;
+  late EdgeInsets paddingCircleSeason;
+  late Offset offsetCircleSeason;
   //
   late Size sizeButtonRelationship;
   late Position posButtonRelationship;
@@ -556,6 +572,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/trecenaYellow.png')
   ];
 
+  double seasonAngle = 0;
+
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -570,6 +588,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   @override
   void initState() {
+    loadSeasonsFromAssets('assets/seasons.json');
+
     loadMainColor();
     loadLanguage();
     //TODO: remove in the future
@@ -634,7 +654,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     loadTimeFormat();
     loadBgFilePath();
 
-    Future.delayed(
+    //TODO: make possible
+    /*Future.delayed(
         Duration(
             milliseconds: 85320000 - now.millisecondsSinceEpoch % 86400000),
         () {
@@ -642,7 +663,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       Timer.periodic(const Duration(days: 1), (Timer timer) {
         scheduletask();
       });
-    });
+    });*/
 
     Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       final DateTime now = DateTime.now();
@@ -1018,11 +1039,101 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   loadBgFilePath() async {
     backgroundImage = await readBgFilePath();
   }
-
   /*                                                                          */
   /* loadBgFilePath - END                                                      */
   /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
+
+  List<dynamic> seasons = [];
+
+  loadSeasonsFromAssets(String filePath) async {
+    String jsonString = await rootBundle.loadString(filePath);
+    seasons = jsonDecode(jsonString);
+
+    final DateFormat dateTimeformatSeasons =
+        DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
+
+    final index = now.year - 2001;
+
+    final String winterSolstice = seasons[index]['winter'];
+    final String springEquinox = seasons[index]['spring'];
+    final String summerSolstice = seasons[index]['summer'];
+    final String fallEquinox = seasons[index]['fall'];
+
+    final DateTime dateTimeWinterSolstice =
+        dateTimeformatSeasons.parse(winterSolstice);
+    final DateTime dateTimeSpringEquinox =
+        dateTimeformatSeasons.parse(springEquinox);
+    final DateTime dateTimeSummerSolstice =
+        dateTimeformatSeasons.parse(summerSolstice);
+    final DateTime dateTimeFallEquinox =
+        dateTimeformatSeasons.parse(fallEquinox);
+
+    Duration diffWinterSolstice =
+        now.toUtc().difference(dateTimeWinterSolstice);
+    Duration diffSpringEquinox = now.toUtc().difference(dateTimeSpringEquinox);
+    Duration diffSummerSolstice =
+        now.toUtc().difference(dateTimeSummerSolstice);
+    Duration diffallEquinox = now.toUtc().difference(dateTimeFallEquinox);
+
+    final List<int> diffSeasons = [
+      diffWinterSolstice.inMinutes,
+      diffSpringEquinox.inMinutes,
+      diffSummerSolstice.inMinutes,
+      diffallEquinox.inMinutes
+    ];
+
+    final List<int> diffSeasonsABS = [
+      diffWinterSolstice.inMinutes.abs(),
+      diffSpringEquinox.inMinutes.abs(),
+      diffSummerSolstice.inMinutes.abs(),
+      diffallEquinox.inMinutes.abs()
+    ];
+
+    final int minimum = diffSeasonsABS.reduce(min);
+
+    final int indexMinimum =
+        diffSeasonsABS.indexWhere((element) => element == minimum);
+
+    double angle = 360 / 525948.7536 * diffSeasonsABS[indexMinimum];
+
+    if (diffSeasons[indexMinimum] < 0) {
+      switch (indexMinimum) {
+        case 0:
+          seasonAngle = angle;
+          break;
+        case 1:
+          seasonAngle = 270 + angle;
+          break;
+        case 2:
+          seasonAngle = 180 + angle;
+          break;
+        case 3:
+          seasonAngle = 90 + angle;
+          break;
+        default:
+          seasonAngle = 0;
+      }
+    } else {
+      switch (indexMinimum) {
+        case 0:
+          seasonAngle = 360 - angle;
+          break;
+        case 1:
+          seasonAngle = 270 - angle;
+          break;
+        case 2:
+          seasonAngle = 180 - angle;
+          break;
+        case 3:
+          seasonAngle = 90 - angle;
+          break;
+        default:
+          seasonAngle = 0;
+      }
+    }
+  }
+
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
     await Navigator.push(
       context,
@@ -1035,7 +1146,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* scheduletask                                                             */
   /*                                                                          */
-  scheduletask() {
+  /*scheduletask() {
     setState(() {
       currDay++;
       if (currDay > 364) {
@@ -1110,7 +1221,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         }
       }
     });
-  }
+  }*/
 
   /*                                                                          */
   /* scheduletask - END                                                       */
@@ -1568,6 +1679,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double statusBarHeight = MediaQuery.of(context).viewPadding.top;
+
     if (size.height / size.width >= 692 / 360) {
       //
       sizeSettings = const Size(16, 120);
@@ -1680,11 +1792,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       sizeSignTone = Size(size.width * 0.048, size.width * 0.1);
       offsetSignTone = Offset(-size.width * 0.201733333, 0);
       //
-      sizeSandstoneCircle =
-          Size(size.width * 0.269727778, size.width * 0.269727778);
-      posSandstoneCircle = Position(
-          (size.height - size.width * 0.269727778) / 2,
-          size.width - sizeSandstoneCircle.width - size.width * 0.391062037);
+      sizeBoxSeasons = Size(size.width * 0.496296296, size.width * 0.496296296);
+      posBoxSeasons = Position((size.height - sizeBoxSeasons.height) / 2,
+          size.width - sizeBoxSeasons.width - size.width * 0.277777778);
+      //
+      sizeMoon = size.width * 0.231965889;
+      posMoon = Position((size.height - sizeMoon) / 2,
+          size.width - sizeMoon - size.width * 0.409942981);
+      //
+      sizeBoxSolsticesEquinoxes = size.width * 0.269727778;
+      posBoxSolsticesEquinoxes = Position(
+          (size.height - sizeBoxSolsticesEquinoxes) / 2,
+          size.width - sizeBoxSolsticesEquinoxes - size.width * 0.391062037);
+      //
+      paddingBoxSolsticesEquinoxes = EdgeInsets.all(size.width * 0.072222222);
+      mainAxisSpacingBoxSolsticesEquinoxes = size.width * 0.066666667;
+      crossAxisSpacingBoxSolsticesEquinoxes = size.width * 0.066666667;
+      //
+      sizeCircleSeason = size.width * 0.033333333;
+      paddingCircleSeason = EdgeInsets.all(size.width * 0.0918);
+      offsetCircleSeason = Offset(0, size.width * 0.13964);
       //
       sizeButtonRelationship =
           Size(size.width * 0.214533333, size.width * 0.102897222);
@@ -1714,8 +1841,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           (size.height - sizeBoxTextToneNahual.height) / 2,
           size.width - sizeBoxTextToneNahual.width - size.width * 0.391062037);
       //
-      texttextStyleToneNahual =
-          TextStyle(color: Colors.white, fontSize: size.width * 0.05);
+      texttextStyleToneNahual = TextStyle(
+          color: Color.lerp(mainColor, Colors.white, 0.5)!,
+          fontSize: size.width * 0.044);
       //
       sizeBoxLongCount =
           Size(size.width * 0.738888889, size.width * 0.138888889);
@@ -1854,11 +1982,27 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       sizeSignTone = Size(size.height * 0.024971098, size.height * 0.052023121);
       offsetSignTone = Offset(-size.height * 0.104947977, 0);
       //
-      sizeSandstoneCircle =
-          Size(size.height * 0.140320809, size.height * 0.140320809);
-      posSandstoneCircle = Position(
-          (size.height - sizeSandstoneCircle.height) / 2,
-          size.width - sizeSandstoneCircle.width - size.height * 0.203442678);
+      sizeBoxSeasons =
+          Size(size.height * 0.258188825, size.height * 0.258188825);
+      posBoxSeasons = Position((size.height - sizeBoxSeasons.height) / 2,
+          size.width - sizeBoxSeasons.width - size.height * 0.144508671);
+      //
+      sizeMoon = size.height * 0.120675896;
+      posMoon = Position((size.height - sizeMoon) / 2,
+          size.width - sizeMoon - size.height * 0.213265135);
+      //
+      sizeBoxSolsticesEquinoxes = size.width * 0.140320809;
+      posBoxSolsticesEquinoxes = Position(
+          (size.height - sizeBoxSolsticesEquinoxes) / 2,
+          size.width - sizeBoxSolsticesEquinoxes - size.width * 0.203442678);
+      //
+      paddingBoxSolsticesEquinoxes = EdgeInsets.all(size.height * 0.037572254);
+      mainAxisSpacingBoxSolsticesEquinoxes = size.height * 0.034682081;
+      crossAxisSpacingBoxSolsticesEquinoxes = size.height * 0.034682081;
+      //
+      sizeCircleSeason = size.height * 0.017341040;
+      paddingCircleSeason = EdgeInsets.all(size.height * 0.047757225);
+      offsetCircleSeason = Offset(0, size.height * 0.072645086);
       //
       sizeButtonRelationship =
           Size(size.height * 0.111606936, size.height * 0.053530347);
@@ -1889,8 +2033,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           (size.height - sizeBoxTextToneNahual.height) / 2,
           size.width - sizeBoxTextToneNahual.width - size.height * 0.203442678);
       //
-      texttextStyleToneNahual =
-          TextStyle(color: Colors.white, fontSize: size.height * 0.026011561);
+      texttextStyleToneNahual = TextStyle(
+          color: Color.lerp(mainColor, Colors.white, 0.5)!,
+          fontSize: size.height * 0.022890173);
       //
       sizeBoxLongCount =
           Size(size.height * 0.384393064, size.height * 0.072254335);
@@ -2463,11 +2608,63 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             ])
                           ])))),
               Positioned(
-                  top: posSandstoneCircle.top,
-                  left: posSandstoneCircle.left,
-                  child: Image.asset("assets/images/sandstoneCircle.png",
-                      height: sizeSandstoneCircle.height,
-                      width: sizeSandstoneCircle.width)),
+                  top: posBoxSeasons.top,
+                  left: posBoxSeasons.left,
+                  child: SizedBox(
+                      height: sizeBoxSeasons.height,
+                      width: sizeBoxSeasons.width,
+                      child: GridView.count(
+                          primary: false,
+                          padding: paddingBoxSolsticesEquinoxes,
+                          mainAxisSpacing: mainAxisSpacingBoxSolsticesEquinoxes,
+                          crossAxisSpacing:
+                              crossAxisSpacingBoxSolsticesEquinoxes,
+                          crossAxisCount: 3,
+                          children: <Widget>[
+                            SizedBox(),
+                            SvgPicture.asset(
+                                "assets/vector_graphics/winter_icon.svg"),
+                            SizedBox(),
+                            SvgPicture.asset(
+                                "assets/vector_graphics/spring_icon.svg"),
+                            SizedBox(),
+                            SvgPicture.asset(
+                                "assets/vector_graphics/autumn_icon.svg"),
+                            SizedBox(),
+                            SvgPicture.asset(
+                                "assets/vector_graphics/summer_icon.svg"),
+                            SizedBox()
+                          ]))),
+              Positioned(
+                  top: posBoxSeasons.top,
+                  left: posBoxSeasons.left,
+                  child: Container(
+                      height: sizeBoxSeasons.height,
+                      width: sizeBoxSeasons.width,
+                      padding: paddingCircleSeason,
+                      alignment: Alignment.topCenter,
+                      child: Transform.rotate(
+                        angle: seasonAngle / 180 * pi,
+                        origin: offsetCircleSeason,
+                        child: Container(
+                          height: sizeCircleSeason,
+                          width: sizeCircleSeason,
+                          decoration: BoxDecoration(
+                            color: Color.lerp(mainColor, Colors.white, 0.6)!,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ))),
+              Positioned(
+                  top: posMoon.top + sizeMoon / 2,
+                  left: posMoon.left + sizeMoon / 2,
+                  child: MoonWidget(
+                    date: DateTime.now(),
+                    resolution: sizeMoon / 2,
+                    size: sizeMoon,
+                    moonColor: Color.fromARGB(255, 215, 215, 215),
+                    earthshineColor: Color.lerp(mainColor, Colors.black, 0.1)!,
+                  )),
               Positioned(
                   top: posButtonRelationship.top,
                   left: posButtonRelationship.left,
