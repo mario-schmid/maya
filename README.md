@@ -3,9 +3,9 @@
 </p>
 
 <p align="center">
-    <img src=".github/images/theme_a.jpg" width="30%">
-    <img src=".github/images/theme_b.jpg" width="30%">
-    <img src=".github/images/theme_c.jpg" width="30%">
+    <img src=".github/images/colorfull-blue.jpg" width="30%">
+    <img src=".github/images/colorfull-magenta.jpg" width="30%">
+    <img src=".github/images/colorfull-yellow.jpg" width="30%">
 </p>
 <p align="center">
     <img src=".github/images/main.jpg" width="30%">
