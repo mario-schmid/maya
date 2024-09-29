@@ -51,12 +51,13 @@ class _TheYearState extends State<TheYear> {
   late int currDay;
 
   int day = 0;
-  //late int cYear = widget.chosenYear;
+  //int dYear = 0;
   int winalNr = 0;
   late int tone;
   late int nahual;
 
   late int kinIndex;
+  int currentItem = 0;
 
   late int longCount;
 
@@ -68,7 +69,7 @@ class _TheYearState extends State<TheYear> {
 
   late DateTime gregorianDate;
 
-  final ItemScrollController _scrollController = ItemScrollController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
   /*final ItemPositionsListener _itemPositionsListener =
       ItemPositionsListener.create();*/
 
@@ -78,7 +79,23 @@ class _TheYearState extends State<TheYear> {
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
 
-    //_itemPositionsListener.itemPositions.addListener(setYear);
+    /*_itemPositionsListener.itemPositions.addListener(() {
+      int itemPositionsFirst =
+          _itemPositionsListener.itemPositions.value.first.index;
+      int itemPositionsLast =
+          _itemPositionsListener.itemPositions.value.last.index;
+      setState(() {
+        if (itemPositionsLast < 39 && itemPositionsFirst != 0) {
+          dYear = -1;
+        }
+        if (itemPositionsLast > 405) {
+          dYear = 1;
+        }
+        if (itemPositionsLast > 39 && itemPositionsLast < 405) {
+          dYear = 0;
+        }
+      });
+    });*/
 
     longCount = widget.beginLongCount[0] * 144000 +
         widget.beginLongCount[1] * 7200 +
@@ -101,22 +118,6 @@ class _TheYearState extends State<TheYear> {
         .addPostFrameCallback((_) => executeAfterWholeBuildProcess(context));
     super.initState();
   }
-
-  /*void setYear() {
-    int itemPositionsFirst =
-        _itemPositionsListener.itemPositions.value.first.index;
-    int itemPositionsLast =
-        _itemPositionsListener.itemPositions.value.last.index;
-    setState(() {
-      if (itemPositionsLast < 39 && itemPositionsFirst != 0) {
-        cYear = widget.chosenYear - 1;
-      } else if (itemPositionsLast > 405) {
-        cYear = widget.chosenYear + 1;
-      } else if (itemPositionsLast > 39 && itemPositionsLast < 405) {
-        cYear = widget.chosenYear;
-      }
-    });
-  }*/
 
   Column dateColumn(Size size, int dayIndex) {
     day = (dayIndex % 365) % 20;
@@ -294,7 +295,7 @@ class _TheYearState extends State<TheYear> {
                         child: ScrollablePositionedList.builder(
                             padding: const EdgeInsets.only(top: 0),
                             scrollDirection: Axis.vertical,
-                            itemScrollController: _scrollController,
+                            itemScrollController: _itemScrollController,
                             //itemPositionsListener: _itemPositionsListener,
                             itemCount: 445,
                             itemBuilder: (context, dayIndex) {
@@ -317,7 +318,7 @@ class _TheYearState extends State<TheYear> {
                               child: Align(
                                   alignment: Alignment.topCenter,
                                   child: Text(
-                                      '${/*cYear*/ widget.chosenYear + 12}',
+                                      '${widget.chosenYear + 12 /* + dYear*/}',
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontSize: size.width * 0.05)))))),
@@ -355,11 +356,11 @@ class _TheYearState extends State<TheYear> {
 /*============================================================================*/
 
   void executeAfterWholeBuildProcess(context) {
-    _scrollController.jumpTo(index: widget.chosenDay + 40);
+    _itemScrollController.jumpTo(index: widget.chosenDay + 40);
   }
 
   void _scrollToHome() {
-    _scrollController.scrollTo(
+    _itemScrollController.scrollTo(
         index: widget.chosenDay + 40,
         duration: const Duration(seconds: 1),
         curve: Curves.easeInOut);

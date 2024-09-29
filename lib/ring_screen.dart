@@ -1,5 +1,4 @@
 import 'package:alarm/alarm.dart';
-import 'package:alarm/model/alarm_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:maya/database_handler.dart';
 import 'package:maya/globals.dart';

@@ -122,25 +122,13 @@ class _DateSelectionState extends State<DateSelection> {
                                   Container(
                                       width: size.width * 0.3,
                                       decoration: BoxDecoration(
-                                          image: (widget.chosenYear +
-                                                              indexYear -
-                                                              108 +
-                                                              12) %
-                                                          52 ==
-                                                      0 &&
-                                                  i == 0 &&
-                                                  indexWinal == 0
-                                              ? const DecorationImage(
-                                                  image: AssetImage(
-                                                      'assets/images/sandstone_date_selection.jpg'),
-                                                  fit: BoxFit.cover)
-                                              : DecorationImage(
-                                                  colorFilter: ColorFilter.mode(
-                                                      widget.mainColor,
-                                                      BlendMode.modulate),
-                                                  image: const AssetImage(
-                                                      'assets/images/bg_pattern_three.jpg'),
-                                                  fit: BoxFit.cover),
+                                          image: DecorationImage(
+                                              colorFilter: ColorFilter.mode(
+                                                  widget.mainColor,
+                                                  BlendMode.modulate),
+                                              image: const AssetImage(
+                                                  'assets/images/bg_pattern_three.jpg'),
+                                              fit: BoxFit.cover),
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(
                                                   size.width * 0.02))),
@@ -176,24 +164,13 @@ class _DateSelectionState extends State<DateSelection> {
                                 Container(
                                     width: size.width * 0.3,
                                     decoration: BoxDecoration(
-                                        image: (widget.chosenYear +
-                                                            indexYear -
-                                                            108 +
-                                                            12) %
-                                                        52 ==
-                                                    0 &&
-                                                i == 0
-                                            ? const DecorationImage(
-                                                image: AssetImage(
-                                                    'assets/images/sandstone_date_selection.jpg'),
-                                                fit: BoxFit.cover)
-                                            : DecorationImage(
-                                                colorFilter: ColorFilter.mode(
-                                                    widget.mainColor,
-                                                    BlendMode.modulate),
-                                                image: const AssetImage(
-                                                    'assets/images/bg_pattern_three.jpg'),
-                                                fit: BoxFit.cover),
+                                        image: DecorationImage(
+                                            colorFilter: ColorFilter.mode(
+                                                widget.mainColor,
+                                                BlendMode.modulate),
+                                            image: const AssetImage(
+                                                'assets/images/bg_pattern_three.jpg'),
+                                            fit: BoxFit.cover),
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
                                                 size.width * 0.02))),
