@@ -99,6 +99,8 @@ Future<void> main() async {
     'assets/images/leaves.jpg',
     'assets/images/leaves.png',
     //
+    'assets/images/moon_pattern.png',
+    //
     'assets/images/transparent.png',
     //
     'assets/images/icons/sign.png',
@@ -653,6 +655,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     loadTimeFormat();
     loadBgFilePath();
+    loadData();
 
     //TODO: make possible
     /*Future.delayed(
@@ -699,8 +702,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     currYear = 5129 + daysGoneBy ~/ 365;
     chosenYear = currYear;
 
-    loadData();
-
     tone = (startTone + daysGoneBy) % 13;
     cTone = tone;
 
@@ -730,6 +731,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     hideScreen();
     super.initState();
   }
+  /*                                                                          */
+  /* initState - END                                                           */
+  /* ------------------------------------------------------------------------ */
 
   Future<void> hideScreen() async {
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -781,9 +785,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         });
   }
 
-  /*                                                                          */
-  /* initState - END                                                          */
-  /* ------------------------------------------------------------------------ */
   /*checkAudioFiles(List<AlarmSettings> alarms) async {
     for (int i = 0; i < alarms.length; i++) {
       if (!await File(alarms[i].assetAudioPath).exists() &&
@@ -2697,20 +2698,33 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           height: sizeCircleSeason,
                           width: sizeCircleSeason,
                           decoration: BoxDecoration(
-                            color: Color.lerp(mainColor, Colors.white, 0.6)!,
+                            color: Color.lerp(mainColor, Colors.white, 0.7)!,
                             shape: BoxShape.circle,
                           ),
                         ),
                       ))),
               Positioned(
-                  top: posMoon.top + sizeMoon / 2,
-                  left: posMoon.left + sizeMoon / 2,
+                  top: posMoon.top + sizeMoon / 4,
+                  left: posMoon.left + sizeMoon / 4,
                   child: MoonWidget(
-                    date: DateTime.now(),
-                    resolution: sizeMoon / 2,
+                    date: now,
+                    resolution: sizeMoon,
                     size: sizeMoon,
                     moonColor: Color.fromARGB(255, 215, 215, 215),
-                    earthshineColor: Color.lerp(mainColor, Colors.black, 0.1)!,
+                    earthshineColor: Color.lerp(mainColor, Colors.black, 0.32)!,
+                  )),
+              Positioned(
+                  top: posMoon.top,
+                  left: posMoon.left,
+                  child: Opacity(
+                    opacity: 0.6,
+                    child: Image.asset(
+                      'assets/images/moon_pattern.png',
+                      height: sizeMoon,
+                      width: sizeMoon,
+                      colorBlendMode: BlendMode.modulate,
+                      color: Color.lerp(mainColor, Colors.black, 0.52)!,
+                    ),
                   )),
               Positioned(
                   top: posButtonRelationship.top,
