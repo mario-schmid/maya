@@ -393,7 +393,9 @@ class _TheDayState extends State<TheDay> {
                       child: Container(
                           height: 36,
                           width: size.width * 0.3,
-                          decoration: BoxDecoration(color: widget.mainColor),
+                          decoration: BoxDecoration(
+                              color: Color.lerp(
+                                  widget.mainColor, Colors.black, 0.2)!),
                           child: const Align(
                               alignment: Alignment.center,
                               child: RotatedBox(
