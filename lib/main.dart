@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:alarm/alarm.dart';
+import 'package:alarm/alarm.dart' as alarm_prefix;
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -72,9 +73,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> main() async {
-/* ------------------------------------------------------------------------ */
-/* Assets for precacheImage                                                 */
-/*                                                                          */
+/* -------------------------------------------------------------------------- */
+/* Assets for precacheImage                                                   */
+/*                                                                            */
   final List<String> allAssetImages = [
     'assets/images/shape_button_left_bottom.png',
     'assets/images/shape_button_left_top.png',
@@ -86,7 +87,6 @@ Future<void> main() async {
     'assets/images/sandstone_tun.jpg',
     'assets/images/sandstone_time.jpg',
     'assets/images/sandstone_date_selection.jpg',
-    'assets/images/sandstoneCircle.png',
     'assets/images/sandstoneForm_bottom.png',
     'assets/images/sandstoneForm_top.png',
     'assets/images/sandstoneMoon.png',
@@ -291,6 +291,10 @@ Future<void> main() async {
   await messaging.subscribeToTopic(topicPromotion);
   await messaging.subscribeToTopic(topicNotification);
 
+  // TODO: just for testing
+  /*const testNotification = 'test_notification';
+  await messaging.subscribeToTopic(testNotification);*/
+
   await Alarm.init();
   runApp(const MayaApp());
 }
@@ -324,7 +328,17 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
-  DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+  _HomeState() {
+    _messageStreamController.listen((message) {
+      if (message.notification != null) {
+        showNotificationDialog(message);
+      }
+    });
+  }
+
+  final DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+  final DateFormat dateTimeformatSeasons =
+      DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
 
   late String? bgFilePath;
   ImageProvider backgroundImage =
@@ -354,13 +368,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Size sizeShapeRightBottom;
   late Position posShapeRightBottom;
   //
-  late Size sizeWheelNahuales; // 393.333
+  late Size sizeWheelNahuales;
   late Position posWheelNahuales;
   //
   late Size sizeSignNahual;
   late Offset offsetSignNahual;
   //
-  late Size sizeWheelHaab; // 6661.333
+  late Size sizeWheelHaab;
   late Position posWheelHaab;
   //
   late Size sizeSectionFieldWinal;
@@ -452,12 +466,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late EdgeInsets paddingNummbersWinal;
   late EdgeInsets paddingNummbersKin;
   /*                                                                          */
-  /* Positions and Sizes - END                                       */
+  /* Positions and Sizes - END                                                */
   /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
   /* Varibles                                                                 */
   /*                                                                          */
   DateTime now = DateTime.now();
+  DateTime datetimeMoon = DateTime.now();
 
   //TODO: remove in the future
   Future<bool> adjustDatabase = updateYear();
@@ -482,13 +497,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late DateTime startDate;
   String currTime = '';
 
-  _HomeState() {
-    _messageStreamController.listen((message) {
-      if (message.notification != null) {
-        showNotificationDialog(message);
-      }
-    });
-  }
+  late double angleTime;
+
+  double angleSeason = 0.0;
+
+  final factorTropicalYearMinutes = 360 / 525948.7536;
+
+  List<dynamic> seasons = [];
+
+  SvgPicture iconSeason =
+      SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
 
   double finalAngle = 0.0;
   double oldAngle = 0.0;
@@ -499,11 +517,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   double iRounds = 0.0;
   int nAngle = 0;
 
-  late int baktun, cBaktun;
-  late int katun, cKatun;
-  late int tun, cTun;
-  late int winal, cWinal;
-  late int kin, cKin;
+  final int dDays = 62;
+
+  late int baktun, sBaktun;
+  late int katun, sKatun;
+  late int tun, sTun;
+  late int winal, sWinal;
+  late int kin, sKin;
 
   late int currDay;
   late int chosenDay;
@@ -514,10 +534,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   int nYear = 1;
 
   late int tone;
-  late int cTone;
+  late int sTone;
 
   late int nahual;
-  late int cNahual;
+  late int sNahual;
 
   final int startTone = 0;
   final int startNahual = 1;
@@ -574,14 +594,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/trecenaYellow.png')
   ];
 
-  double seasonAngle = 0;
-
-  late AnimationController _controller;
-  late Animation<double> _animation;
+  // TODO: remove animation
+  /*late AnimationController _controller;
+  late Animation<double> _animation;*/
 
   late List<AlarmSettings> alarms;
   static StreamSubscription<AlarmSettings>? subscription;
-
   /*                                                                          */
   /* Varibles - END                                                           */
   /* ------------------------------------------------------------------------ */
@@ -644,36 +662,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     //TODO: remove
     //checkAudioFiles(Alarm.getAlarms());
 
-    _controller = AnimationController(
+    // TODO: remove animation
+    /*_controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     _controller.addListener(() {
       setState(() {
         finalAngle = _animation.value;
         oldAngle = _animation.value;
       });
-    });
+    });*/
 
     loadTimeFormat();
     loadBgFilePath();
     loadData();
 
-    //TODO: make possible
-    /*Future.delayed(
-        Duration(
-            milliseconds: 85320000 - now.millisecondsSinceEpoch % 86400000),
-        () {
-      scheduletask();
-      Timer.periodic(const Duration(days: 1), (Timer timer) {
-        scheduletask();
-      });
-    });*/
-
+    // Clock
     Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      final DateTime now = DateTime.now();
+      final DateTime nowClock = DateTime.now();
       setState(() {
-        currTime = TimeFormat().getTimeFormat.format(now);
+        currTime = TimeFormat().getTimeFormat.format(nowClock);
       });
     });
+    // Clock END
 
     startDate = DateTime.parse('2013-02-21 00:00:00');
 
@@ -681,32 +691,31 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         (now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) ~/
             86400000;
 
-    const int dDays = 62;
     baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
     katun = (daysGoneBy + dDays) ~/ 7200 % 20;
     tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
     winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
     kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
 
-    cBaktun = baktun;
-    cKatun = katun;
-    cTun = tun;
-    cWinal = winal;
-    cKin = kin;
+    sBaktun = baktun;
+    sKatun = katun;
+    sTun = tun;
+    sWinal = winal;
+    sKin = kin;
 
     currDay = daysGoneBy % 365;
     chosenDay = currDay;
     xDayTotal = currDay;
 
-    //TODO
+    //TODO: change to 5141 (5152-12) after database year index update
     currYear = 5129 + daysGoneBy ~/ 365;
     chosenYear = currYear;
 
     tone = (startTone + daysGoneBy) % 13;
-    cTone = tone;
+    sTone = tone;
 
     nahual = (startNahual + daysGoneBy) % 20;
-    cNahual = nahual;
+    sNahual = nahual;
 
     currKinIndex = getKinNummber(tone, nahual);
     int trecena = currKinIndex ~/ 13;
@@ -717,6 +726,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     offsetGearNahuales = 18 * nahual / 180 * pi;
     offsetGearTones = 360 / 13 * tone / 180 * pi;
     offsetGearHaab = -360 / 365 * currDay / 180 * pi;
+
+    angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
 
     int initialValueTrecenamask = currKinIndex % 52;
     diffAngle = initialValueTrecenamask % 13;
@@ -731,10 +742,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     hideScreen();
     super.initState();
   }
-  /*                                                                          */
-  /* initState - END                                                           */
-  /* ------------------------------------------------------------------------ */
 
+  /*                                                                          */
+  /* initState - END                                                          */
+  /* ------------------------------------------------------------------------ */
   Future<void> hideScreen() async {
     Future.delayed(const Duration(milliseconds: 500), () {
       FlutterSplashScreen.hide();
@@ -805,7 +816,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     }
   }*/
-
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
@@ -869,9 +879,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               vibrate: alarm[7] == 0 ? false : true,
               volume: alarm[8],
               fadeDuration: alarm[9],
-              notificationTitle: alarm[10],
-              notificationBody: alarm[11],
-              enableNotificationOnKill: alarm[12] == 0 ? false : true),
+              notificationSettings: alarm_prefix.NotificationSettings(
+                  title: alarm[10], body: alarm[11]),
+              warningNotificationOnKill: alarm[12] == 0 ? false : true),
           alarm[13] == 0 ? false : true));
     }
     for (var arrangement in arrangementList) {
@@ -941,9 +951,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       vibrate: alarmList[o][7] == 0 ? false : true,
                       volume: alarmList[o][8],
                       fadeDuration: alarmList[o][9],
-                      notificationTitle: alarmList[o][10],
-                      notificationBody: alarmList[o][11],
-                      enableNotificationOnKill:
+                      notificationSettings: alarm_prefix.NotificationSettings(
+                          title: alarmList[o][10], body: alarmList[o][11]),
+                      warningNotificationOnKill:
                           alarmList[o][12] == 0 ? false : true),
                   alarmList[o][13] == 0 ? false : true));
           o++;
@@ -1024,7 +1034,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   Color mainColor = const Color(0xff0000ff);
   /* ------------------------------------------------------------------------ */
-  /* loadMainColor                                                           */
+  /* loadMainColor                                                            */
   /*                                                                          */
   loadMainColor() async {
     Future<Object> mainColorFuture = readMainColor();
@@ -1037,102 +1047,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
   /* loadBgFilePath                                                           */
+  /*                                                                          */
   loadBgFilePath() async {
     backgroundImage = await readBgFilePath();
   }
-  /*                                                                          */
-  /* loadBgFilePath - END                                                      */
-  /* ------------------------------------------------------------------------ */
-  /* ------------------------------------------------------------------------ */
 
-  List<dynamic> seasons = [];
+  /*                                                                          */
+  /* loadBgFilePath - END                                                     */
+  /* ------------------------------------------------------------------------ */
+  int season = 0;
 
   loadSeasonsFromAssets(String filePath) async {
     String jsonString = await rootBundle.loadString(filePath);
     seasons = jsonDecode(jsonString);
-
-    final DateFormat dateTimeformatSeasons =
-        DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
-
-    final index = now.year - 2001;
-
-    final String winterSolstice = seasons[index]['winter'];
-    final String springEquinox = seasons[index]['spring'];
-    final String summerSolstice = seasons[index]['summer'];
-    final String fallEquinox = seasons[index]['fall'];
-
-    final DateTime dateTimeWinterSolstice =
-        dateTimeformatSeasons.parse(winterSolstice);
-    final DateTime dateTimeSpringEquinox =
-        dateTimeformatSeasons.parse(springEquinox);
-    final DateTime dateTimeSummerSolstice =
-        dateTimeformatSeasons.parse(summerSolstice);
-    final DateTime dateTimeFallEquinox =
-        dateTimeformatSeasons.parse(fallEquinox);
-
-    Duration diffWinterSolstice =
-        now.toUtc().difference(dateTimeWinterSolstice);
-    Duration diffSpringEquinox = now.toUtc().difference(dateTimeSpringEquinox);
-    Duration diffSummerSolstice =
-        now.toUtc().difference(dateTimeSummerSolstice);
-    Duration diffallEquinox = now.toUtc().difference(dateTimeFallEquinox);
-
-    final List<int> diffSeasons = [
-      diffWinterSolstice.inMinutes,
-      diffSpringEquinox.inMinutes,
-      diffSummerSolstice.inMinutes,
-      diffallEquinox.inMinutes
-    ];
-
-    final List<int> diffSeasonsABS = [
-      diffWinterSolstice.inMinutes.abs(),
-      diffSpringEquinox.inMinutes.abs(),
-      diffSummerSolstice.inMinutes.abs(),
-      diffallEquinox.inMinutes.abs()
-    ];
-
-    final int minimum = diffSeasonsABS.reduce(min);
-
-    final int indexMinimum =
-        diffSeasonsABS.indexWhere((element) => element == minimum);
-
-    double angle = 360 / 525948.7536 * diffSeasonsABS[indexMinimum];
-
-    if (diffSeasons[indexMinimum] < 0) {
-      switch (indexMinimum) {
-        case 0:
-          seasonAngle = angle;
-          break;
-        case 1:
-          seasonAngle = 270 + angle;
-          break;
-        case 2:
-          seasonAngle = 180 + angle;
-          break;
-        case 3:
-          seasonAngle = 90 + angle;
-          break;
-        default:
-          seasonAngle = 0;
-      }
-    } else {
-      switch (indexMinimum) {
-        case 0:
-          seasonAngle = 360 - angle;
-          break;
-        case 1:
-          seasonAngle = 270 - angle;
-          break;
-        case 2:
-          seasonAngle = 180 - angle;
-          break;
-        case 3:
-          seasonAngle = 90 - angle;
-          break;
-        default:
-          seasonAngle = 0;
-      }
-    }
   }
 
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
@@ -1145,96 +1072,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
   /* ------------------------------------------------------------------------ */
-  /* scheduletask                                                             */
-  /*                                                                          */
-  /*scheduletask() {
-    setState(() {
-      currDay++;
-      if (currDay > 364) {
-        currDay = 0;
-        currYear++;
-      }
-      chosenDay++;
-      if (chosenDay > 364) {
-        chosenDay = 0;
-        chosenYear++;
-      }
-      xDayTotal = chosenDay; // TODO: check if correct!
-
-      now = now.add(const Duration(days: 1));
-      offsetGearNahuales += 1 / 10 * pi;
-      trecenaOffsetAngle += 1 / 10 * pi;
-      offsetGearTones += 2 / 13 * pi;
-      offsetGearHaab -= 2 / 365 * pi;
-      tone++;
-      if (tone > 12) {
-        tone = 0;
-      }
-      cTone++;
-      if (cTone > 12) {
-        cTone = 0;
-      }
-      nahual++;
-      if (nahual > 19) {
-        nahual = 0;
-      }
-      cNahual++;
-      if (cNahual > 19) {
-        cNahual = 0;
-      }
-
-      strTextToneNahual =
-          '${MayaLists().strTone[cTone]}\n${MayaLists().strNahual[cNahual]}';
-
-      kin++;
-      if (kin > 19) {
-        kin = 0;
-        winal++;
-        if (winal > 17) {
-          winal = 0;
-          tun++;
-          if (tun > 19) {
-            tun = 0;
-            katun++;
-            if (katun > 19) {
-              katun = 0;
-              baktun++;
-            }
-          }
-        }
-      }
-
-      cKin++;
-      if (cKin > 19) {
-        cKin = 0;
-        cWinal++;
-        if (cWinal > 17) {
-          cWinal = 0;
-          cTun++;
-          if (cTun > 19) {
-            cTun = 0;
-            cKatun++;
-            if (cKatun > 19) {
-              cKatun = 0;
-              cBaktun++;
-            }
-          }
-        }
-      }
-    });
-  }*/
-
-  /*                                                                          */
-  /* scheduletask - END                                                       */
-  /* ------------------------------------------------------------------------ */
-  /* ------------------------------------------------------------------------ */
   /* reset                                                                    */
   /*                                                                          */
   reset() {
     setState(() {
-      if (_controller.isAnimating) {
+      // TODO: remove animation
+      /*if (_controller.isAnimating) {
         _controller.stop();
-      }
+      }*/
+      DateTime nowForReset = DateTime.now();
+      angleTime = (nowForReset.hour * 60 + nowForReset.minute) / 14400 * pi;
+
+      datetimeMoon =
+          nowForReset.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+
       upsetAngle = 0.0;
       finalAngle = 0.0;
       oldAngle = 0.0;
@@ -1249,18 +1100,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
       currTrecenaMask = trecenaMask[trecenaColor];
 
-      cTone = tone;
-      cNahual = nahual;
+      sTone = tone;
+      sNahual = nahual;
       nAngle = 0;
 
       strTextToneNahual =
           '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
 
-      baktun = cBaktun;
-      katun = cKatun;
-      tun = cTun;
-      winal = cWinal;
-      kin = cKin;
+      sBaktun = baktun;
+      sKatun = katun;
+      sTun = tun;
+      sWinal = winal;
+      sKin = kin;
 
       nYear = 1;
       chosenDay = currDay;
@@ -1714,13 +1565,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               ])
             ])));
   }
+
   /*                                                                          */
   /* Drawer - END                                                             */
   /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
   /* Build                                                                    */
   /*                                                                          */
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -1857,9 +1708,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       mainAxisSpacingBoxSolsticesEquinoxes = size.width * 0.066666667;
       crossAxisSpacingBoxSolsticesEquinoxes = size.width * 0.066666667;
       //
-      sizeCircleSeason = size.width * 0.033333333;
-      paddingCircleSeason = EdgeInsets.all(size.width * 0.0918);
-      offsetCircleSeason = Offset(0, size.width * 0.13964);
+      sizeCircleSeason = size.width * 0.064;
+      paddingCircleSeason = EdgeInsets.all(size.width * 0.077);
+      offsetCircleSeason = Offset(0, size.width * 0.1396);
       //
       sizeButtonRelationship =
           Size(size.width * 0.214533333, size.width * 0.102897222);
@@ -1890,7 +1741,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.width - sizeBoxTextToneNahual.width - size.width * 0.391062037);
       //
       texttextStyleToneNahual = TextStyle(
-          color: Color.lerp(mainColor, Colors.white, 0.5)!,
+          color: Color.lerp(mainColor, Colors.white, 0.1)!,
           fontSize: size.width * 0.044);
       //
       sizeBoxLongCount =
@@ -2048,9 +1899,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       mainAxisSpacingBoxSolsticesEquinoxes = size.height * 0.034682081;
       crossAxisSpacingBoxSolsticesEquinoxes = size.height * 0.034682081;
       //
-      sizeCircleSeason = size.height * 0.017341040;
-      paddingCircleSeason = EdgeInsets.all(size.height * 0.047757225);
-      offsetCircleSeason = Offset(0, size.height * 0.072645086);
+      sizeCircleSeason = size.height * 0.033295;
+      paddingCircleSeason = EdgeInsets.all(size.height * 0.040058);
+      offsetCircleSeason = Offset(0, size.height * 0.072624);
       //
       sizeButtonRelationship =
           Size(size.height * 0.111606936, size.height * 0.053530347);
@@ -2082,7 +1933,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.width - sizeBoxTextToneNahual.width - size.height * 0.203442678);
       //
       texttextStyleToneNahual = TextStyle(
-          color: Color.lerp(mainColor, Colors.white, 0.5)!,
+          color: Color.lerp(mainColor, Colors.white, 0.1)!,
           fontSize: size.height * 0.022890173);
       //
       sizeBoxLongCount =
@@ -2105,6 +1956,166 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.height * 0.010115607, 0, size.height * 0.007225434, 0);
       //
     }
+
+    if (finalAngle == 0.0) {
+      now = DateTime.now();
+
+      final int daysGoneBy =
+          (now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) ~/
+              86400000;
+
+      baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
+      katun = (daysGoneBy + dDays) ~/ 7200 % 20;
+      tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
+      winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
+      kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
+
+      currDay = daysGoneBy % 365;
+
+      //TODO: change to 5141 (5152-12) after database year index update
+      currYear = 5129 + daysGoneBy ~/ 365;
+
+      tone = (startTone + daysGoneBy) % 13;
+      nahual = (startNahual + daysGoneBy) % 20;
+
+      currKinIndex = getKinNummber(tone, nahual);
+      int trecena = currKinIndex ~/ 13;
+
+      trecenaColor = trecena % 4;
+
+      offsetGearNahuales = 18 * nahual / 180 * pi;
+      offsetGearTones = 360 / 13 * tone / 180 * pi;
+      offsetGearHaab = -360 / 365 * currDay / 180 * pi;
+
+      angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
+
+      int initialValueTrecenamask = currKinIndex % 52;
+      diffAngle = initialValueTrecenamask % 13;
+      trecenaOffsetAngle = 18 * initialValueTrecenamask / 180 * pi;
+
+      angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
+
+      if (seasons.isNotEmpty) {
+        int index = now
+                .toUtc()
+                .add(Duration(minutes: (finalAngle * 14400 / pi).toInt()))
+                .year -
+            2001;
+
+        String winterSolstice = seasons[index]['winter'];
+        String springEquinox = seasons[index]['spring'];
+        String summerSolstice = seasons[index]['summer'];
+        String fallEquinox = seasons[index]['fall'];
+
+        DateTime dateTimeWinterSolstice =
+            dateTimeformatSeasons.parse(winterSolstice);
+        DateTime dateTimeSpringEquinox =
+            dateTimeformatSeasons.parse(springEquinox);
+        DateTime dateTimeSummerSolstice =
+            dateTimeformatSeasons.parse(summerSolstice);
+        DateTime dateTimeFallEquinox = dateTimeformatSeasons.parse(fallEquinox);
+
+        Duration diffWinterSolstice =
+            now.toUtc().difference(dateTimeWinterSolstice);
+        Duration diffSpringEquinox =
+            now.toUtc().difference(dateTimeSpringEquinox);
+        Duration diffSummerSolstice =
+            now.toUtc().difference(dateTimeSummerSolstice);
+        Duration diffallEquinox = now.toUtc().difference(dateTimeFallEquinox);
+
+        List<int> diffSeasons = [
+          diffWinterSolstice.inMinutes,
+          diffSpringEquinox.inMinutes,
+          diffSummerSolstice.inMinutes,
+          diffallEquinox.inMinutes
+        ];
+
+        List<int> diffSeasonsABS = [
+          diffWinterSolstice.inMinutes.abs(),
+          diffSpringEquinox.inMinutes.abs(),
+          diffSummerSolstice.inMinutes.abs(),
+          diffallEquinox.inMinutes.abs()
+        ];
+
+        int minimum = diffSeasonsABS.reduce(min);
+
+        int indexMinimum =
+            diffSeasonsABS.indexWhere((element) => element == minimum);
+
+        double angle = factorTropicalYearMinutes * diffSeasonsABS[indexMinimum];
+
+        if (diffSeasons[indexMinimum] < 0) {
+          switch (indexMinimum) {
+            case 0:
+              // fall
+              angleSeason = angle;
+              iconSeason =
+                  SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
+              break;
+            case 1:
+              // winter
+              angleSeason = 270 + angle;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/winter_icon_dark.svg');
+              break;
+            case 2:
+              // spring
+              angleSeason = 180 + angle;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/spring_icon_dark.svg');
+              break;
+            case 3:
+              // summer
+              angleSeason = 90 + angle;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/summer_icon_dark.svg');
+              break;
+            default:
+              angleSeason = 0;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/winter_icon_dark.svg');
+          }
+        } else {
+          switch (indexMinimum) {
+            case 0:
+              // winter
+              angleSeason = 360 - angle;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/winter_icon_dark.svg');
+              break;
+            case 1:
+              // spring
+              angleSeason = 270 - angle;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/spring_icon_dark.svg');
+              break;
+            case 2:
+              // summer
+              angleSeason = 180 - angle;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/summer_icon_dark.svg');
+              break;
+            case 3:
+              // fall
+              angleSeason = 90 - angle;
+              iconSeason =
+                  SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
+              break;
+            default:
+              angleSeason = 0;
+              iconSeason = SvgPicture.asset(
+                  'assets/vector_graphics/winter_icon_dark.svg');
+          }
+        }
+      }
+    }
+
+    strTextToneNahual =
+        '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
+
+    datetimeMoon =
+        now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+
     return Scaffold(
         key: _scaffoldKey,
         endDrawer: _customDrawer(context, size),
@@ -2168,7 +2179,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelHaab.top,
                   left: posWheelHaab.left,
                   child: Transform.rotate(
-                      angle: offsetGearHaab - finalAngle / 9 * pi / 365,
+                      angle: offsetGearHaab -
+                          (angleTime + finalAngle) * 20 / 365 +
+                          (1 / 365) *
+                              pi, // TODO: check if calculation is correct
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
@@ -2178,8 +2192,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   top: posSectionFieldWinal.top,
                                   left: posSectionFieldWinal.left,
                                   child: Transform.rotate(
-                                      angle:
-                                          360 / 365 * (10 + i * 20) / 180 * pi,
+                                      angle: 360 /
+                                          365 *
+                                          (10 + i * 20) /
+                                          180 *
+                                          pi, // TODO short calculation if possible
                                       origin: offsetSectionFieldWinal,
                                       child: SizedBox(
                                           height: sizeSectionFieldWinal.height,
@@ -2364,7 +2381,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelHaab.top,
                   left: posWheelHaab.left,
                   child: Transform.rotate(
-                      angle: offsetGearHaab - finalAngle / 9 * pi / 365,
+                      angle: offsetGearHaab -
+                          (angleTime + finalAngle) * 20 / 365 +
+                          (1 / 365) *
+                              pi, // TODO: check if calculation is correct
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
@@ -2407,7 +2427,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelNahuales.top,
                   left: posWheelNahuales.left,
                   child: Transform.rotate(
-                      angle: offsetGearNahuales + finalAngle / 180 * pi,
+                      angle: offsetGearNahuales + angleTime + finalAngle,
                       child: Image.asset('assets/images/gearNahuales.png',
                           height: sizeWheelNahuales.height,
                           width: sizeWheelNahuales.width,
@@ -2417,8 +2437,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelNahuales.top,
                   left: posWheelNahuales.left,
                   child: Transform.rotate(
-                      angle: trecenaOffsetAngle +
-                          (dTrecenaAngle + finalAngle) / 180 * pi,
+                      angle: (trecenaOffsetAngle +
+                          dTrecenaAngle +
+                          angleTime +
+                          finalAngle),
                       child: SizedBox(
                           height: sizeWheelNahuales.height,
                           width: sizeWheelNahuales.width,
@@ -2436,14 +2458,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         return GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             onPanStart: (details) {
-                              if (_controller.isAnimating) {
+                              // TODO: remove animation
+                              /*if (_controller.isAnimating) {
                                 _controller.stop();
-                              }
+                              }*/
                               final touchPositionFromCenter =
                                   details.localPosition -
                                       centerOfGestureDetector;
-                              upsetAngle = oldAngle -
-                                  touchPositionFromCenter.direction * 180 / pi;
+                              upsetAngle =
+                                  oldAngle - touchPositionFromCenter.direction;
                             },
                             onPanUpdate: (details) {
                               final touchPositionFromCenter =
@@ -2452,71 +2475,70 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               setState(() {
                                 prevAngle = finalAngle;
 
-                                finalAngle = touchPositionFromCenter.direction *
-                                        180 /
-                                        pi +
+                                finalAngle = touchPositionFromCenter.direction +
                                     upsetAngle;
 
-                                finalAngle = (finalAngle + 360) % 360;
+                                finalAngle = (finalAngle + 2 * pi) % (2 * pi);
 
-                                if (finalAngle + mAngle - prevAngle < -300) {
+                                if (finalAngle + mAngle - prevAngle <
+                                    -1.5 * pi) {
                                   iRounds++;
-                                  mAngle = 360 * iRounds;
+                                  mAngle = 2 * pi * iRounds;
                                 }
 
-                                if (finalAngle + mAngle - prevAngle > 300) {
-                                  mAngle = 360 * iRounds - 360;
+                                if (finalAngle + mAngle - prevAngle >
+                                    1.5 * pi) {
+                                  mAngle = 2 * pi * iRounds - 2 * pi;
                                   iRounds--;
                                 }
 
                                 finalAngle = finalAngle + mAngle;
 
-                                // get angle HaabGear
-                                double angle = -offsetGearHaab * 180 / pi +
-                                    finalAngle / 365 * 20;
+                                double angle = offsetGearHaab -
+                                    (angleTime + finalAngle) * 20 / 365;
 
                                 // get chosenDayTotal, chosenDay
                                 int chosenDayTotal =
-                                    ((angle + 180 / 365) * 365 / 360).floor();
+                                    (-angle * 180 / pi * 365 / 360).floor();
                                 chosenDay = chosenDayTotal % 365;
 
                                 // get chosenYear, chosenHaabYear
                                 chosenYear = currYear +
-                                    ((angle + 180 / 365) / 360).floor();
+                                    (-angle * 180 / pi / 360).floor();
 
                                 if (chosenDayTotal % 10 == 0) {
                                   xDayTotal = chosenDayTotal;
                                 }
 
                                 // increase Tone Name, Nahual Name and the Long Count
-                                if (finalAngle > 18 * nAngle + 18 - 9) {
-                                  cTone++;
-                                  cNahual++;
+                                if (finalAngle * 180 / pi > 18 * nAngle + 9) {
+                                  sTone++;
+                                  sNahual++;
                                   nAngle++;
 
-                                  if (cTone > 12) {
-                                    cTone = 0;
+                                  if (sTone > 12) {
+                                    sTone = 0;
                                   }
-                                  if (cNahual > 19) {
-                                    cNahual = 0;
+                                  if (sNahual > 19) {
+                                    sNahual = 0;
                                   }
 
                                   strTextToneNahual =
-                                      '${MayaLists().strTone[cTone]}\n${MayaLists().strNahual[cNahual]}';
+                                      '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
 
-                                  kin++;
-                                  if (kin > 19) {
-                                    kin = 0;
-                                    winal++;
-                                    if (winal > 17) {
-                                      winal = 0;
-                                      tun++;
-                                      if (tun > 19) {
-                                        tun = 0;
-                                        katun++;
-                                        if (katun > 19) {
-                                          katun = 0;
-                                          baktun++;
+                                  sKin++;
+                                  if (sKin > 19) {
+                                    sKin = 0;
+                                    sWinal++;
+                                    if (sWinal > 17) {
+                                      sWinal = 0;
+                                      sTun++;
+                                      if (sTun > 19) {
+                                        sTun = 0;
+                                        sKatun++;
+                                        if (sKatun > 19) {
+                                          sKatun = 0;
+                                          sBaktun++;
                                         }
                                       }
                                     }
@@ -2524,34 +2546,34 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 }
 
                                 // decrease Tone Name, Nahual Name and the Long Count
-                                if (finalAngle < 18 * nAngle - 18 + 9) {
-                                  cTone--;
-                                  cNahual--;
+                                if (finalAngle * 180 / pi < 18 * nAngle - 9) {
+                                  sTone--;
+                                  sNahual--;
                                   nAngle--;
 
-                                  if (cTone < 0) {
-                                    cTone = 12;
+                                  if (sTone < 0) {
+                                    sTone = 12;
                                   }
-                                  if (cNahual < 0) {
-                                    cNahual = 19;
+                                  if (sNahual < 0) {
+                                    sNahual = 19;
                                   }
 
                                   strTextToneNahual =
-                                      '${MayaLists().strTone[cTone]}\n${MayaLists().strNahual[cNahual]}';
+                                      '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
 
-                                  kin--;
-                                  if (kin < 0) {
-                                    kin = 19;
-                                    winal--;
-                                    if (winal < 0) {
-                                      winal = 17;
-                                      tun--;
-                                      if (tun < 0) {
-                                        tun = 19;
-                                        katun--;
-                                        if (katun < 0) {
-                                          katun = 19;
-                                          baktun--;
+                                  sKin--;
+                                  if (sKin < 0) {
+                                    sKin = 19;
+                                    sWinal--;
+                                    if (sWinal < 0) {
+                                      sWinal = 17;
+                                      sTun--;
+                                      if (sTun < 0) {
+                                        sTun = 19;
+                                        sKatun--;
+                                        if (sKatun < 0) {
+                                          sKatun = 19;
+                                          sBaktun--;
                                         }
                                       }
                                     }
@@ -2559,52 +2581,58 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 }
 
                                 // change Trecena
-                                if (finalAngle >
-                                    234 * iTrecena - diffAngle * 18 - 9) {
+                                if ((finalAngle + angleTime) * 180 / pi >
+                                    234 * iTrecena - diffAngle * 18) {
                                   nTrecenaColor++;
                                   if (nTrecenaColor > 3) {
                                     nTrecenaColor = 0;
                                   }
                                   if (nTrecenaColor == 0) {
                                     nTrecenaAngle++;
-                                    dTrecenaAngle = 144.0 * nTrecenaAngle;
+                                    dTrecenaAngle =
+                                        144.0 * nTrecenaAngle / 180 * pi;
                                   }
                                   currTrecenaMask = trecenaMask[nTrecenaColor];
                                   iTrecena++;
                                 }
-                                if (finalAngle <
-                                    234 * iTrecena - 234 - diffAngle * 18 - 9) {
+                                if ((finalAngle + angleTime) * 180 / pi <
+                                    234 * iTrecena - 234 - diffAngle * 18) {
                                   nTrecenaColor--;
                                   if (nTrecenaColor < 0) {
                                     nTrecenaColor = 3;
                                   }
                                   if (nTrecenaColor == 3) {
                                     nTrecenaAngle--;
-                                    dTrecenaAngle = 144.0 * nTrecenaAngle;
+                                    dTrecenaAngle =
+                                        144.0 * nTrecenaAngle / 180 * pi;
                                   }
                                   currTrecenaMask = trecenaMask[nTrecenaColor];
                                   iTrecena--;
                                 }
                               });
                             },
+                            // TODO: remove animation
                             onPanEnd: (details) {
-                              _animation = _controller.drive(Tween(
+                              oldAngle = finalAngle;
+                              /*_animation = _controller.drive(Tween(
                                   begin: finalAngle,
                                   end: (finalAngle / 18).roundToDouble() * 18));
                               _controller.reset();
-                              _controller.forward();
+                              _controller.forward();*/
                             },
                             child: Transform.rotate(
                                 angle:
-                                    offsetGearNahuales + finalAngle / 180 * pi,
+                                    offsetGearNahuales + angleTime + finalAngle,
                                 child: Stack(children: [
                                   for (int i = 0; i < 20; i++)
                                     Align(
                                         alignment: const Alignment(0.904, 0),
                                         child: Transform.rotate(
                                             origin: offsetSignNahual,
-                                            angle:
-                                                -18 / 180 * pi * i.toDouble(),
+                                            angle: -1 / 10 * pi * i -
+                                                1 /
+                                                    20 *
+                                                    pi, // TODO: check if calculation is correct
                                             child: SizedBox(
                                                 height: sizeSignNahual.height,
                                                 width: sizeSignNahual.width,
@@ -2628,7 +2656,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posWheelTones.top,
                   left: posWheelTones.left,
                   child: Transform.rotate(
-                      angle: offsetGearTones + finalAngle / 180 * pi / 13 * 20,
+                      angle:
+                          offsetGearTones + (angleTime + finalAngle) / 13 * 20,
                       child: SizedBox(
                           height: sizeWheelTones.height,
                           width: sizeWheelTones.width,
@@ -2645,9 +2674,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     child: Transform.rotate(
                                         origin: offsetSignTone,
                                         angle: -2 /
-                                            13 * // -360 / 13 / 180 = -2 / 13
-                                            pi *
-                                            i.toDouble(),
+                                                13 * // -360 / 13 / 180 = -2 / 13
+                                                pi *
+                                                i -
+                                            1 / 13 * pi,
                                         child: SizedBox(
                                             height: sizeSignTone.height,
                                             width: sizeSignTone.width,
@@ -2677,7 +2707,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 "assets/vector_graphics/spring_icon.svg"),
                             SizedBox(),
                             SvgPicture.asset(
-                                "assets/vector_graphics/autumn_icon.svg"),
+                                "assets/vector_graphics/fall_icon.svg"),
                             SizedBox(),
                             SvgPicture.asset(
                                 "assets/vector_graphics/summer_icon.svg"),
@@ -2692,40 +2722,33 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       padding: paddingCircleSeason,
                       alignment: Alignment.topCenter,
                       child: Transform.rotate(
-                        angle: seasonAngle / 180 * pi,
-                        origin: offsetCircleSeason,
-                        child: Container(
-                          height: sizeCircleSeason,
-                          width: sizeCircleSeason,
-                          decoration: BoxDecoration(
-                            color: Color.lerp(mainColor, Colors.white, 0.7)!,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ))),
+                          angle: angleSeason / 180 * pi,
+                          origin: offsetCircleSeason,
+                          child: SizedBox(
+                              height: sizeCircleSeason,
+                              width: sizeCircleSeason,
+                              child: iconSeason)))),
               Positioned(
                   top: posMoon.top + sizeMoon / 4,
                   left: posMoon.left + sizeMoon / 4,
                   child: MoonWidget(
-                    date: now,
-                    resolution: sizeMoon,
-                    size: sizeMoon,
-                    moonColor: Color.fromARGB(255, 215, 215, 215),
-                    earthshineColor: Color.lerp(mainColor, Colors.black, 0.32)!,
-                  )),
+                      date:
+                          datetimeMoon,
+                      resolution: sizeMoon,
+                      size: sizeMoon,
+                      moonColor: Color.fromARGB(255, 215, 215, 215),
+                      earthshineColor:
+                          Color.lerp(mainColor, Colors.black, 0.32)!)),
               Positioned(
                   top: posMoon.top,
                   left: posMoon.left,
                   child: Opacity(
-                    opacity: 0.6,
-                    child: Image.asset(
-                      'assets/images/moon_pattern.png',
-                      height: sizeMoon,
-                      width: sizeMoon,
-                      colorBlendMode: BlendMode.modulate,
-                      color: Color.lerp(mainColor, Colors.black, 0.52)!,
-                    ),
-                  )),
+                      opacity: 0.6,
+                      child: Image.asset('assets/images/moon_pattern.png',
+                          height: sizeMoon,
+                          width: sizeMoon,
+                          colorBlendMode: BlendMode.modulate,
+                          color: Color.lerp(mainColor, Colors.black, 0.52)!))),
               Positioned(
                   top: posButtonRelationship.top,
                   left: posButtonRelationship.left,
@@ -2756,27 +2779,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         int beginKinIndex =
                             (startKinIndex + 365 * (chosenYear - 5129)) % 260;
 
-                        const int dDays = 62;
-                        int sBaktun = 13 +
+                        int cBaktun = 13 +
                             (365 * (chosenYear - 5129) + dDays) ~/ 144000 % 14;
-                        int sKatun =
+                        int cKatun =
                             (365 * (chosenYear - 5129) + dDays) ~/ 7200 % 20;
-                        int sTun = (365 * (chosenYear - 5129) +
+                        int cTun = (365 * (chosenYear - 5129) +
                                 dDays -
-                                sKatun * 7200) ~/
+                                cKatun * 7200) ~/
                             360 %
                             20;
-                        int sWinal = (365 * (chosenYear - 5129) +
+                        int cWinal = (365 * (chosenYear - 5129) +
                                 dDays -
-                                sKatun * 7200 -
-                                sTun * 360) ~/
+                                cKatun * 7200 -
+                                cTun * 360) ~/
                             20 %
                             18;
-                        int sKin = (365 * (chosenYear - 5129) +
+                        int cKin = (365 * (chosenYear - 5129) +
                                 dDays -
-                                sKatun * 7200 -
-                                sTun * 360 -
-                                sWinal * 20) %
+                                cKatun * 7200 -
+                                cTun * 360 -
+                                cWinal * 20) %
                             20;
 
                         DateTime chosenBeginGregorianDate = startDate
@@ -2794,11 +2816,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       beginNahual: beginNahual,
                                       beginKinIndex: beginKinIndex,
                                       beginLongCount: [
-                                        sBaktun,
-                                        sKatun,
-                                        sTun,
-                                        sWinal,
-                                        sKin
+                                        cBaktun,
+                                        cKatun,
+                                        cTun,
+                                        cWinal,
+                                        cKin
                                       ],
                                       chosenBeginGregorianDate:
                                           chosenBeginGregorianDate,
@@ -2832,12 +2854,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   left: posButtonCholqij.left,
                   child: GestureDetector(
                       onTap: () {
-                        int cTone = getTone((offsetGearTones * 180 / pi +
-                                finalAngle / 13 * 20) %
-                            360);
-                        int cNahual = getNahuales(
-                            (offsetGearNahuales * 180 / pi + finalAngle) % 360);
-                        int cKinIndex = getKinNummber(cTone, cNahual);
+                        int sTone = getTone(((offsetGearTones +
+                                    (angleTime + finalAngle) / 13 * 20) *
+                                180 /
+                                pi) %
+                            360); // TODO: check if calculation is correct
+                        int sNahual = getNahuales(
+                            ((offsetGearNahuales + angleTime + finalAngle) *
+                                    180 /
+                                    pi) %
+                                360); // TODO: check if calculation is correct
+                        int cKinIndex = getKinNummber(sTone, sNahual);
 
                         Navigator.push(
                             context,
@@ -2848,12 +2875,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     cKinIndex: cKinIndex)));
                       },
                       onLongPress: () {
-                        int chosenTone = getTone((offsetGearTones * 180 / pi +
-                                finalAngle / 13 * 20) %
-                            360);
+                        int chosenTone = getTone(
+                            ((offsetGearTones + angleTime + finalAngle) *
+                                    180 /
+                                    pi /
+                                    13 *
+                                    20) %
+                                360); // TODO: check if calculation is correct
 
                         int chosenNahual = getNahuales(
-                            (offsetGearNahuales * 180 / pi + finalAngle) % 360);
+                            ((offsetGearNahuales + angleTime + finalAngle) *
+                                    180 /
+                                    pi) %
+                                360); // TODO: check if calculation is correct
 
                         Navigator.push(
                             context,
@@ -2887,19 +2921,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     (startNahual + 365 * (chosenYear - 5129)) %
                                         20;
 
-                                int chosenTone = getTone(
-                                    (offsetGearTones * 180 / pi +
-                                            finalAngle / 13 * 20) %
-                                        360);
+                                int chosenTone = getTone(((offsetGearTones +
+                                            (angleTime + finalAngle) /
+                                                13 *
+                                                20) *
+                                        180 /
+                                        pi) %
+                                    360); // TODO: check if calculation is correct
 
                                 int chosenNahual = getNahuales(
-                                    (offsetGearNahuales * 180 / pi +
-                                            finalAngle) %
-                                        360);
+                                    ((offsetGearNahuales +
+                                                angleTime +
+                                                finalAngle) *
+                                            180 /
+                                            pi) %
+                                        360); // TODO: check if calculation is correct
 
-                                int dYear = getDeldaYear(
-                                    -offsetGearHaab * 180 / pi +
-                                        finalAngle / 365 * 20);
+                                int dYear = getDeldaYear((-offsetGearHaab *
+                                            9 /
+                                            pi +
+                                        ((angleTime + finalAngle) * 180 / pi) /
+                                            365) *
+                                    20); // TODO: check if calculation is correct
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
@@ -2919,11 +2962,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             beginTone: beginTone,
                                             beginNahual: beginNahual,
                                             chosenLongCount: [
-                                              baktun,
-                                              katun,
-                                              tun,
-                                              winal,
-                                              kin
+                                              sBaktun,
+                                              sKatun,
+                                              sTun,
+                                              sWinal,
+                                              sKin
                                             ],
                                             chosenGregorianDate:
                                                 chosenGregorianDate)));
@@ -2936,19 +2979,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     (startNahual + 365 * (chosenYear - 5129)) %
                                         20;
 
-                                int chosenTone = getTone(
-                                    (offsetGearTones * 180 / pi +
-                                            finalAngle / 13 * 20) %
-                                        360);
+                                int chosenTone = getTone(((offsetGearTones +
+                                            (angleTime + finalAngle) /
+                                                13 *
+                                                20) *
+                                        180 /
+                                        pi) %
+                                    360); // TODO: check if calculation is correct
 
                                 int chosenNahual = getNahuales(
-                                    (offsetGearNahuales * 180 / pi +
-                                            finalAngle) %
-                                        360);
+                                    ((offsetGearNahuales +
+                                                angleTime +
+                                                finalAngle) *
+                                            180 /
+                                            pi) %
+                                        360); // TODO: check if calculation is correct
 
-                                int dYear = getDeldaYear(
-                                    -offsetGearHaab * 180 / pi +
-                                        finalAngle / 365 * 20);
+                                int dYear = getDeldaYear((-offsetGearHaab *
+                                            9 /
+                                            pi +
+                                        ((angleTime + finalAngle) * 180 / pi) /
+                                            365) *
+                                    20); // TODO: check if calculation is correct
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
@@ -2972,11 +3024,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                     beginTone: beginTone,
                                                     beginNahual: beginNahual,
                                                     chosenLongCount: [
-                                                      baktun,
-                                                      katun,
-                                                      tun,
-                                                      winal,
-                                                      kin
+                                                      sBaktun,
+                                                      sKatun,
+                                                      sTun,
+                                                      sWinal,
+                                                      sKin
                                                     ],
                                                     chosenGregorianDate:
                                                         chosenGregorianDate)));
@@ -2994,17 +3046,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         child: Row(children: [
                           Padding(
                               padding: paddingSandstones,
-                              child: tunContainer(size, baktun)),
+                              child: tunContainer(size, sBaktun)),
                           Padding(
                               padding: paddingSandstones,
-                              child: tunContainer(size, katun)),
+                              child: tunContainer(size, sKatun)),
                           Padding(
                               padding: paddingSandstones,
-                              child: tunContainer(size, tun)),
+                              child: tunContainer(size, sTun)),
                           Padding(
                               padding: paddingSandstones,
-                              child: tunContainer(size, winal)),
-                          tunContainer(size, kin)
+                              child: tunContainer(size, sWinal)),
+                          tunContainer(size, sKin)
                         ]))),
                 Positioned(
                     top: posSettings.top,
