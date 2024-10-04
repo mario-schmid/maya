@@ -1,4 +1,4 @@
-import 'package:alarm/model/alarm_settings.dart';
+import 'package:alarm/alarm.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -316,10 +316,10 @@ class DatabaseHandlerAlarms {
       'vibrate': alarmSettings.vibrate ? 1 : 0,
       'volume': alarmSettings.volume.toString(),
       'fadeDuration': alarmSettings.fadeDuration.toString(),
-      'notificationTitle': alarmSettings.notificationTitle,
-      'notificationBody': alarmSettings.notificationBody,
+      'notificationTitle': alarmSettings.notificationSettings.title,
+      'notificationBody': alarmSettings.notificationSettings.body,
       'enableNotificationOnKill':
-          alarmSettings.enableNotificationOnKill ? 1 : 0,
+          alarmSettings.warningNotificationOnKill ? 1 : 0,
       'isActive': isActive ? 1 : 0,
     });
     return result;
@@ -363,9 +363,9 @@ class DatabaseHandlerAlarms {
         'vibrate': alarmSettings.vibrate,
         'volume': alarmSettings.volume.toString(),
         'fadeDuration': alarmSettings.fadeDuration.toString(),
-        'notificationTitle': alarmSettings.notificationTitle,
-        'notificationBody': alarmSettings.notificationBody,
-        'enableNotificationOnKill': alarmSettings.enableNotificationOnKill,
+        'notificationTitle': alarmSettings.notificationSettings.title,
+        'notificationBody': alarmSettings.notificationSettings.body,
+        'enableNotificationOnKill': alarmSettings.warningNotificationOnKill,
       },
       where:
           'yearIndex = $yearIndex AND dayIndex = $dayIndex AND elementIndex = $elementIndex',

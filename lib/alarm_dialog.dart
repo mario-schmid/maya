@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:alarm/model/alarm_settings.dart';
+import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -78,8 +78,10 @@ class _ADialogState extends State<ADialog> {
     loopAudio = widget.alarmSettings.loopAudio;
     vibrate = widget.alarmSettings.vibrate;
     volume = widget.alarmSettings.volume!;
-    _alarmControllerTitle.text = widget.alarmSettings.notificationTitle;
-    _alarmControllerDescription.text = widget.alarmSettings.notificationBody;
+    _alarmControllerTitle.text =
+        widget.alarmSettings.notificationSettings.title;
+    _alarmControllerDescription.text =
+        widget.alarmSettings.notificationSettings.body;
 
     super.initState();
   }
@@ -412,13 +414,12 @@ class _ADialogState extends State<ADialog> {
                                                                         volume,
                                                                     fadeDuration:
                                                                         0.5,
-                                                                    notificationTitle:
-                                                                        _alarmControllerTitle
+                                                                    notificationSettings: NotificationSettings(
+                                                                        title: _alarmControllerTitle
                                                                             .text,
-                                                                    notificationBody:
-                                                                        _alarmControllerDescription
-                                                                            .text,
-                                                                    enableNotificationOnKill:
+                                                                        body: _alarmControllerDescription
+                                                                            .text),
+                                                                    warningNotificationOnKill:
                                                                         true),
                                                                 true));
                                                   } else {
@@ -453,13 +454,15 @@ class _ADialogState extends State<ADialog> {
                                                           vibrate: vibrate,
                                                           volume: volume,
                                                           fadeDuration: 0.5,
-                                                          notificationTitle:
-                                                              _alarmControllerTitle
-                                                                  .text,
-                                                          notificationBody:
-                                                              _alarmControllerDescription
-                                                                  .text,
-                                                          enableNotificationOnKill:
+                                                          notificationSettings:
+                                                              NotificationSettings(
+                                                                  title:
+                                                                      _alarmControllerTitle
+                                                                          .text,
+                                                                  body:
+                                                                      _alarmControllerDescription
+                                                                          .text),
+                                                          warningNotificationOnKill:
                                                               true)
                                                     ]);
                                                   }

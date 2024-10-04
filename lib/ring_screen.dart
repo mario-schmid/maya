@@ -26,10 +26,10 @@ class AlarmRingScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Column(children: [
-                    Text(alarmSettings.notificationTitle,
+                    Text(alarmSettings.notificationSettings.title,
                         style:
                             const TextStyle(color: Colors.white, fontSize: 20)),
-                    Text(alarmSettings.notificationBody,
+                    Text(alarmSettings.notificationSettings.body,
                         style:
                             const TextStyle(color: Colors.white, fontSize: 18))
                   ]),

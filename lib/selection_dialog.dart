@@ -1,4 +1,5 @@
-import 'package:alarm/model/alarm_settings.dart';
+import 'package:alarm/alarm.dart';
+import 'package:alarm/alarm.dart' as alarm_prefix;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'event_dialog.dart';
@@ -160,9 +161,13 @@ Center selectionDialog(BuildContext context, Color mainColor, int yearIndex,
                                                 vibrate: false,
                                                 volume: 0.5,
                                                 fadeDuration: 0.5,
-                                                notificationTitle: '',
-                                                notificationBody: '',
-                                                enableNotificationOnKill: true),
+                                                notificationSettings:
+                                                    alarm_prefix
+                                                        .NotificationSettings(
+                                                            title: '',
+                                                            body: ''),
+                                                warningNotificationOnKill:
+                                                    true),
                                             flagCreateChange: true);
                                       });
                                 },
