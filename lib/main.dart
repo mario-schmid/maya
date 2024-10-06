@@ -6,11 +6,16 @@ import 'dart:math';
 import 'package:alarm/alarm.dart';
 import 'package:alarm/alarm.dart' as alarm_prefix;
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flag/flag.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -33,6 +38,7 @@ import 'package:moon_phase_plus/moon_phase_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -41,6 +47,7 @@ import 'classes/position.dart';
 import 'color_picker.dart';
 import 'database_handler.dart';
 import 'date_calculator.dart';
+import 'firebase_options.dart';
 import 'helper/locale_string.dart';
 import 'maya_items.dart';
 import 'methods/get_kin_nummber.dart';
@@ -51,6 +58,19 @@ import 'the_year.dart';
 import 'time_format.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+final _messageStreamController = BehaviorSubject<RemoteMessage>();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
+  /*if (kDebugMode) {
+    print("Handling a background message: ${message.messageId}");
+    print('Message data: ${message.data}');
+    print('Message notification: ${message.notification?.title}');
+    print('Message notification: ${message.notification?.body}');
+  }*/
+}
 
 Future<void> main() async {
 /* -------------------------------------------------------------------------- */
@@ -217,6 +237,7 @@ Future<void> main() async {
 /* Assets for precacheImage - END                                           */
 /* ------------------------------------------------------------------------ */
   final binding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: binding);
   binding.addPostFrameCallback((_) async {
     Element? context = binding.rootElement;
     if (context != null) {
@@ -225,6 +246,54 @@ Future<void> main() async {
       }
     }
   });
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  final messaging = FirebaseMessaging.instance;
+
+  final settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  if (kDebugMode) {
+    print('Permission granted: ${settings.authorizationStatus}');
+  }
+
+  /*String? token = await messaging.getToken();
+
+  if (kDebugMode) {
+    print('Registration Token=$token');
+  }*/
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    /*if (kDebugMode) {
+      print('Handling a foreground message: ${message.messageId}');
+      print('Message data: ${message.data}');
+      print('Message notification: ${message.notification?.title}');
+      print('Message notification: ${message.notification?.body}');
+    }*/
+
+    _messageStreamController.sink.add(message);
+  });
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  const topicPromotion = 'app_promotion';
+  const topicNotification = 'app_notification';
+  await messaging.subscribeToTopic(topicPromotion);
+  await messaging.subscribeToTopic(topicNotification);
+
+  // TODO: just for testing
+  /*const testNotification = 'test_notification';
+  await messaging.subscribeToTopic(testNotification);*/
 
   await Alarm.init();
   runApp(const MayaApp());
@@ -259,6 +328,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
+  _HomeState() {
+    _messageStreamController.listen((message) {
+      if (message.notification != null) {
+        showNotificationDialog(message);
+      }
+    });
+  }
+
   final DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
   final DateFormat dateTimeformatSeasons =
       DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
@@ -573,6 +650,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     });
 
+    setupInteractedMessage();
+
     if (Alarm.android) {
       checkAndroidNotificationPermission();
       checkAndroidScheduleExactAlarmPermission();
@@ -659,12 +738,63 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     strTextToneNahual =
         '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
 
+    FlutterNativeSplash.remove();
+    hideScreen();
     super.initState();
   }
 
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
+  Future<void> hideScreen() async {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      FlutterSplashScreen.hide();
+    });
+  }
+
+  Future<void> setupInteractedMessage() async {
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  }
+
+  Future<void> _handleMessage(RemoteMessage message) async {
+    showNotificationDialog(message);
+  }
+
+  void showNotificationDialog(RemoteMessage message) {
+    showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return Center(
+              child: Container(
+                  constraints: const BoxConstraints(minHeight: 80),
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                      color: mainColor,
+                      border: Border.all(color: Colors.white, width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                      shape: BoxShape.rectangle),
+                  child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text('${message.notification?.title}',
+                                textAlign: TextAlign.center,
+                                style: MayaStyle.popUpDialogTitle),
+                            Text('${message.notification?.body}',
+                                textAlign: TextAlign.center,
+                                style: MayaStyle.popUpDialogBody)
+                          ]))));
+        });
+  }
 
   /*checkAudioFiles(List<AlarmSettings> alarms) async {
     for (int i = 0; i < alarms.length; i++) {
@@ -2602,7 +2732,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   top: posMoon.top + sizeMoon / 4,
                   left: posMoon.left + sizeMoon / 4,
                   child: MoonWidget(
-                      date: datetimeMoon,
+                      date:
+                          datetimeMoon,
                       resolution: sizeMoon,
                       size: sizeMoon,
                       moonColor: Color.fromARGB(255, 215, 215, 215),
