@@ -950,7 +950,8 @@ class MayaItems {
                                               .mayaData[yearIndex][dayIndex]
                                               .alarmList[alarmIndex]
                                               .alarmSettings
-                                              .notificationTitle!,
+                                              .notificationSettings
+                                              .title!,
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 16))
