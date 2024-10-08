@@ -33,15 +33,14 @@ class _ColorPickerState extends State<ColorPicker> {
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               CircleColorPicker(
                   controller: _controller,
-                  //onChanged: (color) => mainColor = color,
                   onEnded: (color) => mainColor = color,
                   size: Size(size.width * 0.8, size.width * 0.8),
                   strokeWidth: size.width * 0.03,
                   thumbSize: size.width * 0.14),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 SizedBox(
-                    height: size.width * 0.111111111, // 40
-                    width: size.width * 0.333333333, // 120
+                    height: size.width * 0.111111111,
+                    width: size.width * 0.333333333,
                     child: ElevatedButton(
                         onPressed: () {
                           Navigator.of(context, rootNavigator: true)
@@ -58,18 +57,19 @@ class _ColorPickerState extends State<ColorPicker> {
                               color: Colors.white,
                               width: 1,
                             )),
-                            shape: WidgetStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10))),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
                             textStyle: WidgetStateProperty.all(
                                 const TextStyle(fontSize: 18)),
                             overlayColor: WidgetStateProperty.all(mainColor)),
                         child: Text('Cancel'.tr))),
                 SizedBox(width: size.width * 0.06),
                 SizedBox(
-                    height: size.width * 0.111111111, // 40
-                    width: size.width * 0.333333333, // 120
+                    height: size.width * 0.111111111,
+                    width: size.width * 0.333333333,
                     child: ElevatedButton(
                         onPressed: () {
                           Navigator.of(context, rootNavigator: true)
@@ -87,10 +87,11 @@ class _ColorPickerState extends State<ColorPicker> {
                               color: Colors.white,
                               width: 1,
                             )),
-                            shape: WidgetStateProperty.all<
-                                    RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10))),
+                            shape:
+                                WidgetStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
                             textStyle: WidgetStateProperty.all(
                                 const TextStyle(fontSize: 18)),
                             overlayColor: WidgetStateProperty.all(mainColor)),

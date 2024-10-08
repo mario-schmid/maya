@@ -228,7 +228,6 @@ class _TheDayState extends State<TheDay> {
                                                     fontSize: 24),
                                               ))),
                                           SizedBox(
-                                              height: 70,
                                               width: 48,
                                               child: Column(
                                                   mainAxisAlignment:
