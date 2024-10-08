@@ -23,10 +23,12 @@ import 'package:maya/date_selection.dart';
 import 'package:maya/helper/maya_images.dart';
 import 'package:maya/helper/maya_lists.dart';
 import 'package:maya/helper/maya_style.dart';
+import 'package:maya/helper/methods.dart';
 import 'package:maya/methods/get_delda_year.dart';
 import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/mayadata.dart';
+import 'package:maya/random_character.dart';
 import 'package:maya/relationship.dart';
 import 'package:maya/ring_screen.dart';
 import 'package:moon_phase_plus/moon_phase_plus.dart';
@@ -395,7 +397,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* Varibles                                                                 */
   /*                                                                          */
   DateTime now = DateTime.now();
-  DateTime datetimeMoon = DateTime.now();
 
   //TODO: remove in the future
   Future<bool> adjustDatabase = updateYear();
@@ -424,12 +425,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   double angleSeason = 0.0;
 
-  final factorTropicalYearMinutes = 360 / 525948.7536;
-
   List<dynamic> seasons = [];
 
   SvgPicture iconSeason =
-      SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+      SvgPicture.asset('assets/vector_graphics/transparent_icon.svg');
 
   double finalAngle = 0.0;
   double oldAngle = 0.0;
@@ -454,7 +453,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   late int currYear;
   late int chosenYear;
-  int nYear = 1;
 
   late int tone;
   late int sTone;
@@ -516,10 +514,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/trecenaBlue.png'),
     Image.asset('assets/images/trecenaYellow.png')
   ];
-
-  // TODO: remove animation
-  /*late AnimationController _controller;
-  late Animation<double> _animation;*/
 
   late List<AlarmSettings> alarms;
   static StreamSubscription<AlarmSettings>? subscription;
@@ -583,16 +577,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     //TODO: remove
     //checkAudioFiles(Alarm.getAlarms());
 
-    // TODO: remove animation
-    /*_controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
-    _controller.addListener(() {
-      setState(() {
-        finalAngle = _animation.value;
-        oldAngle = _animation.value;
-      });
-    });*/
-
     loadTimeFormat();
     loadBgFilePath();
     loadData();
@@ -607,58 +591,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     // Clock END
 
     startDate = DateTime.parse('2013-02-21 00:00:00');
-
-    final int daysGoneBy =
-        (now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) ~/
-            86400000;
-
-    baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
-    katun = (daysGoneBy + dDays) ~/ 7200 % 20;
-    tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
-    winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
-    kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
-
-    sBaktun = baktun;
-    sKatun = katun;
-    sTun = tun;
-    sWinal = winal;
-    sKin = kin;
-
-    currDay = daysGoneBy % 365;
-    chosenDay = currDay;
-    xDayTotal = currDay;
-
-    //TODO: change to 5141 (5152-12) after database year index update
-    currYear = 5129 + daysGoneBy ~/ 365;
-    chosenYear = currYear;
-
-    tone = (startTone + daysGoneBy) % 13;
-    sTone = tone;
-
-    nahual = (startNahual + daysGoneBy) % 20;
-    sNahual = nahual;
-
-    currKinIndex = getKinNummber(tone, nahual);
-    int trecena = currKinIndex ~/ 13;
-
-    trecenaColor = trecena % 4;
-    nTrecenaColor = trecenaColor;
-
-    offsetGearNahuales = 18 * nahual / 180 * pi;
-    offsetGearTones = 360 / 13 * tone / 180 * pi;
-    offsetGearHaab = -360 / 365 * currDay / 180 * pi;
-
-    angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
-
-    int initialValueTrecenamask = currKinIndex % 52;
-    diffAngle = initialValueTrecenamask % 13;
-    trecenaOffsetAngle = 18 * initialValueTrecenamask / 180 * pi;
-
-    currTrecenaMask = trecenaMask[trecenaColor];
-
-    strTextToneNahual =
-        '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
-
     super.initState();
   }
 
@@ -946,16 +878,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   reset() {
     setState(() {
-      // TODO: remove animation
-      /*if (_controller.isAnimating) {
-        _controller.stop();
-      }*/
-      DateTime nowForReset = DateTime.now();
-      angleTime = (nowForReset.hour * 60 + nowForReset.minute) / 14400 * pi;
-
-      datetimeMoon =
-          nowForReset.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
-
       upsetAngle = 0.0;
       finalAngle = 0.0;
       oldAngle = 0.0;
@@ -983,7 +905,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       sWinal = winal;
       sKin = kin;
 
-      nYear = 1;
       chosenDay = currDay;
       xDayTotal = currDay;
       chosenYear = currYear;
@@ -1784,7 +1705,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       posButtonTheYear = Position(size.height / 2 - size.height * 0.360053468,
           size.width - size.height * 0.22974711);
       //
-
       sizeButtonDateCalculator =
           Size(size.height * 0.111606936, size.height * 0.053530347);
       posButtonDateCalculator = Position(
@@ -1840,142 +1760,168 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
       kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
 
+      sBaktun = baktun;
+      sKatun = katun;
+      sTun = tun;
+      sWinal = winal;
+      sKin = kin;
+
       currDay = daysGoneBy % 365;
+      chosenDay = currDay;
+      xDayTotal = currDay;
 
       //TODO: change to 5141 (5152-12) after database year index update
       currYear = 5129 + daysGoneBy ~/ 365;
+      chosenYear = currYear;
 
       tone = (startTone + daysGoneBy) % 13;
+      sTone = tone;
       nahual = (startNahual + daysGoneBy) % 20;
+      sNahual = nahual;
 
       currKinIndex = getKinNummber(tone, nahual);
       int trecena = currKinIndex ~/ 13;
 
       trecenaColor = trecena % 4;
+      nTrecenaColor = trecenaColor;
 
       offsetGearNahuales = 18 * nahual / 180 * pi;
       offsetGearTones = 360 / 13 * tone / 180 * pi;
       offsetGearHaab = -360 / 365 * currDay / 180 * pi;
 
-      angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
-
       int initialValueTrecenamask = currKinIndex % 52;
       diffAngle = initialValueTrecenamask % 13;
       trecenaOffsetAngle = 18 * initialValueTrecenamask / 180 * pi;
 
+      currTrecenaMask = trecenaMask[trecenaColor];
+
       angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
 
-      if (seasons.isNotEmpty) {
-        int index = now
-                .toUtc()
-                .add(Duration(minutes: (finalAngle * 14400 / pi).toInt()))
-                .year -
-            2001;
+      strTextToneNahual =
+          '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
+    }
+    if (seasons.isNotEmpty) {
+      DateTime nowSeasons =
+          now.toUtc().add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+      int index = nowSeasons.year - 2001;
 
-        String winterSolstice = seasons[index]['winter'];
-        String springEquinox = seasons[index]['spring'];
-        String summerSolstice = seasons[index]['summer'];
-        String fallEquinox = seasons[index]['fall'];
+      List<String> strDateTimeSeasons = [
+        seasons[index - 1]['winter'],
+        seasons[index]['spring'],
+        seasons[index]['summer'],
+        seasons[index]['fall'],
+        seasons[index]['winter'],
+        seasons[index + 1]['spring']
+      ];
 
-        DateTime dateTimeWinterSolstice =
-            dateTimeformatSeasons.parse(winterSolstice);
-        DateTime dateTimeSpringEquinox =
-            dateTimeformatSeasons.parse(springEquinox);
-        DateTime dateTimeSummerSolstice =
-            dateTimeformatSeasons.parse(summerSolstice);
-        DateTime dateTimeFallEquinox = dateTimeformatSeasons.parse(fallEquinox);
+      List<DateTime> dateTimeSolsticesEquinoxes = [
+        dateTimeformatSeasons.parse(strDateTimeSeasons[0]),
+        dateTimeformatSeasons.parse(strDateTimeSeasons[1]),
+        dateTimeformatSeasons.parse(strDateTimeSeasons[2]),
+        dateTimeformatSeasons.parse(strDateTimeSeasons[3]),
+        dateTimeformatSeasons.parse(strDateTimeSeasons[4]),
+        dateTimeformatSeasons.parse(strDateTimeSeasons[5])
+      ];
 
-        Duration diffWinterSolstice =
-            now.toUtc().difference(dateTimeWinterSolstice);
-        Duration diffSpringEquinox =
-            now.toUtc().difference(dateTimeSpringEquinox);
-        Duration diffSummerSolstice =
-            now.toUtc().difference(dateTimeSummerSolstice);
-        Duration diffallEquinox = now.toUtc().difference(dateTimeFallEquinox);
+      List<Duration> durations = [
+        nowSeasons.difference(dateTimeSolsticesEquinoxes[1]),
+        nowSeasons.difference(dateTimeSolsticesEquinoxes[2]),
+        nowSeasons.difference(dateTimeSolsticesEquinoxes[3]),
+        nowSeasons.difference(dateTimeSolsticesEquinoxes[4]),
+      ];
 
-        List<int> diffSeasons = [
-          diffWinterSolstice.inMinutes,
-          diffSpringEquinox.inMinutes,
-          diffSummerSolstice.inMinutes,
-          diffallEquinox.inMinutes
-        ];
+      List<int> diffSeasons = [
+        durations[0].inMinutes,
+        durations[1].inMinutes,
+        durations[2].inMinutes,
+        durations[3].inMinutes,
+      ];
 
-        List<int> diffSeasonsABS = [
-          diffWinterSolstice.inMinutes.abs(),
-          diffSpringEquinox.inMinutes.abs(),
-          diffSummerSolstice.inMinutes.abs(),
-          diffallEquinox.inMinutes.abs()
-        ];
+      List<int> diffSeasonsAbs = [
+        durations[0].inMinutes.abs(),
+        durations[1].inMinutes.abs(),
+        durations[2].inMinutes.abs(),
+        durations[3].inMinutes.abs(),
+      ];
 
-        int minimum = diffSeasonsABS.reduce(min);
+      int minimum = diffSeasonsAbs.reduce(min);
 
-        int indexMinimum =
-            diffSeasonsABS.indexWhere((element) => element == minimum);
+      int indexMinimum =
+          diffSeasonsAbs.indexWhere((element) => element == minimum);
 
-        double angle = factorTropicalYearMinutes * diffSeasonsABS[indexMinimum];
+      if (diffSeasons[indexMinimum] < 0) {
+        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
+            .difference(dateTimeSolsticesEquinoxes[indexMinimum])
+            .inMinutes;
 
-        if (diffSeasons[indexMinimum] < 0) {
-          switch (indexMinimum) {
-            case 0:
-              // fall
-              angleSeason = angle;
-              iconSeason =
-                  SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
-              break;
-            case 1:
-              // winter
-              angleSeason = 270 + angle;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/winter_icon_dark.svg');
-              break;
-            case 2:
-              // spring
-              angleSeason = 180 + angle;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/spring_icon_dark.svg');
-              break;
-            case 3:
-              // summer
-              angleSeason = 90 + angle;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/summer_icon_dark.svg');
-              break;
-            default:
-              angleSeason = 0;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/winter_icon_dark.svg');
-          }
-        } else {
-          switch (indexMinimum) {
-            case 0:
-              // winter
-              angleSeason = 360 - angle;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/winter_icon_dark.svg');
-              break;
-            case 1:
-              // spring
-              angleSeason = 270 - angle;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/spring_icon_dark.svg');
-              break;
-            case 2:
-              // summer
-              angleSeason = 180 - angle;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/summer_icon_dark.svg');
-              break;
-            case 3:
-              // fall
-              angleSeason = 90 - angle;
-              iconSeason =
-                  SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
-              break;
-            default:
-              angleSeason = 0;
-              iconSeason = SvgPicture.asset(
-                  'assets/vector_graphics/winter_icon_dark.svg');
-          }
+        double angle = (90 / seasonTime) * -diffSeasons[indexMinimum];
+
+        switch (indexMinimum) {
+          case 0:
+            // winter
+            angleSeason = 270 + angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+            break;
+          case 1:
+            // spring
+            angleSeason = 180 + angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/spring_icon_dark.svg');
+            break;
+          case 2:
+            // summer
+            angleSeason = 90 + angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/summer_icon_dark.svg');
+            break;
+          case 3:
+            // fall
+            angleSeason = angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
+            break;
+          default:
+            angleSeason = 0;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+        }
+      } else {
+        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
+            .difference(dateTimeSolsticesEquinoxes[indexMinimum + 2])
+            .inMinutes;
+
+        double angle = (90 / seasonTime) * -diffSeasons[indexMinimum];
+
+        switch (indexMinimum) {
+          case 0:
+            // spring
+            angleSeason = 270 - angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/spring_icon_dark.svg');
+            break;
+          case 1:
+            // summer
+            angleSeason = 180 - angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/summer_icon_dark.svg');
+            break;
+          case 2:
+            // fall
+            angleSeason = 90 - angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
+            break;
+          case 3:
+            // winter
+            angleSeason = -angle;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+            break;
+          default:
+            angleSeason = 0;
+            iconSeason =
+                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
         }
       }
     }
@@ -1983,7 +1929,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     strTextToneNahual =
         '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
 
-    datetimeMoon =
+    DateTime datetimeMoon =
         now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
 
     return Scaffold(
@@ -2328,10 +2274,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         return GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             onPanStart: (details) {
-                              // TODO: remove animation
-                              /*if (_controller.isAnimating) {
-                                _controller.stop();
-                              }*/
                               final touchPositionFromCenter =
                                   details.localPosition -
                                       centerOfGestureDetector;
@@ -2481,14 +2423,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 }
                               });
                             },
-                            // TODO: remove animation
                             onPanEnd: (details) {
                               oldAngle = finalAngle;
-                              /*_animation = _controller.drive(Tween(
-                                  begin: finalAngle,
-                                  end: (finalAngle / 18).roundToDouble() * 18));
-                              _controller.reset();
-                              _controller.forward();*/
                             },
                             child: Transform.rotate(
                                 angle:
@@ -2516,6 +2452,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: GestureDetector(
                       onTap: () {
                         reset();
+                      },
+                      onLongPress: () {
+                        int character = Random().nextInt(260);
+
+                        List<int> toneNahual =
+                            Methods().getToneNahual(character + 150 % 260);
+
+                        Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (BuildContext context, __, _) =>
+                                    RandomCharacter(
+                                        backgroundImage: backgroundImage,
+                                        mainColor: mainColor,
+                                        tone: toneNahual[0],
+                                        nahual: toneNahual[1])));
                       },
                       child: Image.asset("assets/images/shape_button_moon.png",
                           height: sizeButtonReset.height,
