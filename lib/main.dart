@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -425,8 +426,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   double angleSeason = 0.0;
 
-  List<dynamic> seasons = [];
-
   SvgPicture iconSeason =
       SvgPicture.asset('assets/vector_graphics/transparent_icon.svg');
 
@@ -520,20 +519,44 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* Varibles - END                                                           */
   /* ------------------------------------------------------------------------ */
+
   /* ------------------------------------------------------------------------ */
   /* initState                                                                */
   /*                                                                          */
   @override
   void initState() {
+    // Clock
+    Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      final DateTime nowClock = DateTime.now();
+      setState(() {
+        currTime = TimeFormat().getTimeFormat.format(nowClock);
+      });
+    });
+    // Clock END
+
+    if (Alarm.android) {
+      checkAndroidNotificationPermission();
+      checkAndroidScheduleExactAlarmPermission();
+    }
+    subscription ??= Alarm.ringStream.stream.listen(
+      (alarmSettings) => navigateToRingScreen(alarmSettings),
+    );
+
     loadSeasonsFromAssets('assets/seasons.json');
 
     loadMainColor();
     loadLanguage();
-    //TODO: remove in the future
+
+    loadTimeFormat();
+    loadBgFilePath();
+    loadData();
+
+    startDate = DateTime.parse('2013-02-21 00:00:00');
+
+    // TODO: remove in the future
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await adjustDatabase) {
         await showDialog(
-            // ignore: use_build_context_synchronously
             context: context,
             builder: (BuildContext context) => Center(
                     child: AlertDialog(
@@ -566,31 +589,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     ])));
       }
     });
-
-    if (Alarm.android) {
-      checkAndroidNotificationPermission();
-      checkAndroidScheduleExactAlarmPermission();
-    }
-    subscription ??= Alarm.ringStream.stream.listen(
-      (alarmSettings) => navigateToRingScreen(alarmSettings),
-    );
-    //TODO: remove
-    //checkAudioFiles(Alarm.getAlarms());
-
-    loadTimeFormat();
-    loadBgFilePath();
-    loadData();
-
-    // Clock
-    Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      final DateTime nowClock = DateTime.now();
-      setState(() {
-        currTime = TimeFormat().getTimeFormat.format(nowClock);
-      });
-    });
-    // Clock END
-
-    startDate = DateTime.parse('2013-02-21 00:00:00');
+    hideSplashScreen();
     super.initState();
   }
 
@@ -598,26 +597,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
 
-  /*checkAudioFiles(List<AlarmSettings> alarms) async {
-    for (int i = 0; i < alarms.length; i++) {
-      if (!await File(alarms[i].assetAudioPath).exists() &&
-          alarms[i].assetAudioPath != 'assets/audio/ringtone.mp3') {
-        Alarm.stop(alarms[i].id);
-        AlarmSettings tmpAlarmSettings = AlarmSettings(
-            id: alarms[i].id,
-            dateTime: alarms[i].dateTime,
-            assetAudioPath: 'assets/audio/ringtone.mp3',
-            loopAudio: alarms[i].loopAudio,
-            vibrate: alarms[i].vibrate,
-            volume: alarms[i].volume,
-            fadeDuration: alarms[i].fadeDuration,
-            notificationTitle: alarms[i].notificationTitle,
-            notificationBody: alarms[i].notificationBody,
-            enableNotificationOnKill: alarms[i].enableNotificationOnKill);
-        Alarm.set(alarmSettings: tmpAlarmSettings);
-      }
-    }
-  }*/
+  /* ------------------------------------------------------------------------ */
+  /* hideSplashScreen                                                         */
+  /*                                                                          */
+  Future<void> hideSplashScreen() async {
+    Future.delayed(const Duration(milliseconds: 1111), () {
+      FlutterSplashScreen.hide();
+    });
+  }
+
+  /*                                                                          */
+  /* hideSplashScreen - END                                                   */
+  /* ------------------------------------------------------------------------ */
+
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
@@ -857,13 +849,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* loadBgFilePath - END                                                     */
   /* ------------------------------------------------------------------------ */
-  int season = 0;
 
+  List<dynamic> seasons = [];
+  /* ------------------------------------------------------------------------ */
+  /* loadSeasonsFromAssets                                                    */
+  /*                                                                          */
   loadSeasonsFromAssets(String filePath) async {
     String jsonString = await rootBundle.loadString(filePath);
     seasons = jsonDecode(jsonString);
   }
 
+  /*                                                                          */
+  /* loadSeasonsFromAssets - END                                              */
+  /* ------------------------------------------------------------------------ */
+
+  /* ------------------------------------------------------------------------ */
+  /* navigateToRingScreen                                                     */
+  /*                                                                          */
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
     await Navigator.push(
       context,
@@ -872,6 +874,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       ),
     );
   }
+
+  /*                                                                          */
+  /* navigateToRingScreen - END                                               */
+  /* ------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------ */
   /* reset                                                                    */
@@ -914,6 +920,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* reset - END                                                              */
   /* ------------------------------------------------------------------------ */
+
   /* ------------------------------------------------------------------------ */
   /* updateLanguage                                                           */
   /*                                                                          */
@@ -924,12 +931,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* updateLanguage - END                                                     */
   /* ------------------------------------------------------------------------ */
-  @override
-  void dispose() {
-    subscription?.cancel();
-    super.dispose();
-  }
 
+  /* ------------------------------------------------------------------------ */
+  /* inticators                                                               */
+  /*                                                                          */
   bool inticators(int i, Map<int, Map<int, Day>> mayaData) {
     int cYear = (currYear + (xDayTotal + i) / 365).floor();
     int cDay = (xDayTotal + i) % 365;
@@ -959,6 +964,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     }
   }
 
+  /*                                                                          */
+  /* inticators - END                                                         */
+  /* ------------------------------------------------------------------------ */
+
+  /* ------------------------------------------------------------------------ */
+  /* tunContainer                                                             */
+  /*                                                                          */
   Container tunContainer(Size size, int value) {
     return Container(
       height: sizeSandstones.height,
@@ -974,6 +986,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       ),
     );
   }
+
+  /*                                                                          */
+  /* tunContainer - END                                                       */
+  /* ------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------ */
   /* Drawer                                                                   */
@@ -1372,6 +1388,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     if (size.height / size.width >= 692 / 360) {
       //
+      // TODO: calculate the size based on the display size
       sizeSettings = const Size(16, 120);
       posSettings =
           Position(statusBarHeight + 10, size.width - sizeSettings.width);
@@ -1555,6 +1572,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       //
     } else {
       //
+      // TODO: calculate the size based on the display size
       sizeSettings = const Size(16, 120);
       posSettings =
           Position(statusBarHeight + 10, size.width - sizeSettings.width);
