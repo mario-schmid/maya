@@ -37,7 +37,6 @@ class LocaleString extends Translations {
           //
           'Loop alarm audio': 'Loop alarm audio',
           'Vibrate': 'Vibrate',
-          'Custom Volume': 'Custom Volume',
           //
           'Calculate': 'Calculate',
           'Day': 'Day',
@@ -119,7 +118,6 @@ class LocaleString extends Translations {
           //
           'Loop alarm audio': 'Loop alarm audio',
           'Vibrate': 'Vibrate',
-          'Custom Volume': 'Custom Volume',
           //
           'Calculate': 'Berechnen',
           'Day': 'Tag',
@@ -203,7 +201,6 @@ class LocaleString extends Translations {
           //
           'Loop alarm audio': 'Loop alarm audio',
           'Vibrate': 'Vibrate',
-          'Custom Volume': 'Custom Volume',
           //
           'Calculate': 'Calculer',
           'Day': 'Jour',
@@ -287,7 +284,6 @@ class LocaleString extends Translations {
           //
           'Loop alarm audio': 'Loop alarm audio',
           'Vibrate': 'Vibrate',
-          'Custom Volume': 'Custom Volume',
           //
           'Calculate': 'Calcular',
           'Day': 'Día',
