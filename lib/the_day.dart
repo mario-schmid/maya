@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'helper/maya_images.dart';
 import 'maya_cross_container.dart';
-import 'methods/get_kin_nummber.dart';
+import 'methods/get_kin_number.dart';
 import 'methods/update_list.dart';
 import 'providers/dayitems.dart';
 import 'selection_dialog.dart';
@@ -73,7 +73,7 @@ class _TheDayState extends State<TheDay> {
     initializeDateFormatting();
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
-    chosenKinIndex = getKinNummber(widget.chosenTone, widget.chosenNahual);
+    chosenKinIndex = getKinNumber(widget.chosenTone, widget.chosenNahual);
     longCount = widget.chosenLongCount[0] * 144000 +
         widget.chosenLongCount[1] * 7200 +
         widget.chosenLongCount[2] * 360 +

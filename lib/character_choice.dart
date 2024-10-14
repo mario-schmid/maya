@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:maya/helper/maya_images.dart';
 import 'package:maya/maya_cross_container.dart';
 
-class CharacterChoise extends StatefulWidget {
+class CharacterChoice extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
 
   final int chosenTone;
   final int chosenNahual;
-  const CharacterChoise(
+  const CharacterChoice(
       {super.key,
       required this.backgroundImage,
       required this.mainColor,
@@ -16,10 +16,10 @@ class CharacterChoise extends StatefulWidget {
       required this.chosenNahual});
 
   @override
-  State<CharacterChoise> createState() => _CharacterChoiseState();
+  State<CharacterChoice> createState() => _CharacterChoiceState();
 }
 
-class _CharacterChoiseState extends State<CharacterChoise> {
+class _CharacterChoiceState extends State<CharacterChoice> {
   late FixedExtentScrollController _controllerTone;
   late FixedExtentScrollController _controllerNahual;
 

@@ -15,7 +15,7 @@ import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:maya/character_choise.dart';
+import 'package:maya/character_choice.dart';
 import 'package:maya/data/maya_alarm.dart';
 import 'package:maya/data/maya_day.dart';
 import 'package:maya/data/maya_event.dart';
@@ -25,7 +25,7 @@ import 'package:maya/helper/maya_images.dart';
 import 'package:maya/helper/maya_lists.dart';
 import 'package:maya/helper/maya_style.dart';
 import 'package:maya/helper/methods.dart';
-import 'package:maya/methods/get_delda_year.dart';
+import 'package:maya/methods/get_delta_year.dart';
 import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/mayadata.dart';
@@ -46,7 +46,7 @@ import 'database_handler.dart';
 import 'date_calculator.dart';
 import 'helper/locale_string.dart';
 import 'maya_items.dart';
-import 'methods/get_kin_nummber.dart';
+import 'methods/get_kin_number.dart';
 import 'methods/get_nahual.dart';
 import 'methods/get_tone.dart';
 import 'the_day.dart';
@@ -379,23 +379,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Size sizeBoxTextToneNahual;
   late Position posBoxTextToneNahual;
   //
-  late TextStyle texttextStyleToneNahual;
+  late TextStyle textStyleToneNahual;
   //
   late Size sizeBoxLongCount;
   late Position posBoxLongCount;
   late Size sizeSandstones;
-  late Size sizeNummbers;
+  late Size sizeNumbers;
   late EdgeInsets paddingSandstones;
-  late EdgeInsets paddingNummbersBaktun;
-  late EdgeInsets paddingNummbersKatun;
-  late EdgeInsets paddingNummbersTun;
-  late EdgeInsets paddingNummbersWinal;
-  late EdgeInsets paddingNummbersKin;
+  late EdgeInsets paddingNumbersBaktun;
+  late EdgeInsets paddingNumbersKatun;
+  late EdgeInsets paddingNumbersTun;
+  late EdgeInsets paddingNumbersWinal;
+  late EdgeInsets paddingNumbersKin;
   /*                                                                          */
   /* Positions and Sizes - END                                                */
   /* ------------------------------------------------------------------------ */
   /* ------------------------------------------------------------------------ */
-  /* Varibles                                                                 */
+  /* Variables                                                                 */
   /*                                                                          */
   DateTime now = DateTime.now();
 
@@ -517,7 +517,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late List<AlarmSettings> alarms;
   static StreamSubscription<AlarmSettings>? subscription;
   /*                                                                          */
-  /* Varibles - END                                                           */
+  /* Variables - END                                                           */
   /* ------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------ */
@@ -933,9 +933,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------ */
-  /* inticators                                                               */
+  /* indicator                                                               */
   /*                                                                          */
-  bool inticators(int i, Map<int, Map<int, Day>> mayaData) {
+  bool indicator(int i, Map<int, Map<int, Day>> mayaData) {
     int cYear = (currYear + (xDayTotal + i) / 365).floor();
     int cDay = (xDayTotal + i) % 365;
     if (mayaData.containsKey(cYear)) {
@@ -965,7 +965,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
   /*                                                                          */
-  /* inticators - END                                                         */
+  /* indicator - END                                                         */
   /* ------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------ */
@@ -982,7 +982,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               fit: BoxFit.cover)),
       child: Center(
         child: SizedBox(
-            width: sizeNummbers.width, child: imageToneWhiteFlatBottom[value]),
+            width: sizeNumbers.width, child: imageToneWhiteFlatBottom[value]),
       ),
     );
   }
@@ -1548,7 +1548,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           (size.height - sizeBoxTextToneNahual.height) / 2,
           size.width - sizeBoxTextToneNahual.width - size.width * 0.391062037);
       //
-      texttextStyleToneNahual = TextStyle(
+      textStyleToneNahual = TextStyle(
           color: Color.lerp(mainColor, Colors.white, 0.1)!,
           fontSize: size.width * 0.044);
       //
@@ -1557,17 +1557,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       posBoxLongCount = Position(size.height - size.width * 0.152777778,
           size.width - size.width * 0.927777778);
       sizeSandstones = Size(size.width * 0.138888889, size.width * 0.138888889);
-      sizeNummbers = Size(size.width * 0.111111111, 0);
+      sizeNumbers = Size(size.width * 0.111111111, 0);
       paddingSandstones = EdgeInsets.only(right: size.width * 0.011111111);
-      paddingNummbersBaktun = EdgeInsets.fromLTRB(
+      paddingNumbersBaktun = EdgeInsets.fromLTRB(
           size.width * 0.013888889, 0, size.width * 0.019444444, 0);
-      paddingNummbersKatun = EdgeInsets.fromLTRB(
+      paddingNumbersKatun = EdgeInsets.fromLTRB(
           size.width * 0.019444444, 0, size.width * 0.019444444, 0);
-      paddingNummbersTun = EdgeInsets.fromLTRB(
+      paddingNumbersTun = EdgeInsets.fromLTRB(
           size.width * 0.019444444, 0, size.width * 0.019444444, 0);
-      paddingNummbersWinal = EdgeInsets.fromLTRB(
+      paddingNumbersWinal = EdgeInsets.fromLTRB(
           size.width * 0.019444444, 0, size.width * 0.019444444, 0);
-      paddingNummbersKin = EdgeInsets.fromLTRB(
+      paddingNumbersKin = EdgeInsets.fromLTRB(
           size.width * 0.019444444, 0, size.width * 0.013888889, 0);
       //
     } else {
@@ -1740,7 +1740,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           (size.height - sizeBoxTextToneNahual.height) / 2,
           size.width - sizeBoxTextToneNahual.width - size.height * 0.203442678);
       //
-      texttextStyleToneNahual = TextStyle(
+      textStyleToneNahual = TextStyle(
           color: Color.lerp(mainColor, Colors.white, 0.1)!,
           fontSize: size.height * 0.022890173);
       //
@@ -1750,17 +1750,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.width - size.height * 0.48265896);
       sizeSandstones =
           Size(size.height * 0.072254335, size.height * 0.072254335);
-      sizeNummbers = Size(size.height * 0.057803468, 0);
+      sizeNumbers = Size(size.height * 0.057803468, 0);
       paddingSandstones = EdgeInsets.only(right: size.height * 0.005780347);
-      paddingNummbersBaktun = EdgeInsets.fromLTRB(
+      paddingNumbersBaktun = EdgeInsets.fromLTRB(
           size.height * 0.007225434, 0, size.height * 0.010115607, 0);
-      paddingNummbersKatun = EdgeInsets.fromLTRB(
+      paddingNumbersKatun = EdgeInsets.fromLTRB(
           size.height * 0.010115607, 0, size.height * 0.010115607, 0);
-      paddingNummbersTun = EdgeInsets.fromLTRB(
+      paddingNumbersTun = EdgeInsets.fromLTRB(
           size.height * 0.010115607, 0, size.height * 0.010115607, 0);
-      paddingNummbersWinal = EdgeInsets.fromLTRB(
+      paddingNumbersWinal = EdgeInsets.fromLTRB(
           size.height * 0.010115607, 0, size.height * 0.010115607, 0);
-      paddingNummbersKin = EdgeInsets.fromLTRB(
+      paddingNumbersKin = EdgeInsets.fromLTRB(
           size.height * 0.010115607, 0, size.height * 0.007225434, 0);
       //
     }
@@ -1797,7 +1797,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       nahual = (startNahual + daysGoneBy) % 20;
       sNahual = nahual;
 
-      currKinIndex = getKinNummber(tone, nahual);
+      currKinIndex = getKinNumber(tone, nahual);
       int trecena = currKinIndex ~/ 13;
 
       trecenaColor = trecena % 4;
@@ -2014,9 +2014,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   left: posWheelHaab.left,
                   child: Transform.rotate(
                       angle: offsetGearHaab -
-                          (angleTime + finalAngle) * 20 / 365 +
-                          (1 / 365) *
-                              pi, // TODO: check if calculation is correct
+                          4 * (angleTime + finalAngle) / 73 +
+                          pi / 365, // [x] calculation correct
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
@@ -2026,11 +2025,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   top: posSectionFieldWinal.top,
                                   left: posSectionFieldWinal.left,
                                   child: Transform.rotate(
-                                      angle: 360 /
-                                          365 *
-                                          (10 + i * 20) /
-                                          180 *
-                                          pi, // TODO short calculation if possible
+                                      angle: 4 *
+                                          pi *
+                                          (2 * i + 1) /
+                                          73, // [x] calculation correct
                                       origin: offsetSectionFieldWinal,
                                       child: SizedBox(
                                           height: sizeSectionFieldWinal.height,
@@ -2055,10 +2053,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                       posImageToneWhiteFlatCenter
                                                           .left,
                                                   child: Transform.rotate(
-                                                      angle: (-360 / 365 * 10 +
-                                                              360 / 365 * j) /
-                                                          180 *
-                                                          pi,
+                                                      angle: 2 *
+                                                          pi *
+                                                          (j - 10) /
+                                                          365, // [x] calculation correct
                                                       origin:
                                                           offsetImageToneWhiteFlatCenter,
                                                       child: SizedBox(
@@ -2073,10 +2071,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                   top: posBoxTextWinal.top,
                                                   left: posBoxTextWinal.left,
                                                   child: Transform.rotate(
-                                                      angle: (-360 / 365 * 10 +
-                                                              360 / 365 * j) /
-                                                          180 *
-                                                          pi,
+                                                      angle: 2 *
+                                                          pi *
+                                                          (j - 10) /
+                                                          365, // [x] calculation correct
                                                       origin:
                                                           offsetBoxTextWinal,
                                                       child: RotatedBox(
@@ -2091,14 +2089,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                               child: Center(
                                                                   child: Text(
                                                                       MayaLists()
-                                                                          .strWinal[i],
-                                                                      style: textStyleStrWinal))))))
+                                                                              .strWinal[
+                                                                          i],
+                                                                      style:
+                                                                          textStyleStrWinal))))))
                                           ])))),
                             Positioned(
                                 top: posSectionFieldWinalWayeb.top,
                                 left: posSectionFieldWinalWayeb.left,
                                 child: Transform.rotate(
-                                    angle: 360 / 365 * 362.5 / 180 * pi,
+                                    angle: 145 *
+                                        pi /
+                                        73, // [x] calculation correct
                                     origin: offsetSectionFieldWinalWayeb,
                                     child: SizedBox(
                                         height:
@@ -2124,10 +2126,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                     posImageToneWhiteFlatCenterWayeb
                                                         .left,
                                                 child: Transform.rotate(
-                                                    angle: (-360 / 365 * 2.5 +
-                                                            360 / 365 * i) /
-                                                        180 *
-                                                        pi,
+                                                    angle: pi *
+                                                        (2 * i - 5) /
+                                                        365, // [x] calculation correct
                                                     origin:
                                                         offsetImageToneWhiteFlatCenterWayeb,
                                                     child: SizedBox(
@@ -2145,10 +2146,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                   posImageToneWhiteFlatCenterWayeb
                                                       .left,
                                               child: Transform.rotate(
-                                                  angle: (-360 / 365 * 2.5 +
-                                                          360 / 365 * 5) /
-                                                      180 *
-                                                      pi,
+                                                  angle: pi /
+                                                      73, // [x] calculation correct
                                                   origin:
                                                       offsetImageToneWhiteFlatCenterWayeb,
                                                   child: SizedBox(
@@ -2163,10 +2162,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                 top: posBoxTextWinalWayeb.top,
                                                 left: posBoxTextWinalWayeb.left,
                                                 child: Transform.rotate(
-                                                    angle: (-360 / 365 * 2.5 +
-                                                            360 / 365 * i) /
-                                                        180 *
-                                                        pi,
+                                                    angle: pi *
+                                                        (2 * i - 5) /
+                                                        365, // [x] calculation correct
                                                     origin:
                                                         offsetBoxTextWinalWayeb,
                                                     child: RotatedBox(
@@ -2181,16 +2179,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                             child: Center(
                                                                 child: Text(
                                                                     MayaLists()
-                                                                        .strWinal[18],
-                                                                    style: textStyleStrWinal)))))),
+                                                                            .strWinal[
+                                                                        18],
+                                                                    style:
+                                                                        textStyleStrWinal)))))),
                                           Positioned(
                                               top: posBoxTextWinalWayeb.top,
                                               left: posBoxTextWinalWayeb.left,
                                               child: Transform.rotate(
-                                                  angle: (-360 / 365 * 2.5 +
-                                                          360 / 365 * 5) /
-                                                      180 *
-                                                      pi,
+                                                  angle: pi /
+                                                      73, // [x] calculation correct
                                                   origin:
                                                       offsetBoxTextWinalWayeb,
                                                   child: RotatedBox(
@@ -2216,9 +2214,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   left: posWheelHaab.left,
                   child: Transform.rotate(
                       angle: offsetGearHaab -
-                          (angleTime + finalAngle) * 20 / 365 +
-                          (1 / 365) *
-                              pi, // TODO: check if calculation is correct
+                          4 * (angleTime + finalAngle) / 73 +
+                          pi / 365, // [x] calculation correct
                       child: SizedBox(
                           height: sizeWheelHaab.height,
                           width: sizeWheelHaab.width,
@@ -2226,7 +2223,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               builder: (context, data, child) {
                             return Stack(children: [
                               for (int i = -20; i < 21; i++)
-                                if (inticators(i, data.mayaData))
+                                if (indicator(i, data.mayaData))
                                   Positioned(
                                       top: posFrame.top,
                                       left: posFrame.left,
@@ -2453,10 +2450,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         alignment: const Alignment(0.904, 0),
                                         child: Transform.rotate(
                                             origin: offsetSignNahual,
-                                            angle: -1 / 10 * pi * i -
-                                                1 /
-                                                    20 *
-                                                    pi, // TODO: check if calculation is correct
+                                            angle: pi *
+                                                (-2 * i - 1) /
+                                                20, // [x] calculation correct
                                             child: SizedBox(
                                                 height: sizeSignNahual.height,
                                                 width: sizeSignNahual.width,
@@ -2698,13 +2694,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     (angleTime + finalAngle) / 13 * 20) *
                                 180 /
                                 pi) %
-                            360); // TODO: check if calculation is correct
+                            360); // [x] calculation correct
                         int sNahual = getNahuales(
                             ((offsetGearNahuales + angleTime + finalAngle) *
                                     180 /
                                     pi) %
-                                360); // TODO: check if calculation is correct
-                        int cKinIndex = getKinNummber(sTone, sNahual);
+                                360); // [x] calculation correct
+                        int cKinIndex = getKinNumber(sTone, sNahual);
 
                         Navigator.push(
                             context,
@@ -2715,26 +2711,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     cKinIndex: cKinIndex)));
                       },
                       onLongPress: () {
-                        int chosenTone = getTone(
-                            ((offsetGearTones + angleTime + finalAngle) *
-                                    180 /
-                                    pi /
-                                    13 *
-                                    20) %
-                                360); // TODO: check if calculation is correct
+                        int chosenTone = getTone(((offsetGearTones +
+                                    (angleTime + finalAngle) / 13 * 20) *
+                                180 /
+                                pi) %
+                            360); // [x] calculation correct
 
                         int chosenNahual = getNahuales(
                             ((offsetGearNahuales + angleTime + finalAngle) *
                                     180 /
                                     pi) %
-                                360); // TODO: check if calculation is correct
+                                360); // [x] calculation correct
 
                         Navigator.push(
                             context,
                             PageRouteBuilder(
                                 opaque: false,
                                 pageBuilder: (BuildContext context, __, _) =>
-                                    CharacterChoise(
+                                    CharacterChoice(
                                         backgroundImage: backgroundImage,
                                         mainColor: mainColor,
                                         chosenTone: chosenTone,
@@ -2767,7 +2761,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                 20) *
                                         180 /
                                         pi) %
-                                    360); // TODO: check if calculation is correct
+                                    360); // [x] calculation correct
 
                                 int chosenNahual = getNahuales(
                                     ((offsetGearNahuales +
@@ -2775,14 +2769,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                 finalAngle) *
                                             180 /
                                             pi) %
-                                        360); // TODO: check if calculation is correct
+                                        360); // [x] calculation correct
 
-                                int dYear = getDeldaYear((-offsetGearHaab *
+                                int dYear = getDeltaYear((-offsetGearHaab *
                                             9 /
                                             pi +
                                         ((angleTime + finalAngle) * 180 / pi) /
                                             365) *
-                                    20); // TODO: check if calculation is correct
+                                    20); // [ ] calculation correct
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
@@ -2825,7 +2819,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                 20) *
                                         180 /
                                         pi) %
-                                    360); // TODO: check if calculation is correct
+                                    360); // [x] calculation correct
 
                                 int chosenNahual = getNahuales(
                                     ((offsetGearNahuales +
@@ -2833,14 +2827,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                                 finalAngle) *
                                             180 /
                                             pi) %
-                                        360); // TODO: check if calculation is correct
+                                        360); // [x] calculation correct
 
-                                int dYear = getDeldaYear((-offsetGearHaab *
+                                int dYear = getDeltaYear((-offsetGearHaab *
                                             9 /
                                             pi +
                                         ((angleTime + finalAngle) * 180 / pi) /
                                             365) *
-                                    20); // TODO: check if calculation is correct
+                                    20); // [ ] calculation correct
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
@@ -2875,7 +2869,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               },
                               child: Text(strTextToneNahual,
                                   textAlign: TextAlign.center,
-                                  style: texttextStyleToneNahual))))),
+                                  style: textStyleToneNahual))))),
               Stack(children: [
                 Positioned(
                     top: posBoxLongCount.top,

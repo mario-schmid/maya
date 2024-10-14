@@ -1,4 +1,4 @@
-int getKinNummber(int tone, int nahual) {
+int getKinNumber(int tone, int nahual) {
   List<List<int>> array = [
     [0, 0],
     [1, 1],

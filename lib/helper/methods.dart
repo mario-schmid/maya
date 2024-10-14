@@ -5,7 +5,7 @@ import 'package:maya/providers/dayitems.dart';
 import 'package:maya/providers/mayadata.dart';
 
 class Methods {
-  int getDeldaYear(double angle) {
+  int getDeltaYear(double angle) {
     int dYear = 0;
     if (angle >= -180 / 365) {
       dYear = (angle + 180 / 365) / (360 / 365) ~/ 365;
@@ -19,7 +19,7 @@ class Methods {
     return [haabDays % 20, haabDays ~/ 20];
   }
 
-  int getKinNummber(int tone, int nahual) {
+  int getKinNumber(int tone, int nahual) {
     List<List<int>> array = [
       [0, 0],
       [1, 1],
@@ -373,9 +373,9 @@ class Methods {
         .arrayIndex[yearIndex][dayIndex][2]
         .insert(newIndex, arrangementItem);
 
-    int nummberItem =
+    int numberItem =
         Globals().arrayIndex[yearIndex][dayIndex][3].removeAt(oldIndex);
-    Globals().arrayIndex[yearIndex][dayIndex][3].insert(newIndex, nummberItem);
+    Globals().arrayIndex[yearIndex][dayIndex][3].insert(newIndex, numberItem);
 
     setIndex(yearIndex, dayIndex);
 
