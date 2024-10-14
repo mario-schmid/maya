@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'helper/maya_images.dart';
+
+import '../helper/maya_images.dart';
 
 Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
     Color mainColor, int tone, int nahual) {

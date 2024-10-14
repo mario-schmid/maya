@@ -4,15 +4,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:maya/providers/dayitems.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'helper/maya_images.dart';
-import 'helper/maya_lists.dart';
-import 'maya_cross_container.dart';
-import 'methods/update_list.dart';
-import 'selection_dialog.dart';
+import '../helper/maya_images.dart';
+import '../helper/maya_lists.dart';
+import '../maya_cross_container.dart';
+import '../methods/update_list.dart';
+import '../providers/dayitems.dart';
+import '../selection_dialog.dart';
 
 class TheYear extends StatefulWidget {
   final ImageProvider backgroundImage;

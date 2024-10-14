@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:maya/helper/maya_images.dart';
+
+import '../helper/maya_images.dart';
 
 class RandomCharacter extends StatefulWidget {
   final ImageProvider backgroundImage;

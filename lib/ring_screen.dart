@@ -1,9 +1,10 @@
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:maya/database_handler.dart';
-import 'package:maya/globals.dart';
-import 'package:maya/providers/mayadata.dart';
 import 'package:provider/provider.dart';
+
+import '../database_handler.dart';
+import '../globals.dart';
+import '../providers/mayadata.dart';
 
 class AlarmRingScreen extends StatelessWidget {
   final AlarmSettings alarmSettings;

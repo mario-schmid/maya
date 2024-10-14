@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:alarm/alarm.dart';
-import 'package:alarm/alarm.dart' as alarm_prefix;
+import 'package:alarm/alarm.dart' as maya_alarm;
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
@@ -15,23 +14,6 @@ import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:maya/character_choice.dart';
-import 'package:maya/data/maya_alarm.dart';
-import 'package:maya/data/maya_day.dart';
-import 'package:maya/data/maya_event.dart';
-import 'package:maya/data/maya_task.dart';
-import 'package:maya/date_selection.dart';
-import 'package:maya/helper/maya_images.dart';
-import 'package:maya/helper/maya_lists.dart';
-import 'package:maya/helper/maya_style.dart';
-import 'package:maya/helper/methods.dart';
-import 'package:maya/methods/get_delta_year.dart';
-import 'package:maya/methods/get_text_size.dart';
-import 'package:maya/providers/dayitems.dart';
-import 'package:maya/providers/mayadata.dart';
-import 'package:maya/random_character.dart';
-import 'package:maya/relationship.dart';
-import 'package:maya/ring_screen.dart';
 import 'package:moon_phase_plus/moon_phase_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -39,19 +21,36 @@ import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'cholqij.dart';
-import 'classes/position.dart';
-import 'color_picker.dart';
-import 'database_handler.dart';
-import 'date_calculator.dart';
-import 'helper/locale_string.dart';
-import 'maya_items.dart';
-import 'methods/get_kin_number.dart';
-import 'methods/get_nahual.dart';
-import 'methods/get_tone.dart';
-import 'the_day.dart';
-import 'the_year.dart';
-import 'time_format.dart';
+import '../character_choice.dart';
+import '../cholqij.dart';
+import '../classes/position.dart';
+import '../color_picker.dart';
+import '../data/maya_alarm.dart';
+import '../data/maya_day.dart';
+import '../data/maya_event.dart';
+import '../data/maya_task.dart';
+import '../database_handler.dart';
+import '../date_calculator.dart';
+import '../date_selection.dart';
+import '../helper/locale_string.dart';
+import '../helper/maya_images.dart';
+import '../helper/maya_lists.dart';
+import '../helper/maya_style.dart';
+import '../maya_items.dart';
+import '../methods/get_delta_year.dart';
+import '../methods/get_kin_number.dart';
+import '../methods/get_nahual.dart';
+import '../methods/get_text_size.dart';
+import '../methods/get_tone.dart';
+import '../methods/get_tone_nahual.dart';
+import '../providers/dayitems.dart';
+import '../providers/mayadata.dart';
+import '../random_character.dart';
+import '../relationship.dart';
+import '../ring_screen.dart';
+import '../the_day.dart';
+import '../the_year.dart';
+import '../time_format.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -229,7 +228,7 @@ Future<void> main() async {
     }
   });
 
-  await Alarm.init();
+  await maya_alarm.Alarm.init();
   runApp(const MayaApp());
 }
 
@@ -399,7 +398,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   DateTime now = DateTime.now();
 
-  //TODO: remove in the future
+  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
   Future<bool> adjustDatabase = updateYear();
 
   final Future<Iterable<List<Object?>>> _eventList =
@@ -514,8 +513,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/trecenaYellow.png')
   ];
 
-  late List<AlarmSettings> alarms;
-  static StreamSubscription<AlarmSettings>? subscription;
+  late List<maya_alarm.AlarmSettings> alarms;
+  static StreamSubscription<maya_alarm.AlarmSettings>? subscription;
   /*                                                                          */
   /* Variables - END                                                           */
   /* ------------------------------------------------------------------------ */
@@ -534,11 +533,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     });
     // Clock END
 
-    if (Alarm.android) {
+    if (maya_alarm.Alarm.android) {
       checkAndroidNotificationPermission();
       checkAndroidScheduleExactAlarmPermission();
     }
-    subscription ??= Alarm.ringStream.stream.listen(
+    subscription ??= maya_alarm.Alarm.ringStream.stream.listen(
       (alarmSettings) => navigateToRingScreen(alarmSettings),
     );
 
@@ -553,7 +552,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     startDate = DateTime.parse('2013-02-21 00:00:00');
 
-    // TODO: remove in the future
+    // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await adjustDatabase) {
         await showDialog(
@@ -665,7 +664,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
 
       MayaData().mayaData[alarm[0]][alarm[1]].alarmList.add(MayaAlarm(
-          AlarmSettings(
+          maya_alarm.AlarmSettings(
               id: alarm[3],
               dateTime: dateTimeformat.parse(alarm[4]),
               assetAudioPath: alarm[5],
@@ -673,7 +672,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               vibrate: alarm[7] == 0 ? false : true,
               volume: alarm[8],
               fadeDuration: alarm[9],
-              notificationSettings: alarm_prefix.NotificationSettings(
+              notificationSettings: maya_alarm.NotificationSettings(
                   title: alarm[10], body: alarm[11]),
               warningNotificationOnKill: alarm[12] == 0 ? false : true),
           alarm[13] == 0 ? false : true));
@@ -737,7 +736,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   newListItem: false,
                   index: o)
               .alarm(
-                  AlarmSettings(
+                  maya_alarm.AlarmSettings(
                       id: alarmList[o][3],
                       dateTime: dateTimeformat.parse(alarmList[o][4]),
                       assetAudioPath: alarmList[o][5],
@@ -745,7 +744,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       vibrate: alarmList[o][7] == 0 ? false : true,
                       volume: alarmList[o][8],
                       fadeDuration: alarmList[o][9],
-                      notificationSettings: alarm_prefix.NotificationSettings(
+                      notificationSettings: maya_alarm.NotificationSettings(
                           title: alarmList[o][10], body: alarmList[o][11]),
                       warningNotificationOnKill:
                           alarmList[o][12] == 0 ? false : true),
@@ -866,7 +865,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* navigateToRingScreen                                                     */
   /*                                                                          */
-  Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
+  Future<void> navigateToRingScreen(
+      maya_alarm.AlarmSettings alarmSettings) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -2471,7 +2471,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         int character = Random().nextInt(260);
 
                         List<int> toneNahual =
-                            Methods().getToneNahual(character + 150 % 260);
+                            getToneNahual(character + 150 % 260);
 
                         Navigator.push(
                             context,
@@ -2776,7 +2776,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             pi +
                                         ((angleTime + finalAngle) * 180 / pi) /
                                             365) *
-                                    20); // [ ] calculation correct
+                                    20); // [x] calculation correct
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
@@ -2834,7 +2834,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             pi +
                                         ((angleTime + finalAngle) * 180 / pi) /
                                             365) *
-                                    20); // [ ] calculation correct
+                                    20); // [x] calculation correct
 
                                 DateTime chosenGregorianDate = startDate.add(
                                     Duration(
@@ -2978,11 +2978,11 @@ deleteBgImagePath() async {
 
 Future<void> checkAndroidScheduleExactAlarmPermission() async {
   final status = await Permission.scheduleExactAlarm.status;
-  alarmPrint('Schedule exact alarm permission: $status.');
+  maya_alarm.alarmPrint('Schedule exact alarm permission: $status.');
   if (status.isDenied) {
-    alarmPrint('Requesting schedule exact alarm permission...');
+    maya_alarm.alarmPrint('Requesting schedule exact alarm permission...');
     final res = await Permission.scheduleExactAlarm.request();
-    alarmPrint(
+    maya_alarm.alarmPrint(
       'Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.',
     );
   }
@@ -2991,9 +2991,9 @@ Future<void> checkAndroidScheduleExactAlarmPermission() async {
 Future<void> checkAndroidNotificationPermission() async {
   final status = await Permission.notification.status;
   if (status.isDenied) {
-    alarmPrint('Requesting notification permission...');
+    maya_alarm.alarmPrint('Requesting notification permission...');
     final res = await Permission.notification.request();
-    alarmPrint(
+    maya_alarm.alarmPrint(
       'Notification permission ${res.isGranted ? '' : 'not '}granted.',
     );
   }
@@ -3037,7 +3037,7 @@ Future<void> _launchGithub() async {
   }
 }
 
-//TODO: remove in the future
+// NOTE: this code is for database adjustments (like the index numbers or the years etc.)
 Future<bool> updateYear() async {
   bool adjustDatabase = await readAdjustDatabase() == 'true' ? true : false;
   if (adjustDatabase) {
@@ -3058,14 +3058,14 @@ Future<bool> updateYear() async {
   }
 }
 
-//TODO: remove in the future
+// NOTE: this code is for database adjustments (like the index numbers or the years etc.)
 Future<Object> readAdjustDatabase() async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'adjustDatabase';
   return prefs.getString(key) ?? 'true';
 }
 
-//TODO: remove in the future
+// NOTE: this code is for database adjustments (like the index numbers or the years etc.)
 saveAdjustDatabase(String adjustDatabase) async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'adjustDatabase';

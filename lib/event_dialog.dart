@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:maya/helper/maya_style.dart';
-import 'package:maya/time_format.dart';
 import 'package:provider/provider.dart';
 
-import 'maya_items.dart';
-import 'providers/dayitems.dart';
+import '../helper/maya_style.dart';
+import '../maya_items.dart';
+import '../providers/dayitems.dart';
+import '../time_format.dart';
 
 class EventDialog extends StatefulWidget {
   final Color mainColor;

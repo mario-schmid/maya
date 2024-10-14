@@ -6,14 +6,14 @@ import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:maya/helper/maya_style.dart';
-import 'package:maya/methods/get_text_size.dart';
-import 'package:maya/time_format.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'maya_items.dart';
-import 'providers/dayitems.dart';
+import '../helper/maya_style.dart';
+import '../maya_items.dart';
+import '../methods/get_text_size.dart';
+import '../providers/dayitems.dart';
+import '../time_format.dart';
 
 class ADialog extends StatefulWidget {
   final Color mainColor;

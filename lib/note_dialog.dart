@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:maya/helper/maya_style.dart';
 import 'package:provider/provider.dart';
 
-import 'maya_items.dart';
-import 'providers/dayitems.dart';
+import '../helper/maya_style.dart';
+import '../maya_items.dart';
+import '../providers/dayitems.dart';
 
 class NoteDialog extends StatefulWidget {
   final Color mainColor;

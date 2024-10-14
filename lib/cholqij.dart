@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'helper/maya_images.dart';
-import 'maya_cross_container.dart';
+import '../helper/maya_images.dart';
+import '../maya_cross_container.dart';
 
 class Cholqij extends StatefulWidget {
   final ImageProvider backgroundImage;

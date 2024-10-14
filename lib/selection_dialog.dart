@@ -1,15 +1,15 @@
-import 'package:alarm/alarm.dart';
 import 'package:alarm/alarm.dart' as alarm_prefix;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'event_dialog.dart';
-import 'note_dialog.dart';
-import 'task_dialog.dart';
-import 'alarm_dialog.dart';
+
+import '../alarm_dialog.dart';
+import '../event_dialog.dart';
+import '../note_dialog.dart';
+import '../task_dialog.dart';
 
 Center selectionDialog(BuildContext context, Color mainColor, int yearIndex,
     int dayIndex, DateTime dateTime) {
-  const TextStyle textstyle = TextStyle(
+  const TextStyle textStyle = TextStyle(
       fontFamily: 'Roboto',
       color: Colors.white,
       fontSize: 24,
@@ -58,7 +58,7 @@ Center selectionDialog(BuildContext context, Color mainColor, int yearIndex,
                                             flagCreateChange: true);
                                       });
                                 },
-                                child: Text('Event'.tr, style: textstyle))))),
+                                child: Text('Event'.tr, style: textStyle))))),
                 SizedBox(
                     height: 60,
                     width: 200,
@@ -91,7 +91,7 @@ Center selectionDialog(BuildContext context, Color mainColor, int yearIndex,
                                             flagCreateChange: true);
                                       });
                                 },
-                                child: Text('Note'.tr, style: textstyle))))),
+                                child: Text('Note'.tr, style: textStyle))))),
                 SizedBox(
                     height: 60,
                     width: 200,
@@ -124,7 +124,7 @@ Center selectionDialog(BuildContext context, Color mainColor, int yearIndex,
                                             flagCreateChange: true);
                                       });
                                 },
-                                child: Text('Task'.tr, style: textstyle))))),
+                                child: Text('Task'.tr, style: textStyle))))),
                 SizedBox(
                     height: 60,
                     width: 200,
@@ -153,24 +153,25 @@ Center selectionDialog(BuildContext context, Color mainColor, int yearIndex,
                                             mainColor: mainColor,
                                             yearIndex: yearIndex,
                                             dayIndex: dayIndex,
-                                            alarmSettings: AlarmSettings(
-                                                id: 0,
-                                                dateTime: dateTime,
-                                                assetAudioPath: '',
-                                                loopAudio: true,
-                                                vibrate: false,
-                                                volume: 0.5,
-                                                fadeDuration: 0.5,
-                                                notificationSettings:
-                                                    alarm_prefix
-                                                        .NotificationSettings(
-                                                            title: '',
-                                                            body: ''),
-                                                warningNotificationOnKill:
-                                                    true),
+                                            alarmSettings:
+                                                alarm_prefix.AlarmSettings(
+                                                    id: 0,
+                                                    dateTime: dateTime,
+                                                    assetAudioPath: '',
+                                                    loopAudio: true,
+                                                    vibrate: false,
+                                                    volume: 0.5,
+                                                    fadeDuration: 0.5,
+                                                    notificationSettings:
+                                                        alarm_prefix
+                                                            .NotificationSettings(
+                                                                title: '',
+                                                                body: ''),
+                                                    warningNotificationOnKill:
+                                                        true),
                                             flagCreateChange: true);
                                       });
                                 },
-                                child: Text('Alarm'.tr, style: textstyle)))))
+                                child: Text('Alarm'.tr, style: textStyle)))))
               ])));
 }

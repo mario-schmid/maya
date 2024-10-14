@@ -66,7 +66,7 @@ class DatabaseHandlerEvents {
     return eventList;
   }
 
-  //TODO: remove in the future
+  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
   Future<bool> updateYear() async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> eventResult = await db.query('events');
@@ -155,7 +155,7 @@ class DatabaseHandlerNotes {
     return noteList;
   }
 
-  //TODO: remove in the future
+  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
   Future<bool> updateYear() async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> noteResult = await db.query('notes');
@@ -259,7 +259,7 @@ class DatabaseHandlerTasks {
     return taskList;
   }
 
-  //TODO: remove in the future
+  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
   Future<bool> updateYear() async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> taskResult = await db.query('tasks');
@@ -401,7 +401,7 @@ class DatabaseHandlerAlarms {
     return alarmList;
   }
 
-  //TODO: remove in the future
+  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
   Future<bool> updateYear() async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> alarmResult = await db.query('alarms');
@@ -478,7 +478,7 @@ class DatabaseHandlerArrangements {
     return arrangementList;
   }
 
-  //TODO: remove in the future
+  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
   Future<bool> updateYear() async {
     final Database db = await initializeDB();
     final List<Map<String, Object?>> arrangementResult =

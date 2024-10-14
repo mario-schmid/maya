@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/helper/maya_style.dart';
 
-import 'helper/maya_lists.dart';
-import 'maya_cross_container.dart';
-import 'methods/get_haab_date.dart';
-import 'methods/get_tone_nahual.dart';
+import '../helper/maya_lists.dart';
+import '../maya_cross_container.dart';
+import '../methods/get_haab_date.dart';
+import '../methods/get_tone_nahual.dart';
 
 class DateCalculator extends StatefulWidget {
   final ImageProvider backgroundImage;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:maya/helper/maya_images.dart';
-import 'package:maya/helper/maya_lists.dart';
-import 'package:maya/methods/get_haab_date.dart';
-import 'package:maya/the_day.dart';
+
+import '../helper/maya_images.dart';
+import '../helper/maya_lists.dart';
+import '../methods/get_haab_date.dart';
+import '../the_day.dart';
 
 class DateSelection extends StatefulWidget {
   final ImageProvider backgroundImage;

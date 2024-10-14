@@ -4,15 +4,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:maya/methods/get_haab_date.dart';
 import 'package:provider/provider.dart';
 
-import 'helper/maya_images.dart';
-import 'maya_cross_container.dart';
-import 'methods/get_kin_number.dart';
-import 'methods/update_list.dart';
-import 'providers/dayitems.dart';
-import 'selection_dialog.dart';
+import '../helper/maya_images.dart';
+import '../maya_cross_container.dart';
+import '../methods/get_haab_date.dart';
+import '../methods/get_kin_number.dart';
+import '../methods/update_list.dart';
+import '../providers/dayitems.dart';
+import '../selection_dialog.dart';
 
 class TheDay extends StatefulWidget {
   final ImageProvider backgroundImage;

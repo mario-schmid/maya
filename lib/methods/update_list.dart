@@ -24,9 +24,9 @@ void updateList(int oldIndex, int newIndex, int yearIndex, int dayIndex) {
       .arrayIndex[yearIndex][dayIndex][2]
       .insert(newIndex, arrangementItem);
 
-  int nummberItem =
+  int numberItem =
       Globals().arrayIndex[yearIndex][dayIndex][3].removeAt(oldIndex);
-  Globals().arrayIndex[yearIndex][dayIndex][3].insert(newIndex, nummberItem);
+  Globals().arrayIndex[yearIndex][dayIndex][3].insert(newIndex, numberItem);
 
   setIndex(yearIndex, dayIndex);
 

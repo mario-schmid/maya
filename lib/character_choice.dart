@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:maya/helper/maya_images.dart';
-import 'package:maya/maya_cross_container.dart';
+
+import '../helper/maya_images.dart';
+import '../maya_cross_container.dart';
 
 class CharacterChoice extends StatefulWidget {
   final ImageProvider backgroundImage;

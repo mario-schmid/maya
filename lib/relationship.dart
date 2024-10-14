@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:arrow_path/arrow_path.dart';
 
-import 'helper/maya_images.dart';
+import '../helper/maya_images.dart';
 
 class Relationship extends StatefulWidget {
   final ImageProvider backgroundImage;
