@@ -19,9 +19,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../character_choice.dart';
+import '../chat/splash_page.dart';
 import '../cholqij.dart';
 import '../classes/position.dart';
 import '../color_picker.dart';
@@ -227,6 +229,20 @@ Future<void> main() async {
       }
     }
   });
+
+  // NOTE: initialize supabase
+  try {
+    String supabaseString = await rootBundle.loadString('assets/supabase.json');
+    Map<String, dynamic> supabaseMap = jsonDecode(supabaseString);
+
+    await Supabase.initialize(
+      url: supabaseMap['url'],
+      anonKey: supabaseMap['anonKey'],
+    );
+  } catch (_) {
+    // NOTE: if no configuration file has been created, supabase will not start
+    return;
+  }
 
   await maya_alarm.Alarm.init();
   runApp(const MayaApp());
@@ -2338,7 +2354,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 }
 
                                 // increase Tone Name, Nahual Name and the Long Count
-                                if (finalAngle * 180 / pi > 18 * nAngle + 9) {
+                                if ((angleTime + finalAngle) * 180 / pi >
+                                    18 * nAngle + 18) {
                                   sTone++;
                                   sNahual++;
                                   nAngle++;
@@ -2373,7 +2390,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 }
 
                                 // decrease Tone Name, Nahual Name and the Long Count
-                                if (finalAngle * 180 / pi < 18 * nAngle - 9) {
+                                if ((angleTime + finalAngle) * 180 / pi <
+                                    18 * nAngle) {
                                   sTone--;
                                   sNahual--;
                                   nAngle--;
@@ -2467,22 +2485,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       onTap: () {
                         reset();
                       },
-                      onLongPress: () {
-                        int character = Random().nextInt(260);
+                      onLongPress: () async {
+                        try {
+                          String supabaseString = await rootBundle
+                              .loadString('assets/supabase.json');
 
-                        List<int> toneNahual =
-                            getToneNahual(character + 150 % 260);
-
-                        Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                                opaque: false,
-                                pageBuilder: (BuildContext context, __, _) =>
-                                    RandomCharacter(
-                                        backgroundImage: backgroundImage,
-                                        mainColor: mainColor,
-                                        tone: toneNahual[0],
-                                        nahual: toneNahual[1])));
+                          Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                  pageBuilder: (BuildContext context, __, _) =>
+                                      SplashPage(mainColor: mainColor)));
+                        } catch (_) {
+                          // NOTE: if no configuration file has been created, supabase will not start
+                          return;
+                        }
                       },
                       child: Image.asset("assets/images/shape_button_moon.png",
                           height: sizeButtonReset.height,
@@ -2596,6 +2612,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 builder: (context) => Relationship(
                                     backgroundImage: backgroundImage,
                                     mainColor: mainColor)));
+                      },
+                      onLongPress: () {
+                        int character = Random().nextInt(260);
+
+                        List<int> toneNahual =
+                            getToneNahual(character + 150 % 260);
+
+                        Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                                opaque: false,
+                                pageBuilder: (BuildContext context, __, _) =>
+                                    RandomCharacter(
+                                        backgroundImage: backgroundImage,
+                                        mainColor: mainColor,
+                                        tone: toneNahual[0],
+                                        nahual: toneNahual[1])));
                       },
                       child: Image.asset(
                           'assets/images/shape_button_left_top.png',
