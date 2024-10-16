@@ -25,7 +25,7 @@
 <p align="center">
     <img src=".github/images/relationships.jpg" width="30%">
     <img src=".github/images/calculator.jpg" width="30%">
-    <img src=".github/images/calculation.jpg" width="30%">
+    <img src=".github/images/chat.jpg" width="30%">
 </p>
 
 <p align="center">
