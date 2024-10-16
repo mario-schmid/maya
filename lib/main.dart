@@ -241,7 +241,6 @@ Future<void> main() async {
     );
   } catch (_) {
     // NOTE: if no configuration file has been created, supabase will not start
-    return;
   }
 
   await maya_alarm.Alarm.init();
@@ -414,7 +413,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   DateTime now = DateTime.now();
 
-  // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
+  // NOTE: this code is for database adjustments
   Future<bool> adjustDatabase = updateYear();
 
   final Future<Iterable<List<Object?>>> _eventList =
@@ -568,7 +567,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     startDate = DateTime.parse('2013-02-21 00:00:00');
 
-    // NOTE: this code is for database adjustments (like the index numbers or the years etc.)
+    // NOTE: this code is for database adjustments
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await adjustDatabase) {
         await showDialog(
@@ -2497,7 +2496,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       SplashPage(mainColor: mainColor)));
                         } catch (_) {
                           // NOTE: if no configuration file has been created, supabase will not start
-                          return;
                         }
                       },
                       child: Image.asset("assets/images/shape_button_moon.png",
@@ -3070,7 +3068,7 @@ Future<void> _launchGithub() async {
   }
 }
 
-// NOTE: this code is for database adjustments (like the index numbers or the years etc.)
+// NOTE: this code is for database adjustments
 Future<bool> updateYear() async {
   bool adjustDatabase = await readAdjustDatabase() == 'true' ? true : false;
   if (adjustDatabase) {
@@ -3091,14 +3089,14 @@ Future<bool> updateYear() async {
   }
 }
 
-// NOTE: this code is for database adjustments (like the index numbers or the years etc.)
+// NOTE: this code is for database adjustments
 Future<Object> readAdjustDatabase() async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'adjustDatabase';
   return prefs.getString(key) ?? 'true';
 }
 
-// NOTE: this code is for database adjustments (like the index numbers or the years etc.)
+// NOTE: this code is for database adjustments
 saveAdjustDatabase(String adjustDatabase) async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'adjustDatabase';

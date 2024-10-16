@@ -173,10 +173,9 @@ class _MessageBarState extends State<_MessageBar> {
 
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble({
-    Key? key,
     required this.message,
     required this.profile,
-  }) : super(key: key);
+  });
 
   final Message message;
   final Profile? profile;
