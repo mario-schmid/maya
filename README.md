@@ -33,3 +33,9 @@
         <img src="https://cdn.rawgit.com/steverichey/google-play-badge-svg/master/img/en_get.svg" width="40%">
     </a>
 </p>
+
+<p align="center">
+    <a href="https://play.google.com/store/apps/details?id=com.software.maya">
+        <img src=".github/images/qr-code.png" width="36%">
+    </a>
+</p>
