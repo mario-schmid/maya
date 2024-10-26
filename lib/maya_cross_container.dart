@@ -5,36 +5,36 @@ import '../helper/maya_images.dart';
 
 Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
     Color mainColor, int tone, int nahual) {
-  BoxDecoration mainBoxDecoration = BoxDecoration(
+  final BoxDecoration mainBoxDecoration = BoxDecoration(
     image: DecorationImage(image: backgroundImage, fit: BoxFit.cover),
     border: Border.all(color: Colors.white, width: size.width * 0.0028),
     borderRadius: BorderRadius.circular(10),
     shape: BoxShape.rectangle,
   );
 
-  BoxDecoration boxDecoration = BoxDecoration(
+  final boxDecoration = BoxDecoration(
     color: mainColor.withOpacity(0.5),
     border: Border.all(color: Colors.white, width: size.width * 0.0028),
     borderRadius: BorderRadius.circular(10),
     shape: BoxShape.rectangle,
   );
 
-  TextStyle textStyle = TextStyle(
+  final TextStyle textStyle = TextStyle(
       fontFamily: 'Roboto',
       color: Colors.white,
       fontSize: size.width * 0.03,
       fontWeight: FontWeight.normal,
       decoration: TextDecoration.none);
 
-  Size sizeContainer = Size(size.width * 0.25, size.width * 0.25);
-  double heightTone = size.width * 0.058;
-  double heightNahual = size.width * 0.155;
-  double paddingToneNahual = size.width * 0.01;
-  double padding = size.width * 0.01;
-  double sizeTextBox = size.width * 0.0922;
+  final Size sizeContainer = Size(size.width * 0.25, size.width * 0.25);
+  final double heightTone = size.width * 0.058;
+  final double heightNahual = size.width * 0.155;
+  final double paddingToneNahual = size.width * 0.01;
+  final double padding = size.width * 0.01;
+  final double sizeTextBox = size.width * 0.0922;
 
-  List<int> tonesDirections = getDirectionTones(tone);
-  List<int> nahualesDirections = getDirectionsNahuales(nahual);
+  final List<int> tonesDirections = getDirectionTones(tone);
+  final List<int> nahualesDirections = getDirectionsNahuales(nahual);
 
   return Container(
       decoration: mainBoxDecoration,
