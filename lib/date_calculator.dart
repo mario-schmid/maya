@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:maya/methods/get_text_size.dart';
 import 'package:maya/helper/maya_style.dart';
+import 'package:maya/methods/get_text_size.dart';
 
 import '../helper/maya_lists.dart';
 import '../maya_cross_container.dart';
@@ -47,10 +47,10 @@ class _HomeState extends State<DateCalculator> {
                 child: Stack(children: [
                   Positioned(
                       top: 200,
-                      left: size.width / 6.428571429 /*56*/,
+                      left: size.width / 6.428571429,
                       child: SizedBox(
                           height: 50,
-                          width: size.width / 4.5 /*80*/,
+                          width: size.width / 4.5,
                           child: TextField(
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
@@ -77,10 +77,10 @@ class _HomeState extends State<DateCalculator> {
                               controller: controllerDay))),
                   Positioned(
                       top: 200,
-                      left: size.width / 2.571428571 /*140*/,
+                      left: size.width / 2.571428571,
                       child: SizedBox(
                           height: 50,
-                          width: size.width / 4.5 /*80*/,
+                          width: size.width / 4.5,
                           child: TextField(
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
@@ -106,10 +106,10 @@ class _HomeState extends State<DateCalculator> {
                               controller: controllerMonth))),
                   Positioned(
                       top: 200,
-                      left: size.width / 1.607142857 /*224*/,
+                      left: size.width / 1.607142857,
                       child: SizedBox(
                           height: 50,
-                          width: size.width / 4.5 /*80*/,
+                          width: size.width / 4.5,
                           child: TextField(
                               keyboardType: TextInputType.number,
                               inputFormatters: <TextInputFormatter>[
@@ -135,7 +135,7 @@ class _HomeState extends State<DateCalculator> {
                               controller: controllerYear))),
                   Positioned(
                       top: 305,
-                      left: (size.width - 150) / 2 /*105*/,
+                      left: (size.width - 150) / 2,
                       child: GestureDetector(
                           onTap: () {
                             calculateAndShowResult(size);
@@ -173,177 +173,118 @@ class _HomeState extends State<DateCalculator> {
         decoration: TextDecoration.none);
 
     try {
-      int day = int.parse(controllerDay.text);
-      int month = int.parse(controllerMonth.text);
-      int jear = int.parse(controllerYear.text);
+      final DateTime chosenDate = DateTime.utc(int.parse(controllerYear.text),
+          int.parse(controllerMonth.text), int.parse(controllerDay.text));
 
-      int january = 31;
-      int february = 28; // 29
-      int march = 31;
-      int april = 30;
-      int may = 31;
-      int june = 30;
-      int july = 31;
-      int august = 31;
-      int september = 30;
-      int october = 31;
-      int november = 30;
-      int december = 31;
+      final year = int.parse(controllerYear.text);
+      final month = int.parse(controllerMonth.text);
+      final days = int.parse(controllerDay.text);
 
-      int beginKinNr = 229;
-      int beginHaabYear = 4717;
-      int beginHaabDays = 213;
-      int beginLongCount = 1721530;
+      final daysOfFebruary =
+          year % 4 == 0 && year % 100 != 0 || year % 400 == 0 ? 29 : 28;
 
-      if (jear % 4 == 0) {
-        february = 29;
-      }
-      if (jear % 100 == 0) {
-        february = 28;
-      }
-      if (jear % 400 == 0) {
-        february = 29;
-      }
+      final List<int> daysInMonth = [
+        31,
+        daysOfFebruary,
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31
+      ];
+      if (year > 1600 && year < 2100) {
+        if (month > 0 && month <= 12) {
+          if (days > 0 && days <= daysInMonth[month - 1]) {
+            final DateTime startDate = DateTime.utc(2013, 2, 21);
+            final int startKinIndex = 221;
+            final int beginHaabYear = 5141;
 
-      if (jear < 1601 ||
-          jear > 2099 ||
-          month < 1 ||
-          month > 12 ||
-          month == 1 && (day < 1 || day > january) ||
-          month == 2 && (day < 1 || day > february) ||
-          month == 3 && (day < 1 || day > march) ||
-          month == 4 && (day < 1 || day > april) ||
-          month == 5 && (day < 1 || day > may) ||
-          month == 6 && (day < 1 || day > june) ||
-          month == 7 && (day < 1 || day > july) ||
-          month == 8 && (day < 1 || day > august) ||
-          month == 9 && (day < 1 || day > september) ||
-          month == 10 && (day < 1 || day > october) ||
-          month == 11 && (day < 1 || day > november) ||
-          month == 12 && (day < 1 || day > december)) {
-        dialog();
-      } else {
-        int days = 0;
-        for (int i = 1601; i < jear; i++) {
-          days += 365;
-          if (i % 4 == 0) {
-            days += 1;
+            int days = chosenDate.difference(startDate).inDays;
+
+            final int kinNr = (startKinIndex + days) % 260;
+            final toneNahual = getToneNahual(kinNr);
+
+            final int tone = toneNahual[0];
+            final int nahual = toneNahual[1];
+
+            int haabYear = (beginHaabYear + days / 365).floor();
+
+            final int dDays = 62;
+            final int baktun = (13 + (days + dDays) / 144000).floor() % 14;
+            final int katun = ((days + dDays) / 7200).floor() % 20;
+            final int tun = ((days - katun * 7200 + dDays) / 360).floor() % 20;
+            final int winal =
+                ((days - katun * 7200 - tun * 360 + dDays) / 20).floor() % 18;
+            final int kin =
+                (days - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
+
+            final List<int> intHaabDate = getHaabDate(days % 365);
+
+            showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return Center(
+                      child: SizedBox(
+                          height: size.width * 1.3228,
+                          child: Column(children: [
+                            Container(
+                                decoration: textBoxDecorationResult,
+                                height: size.width * 0.1,
+                                width: size.width * 0.4,
+                                child: Center(
+                                    child: Text(
+                                        '${MayaLists().strTone[tone]} ${MayaLists().strNahual[nahual]}',
+                                        style: textStyleResult))),
+                            SizedBox(height: size.width * 0.02),
+                            mayaCrossContainer(size, widget.backgroundImage,
+                                widget.mainColor, tone, nahual),
+                            SizedBox(height: size.width * 0.02),
+                            Container(
+                                decoration: textBoxDecorationResult,
+                                height: size.width * 0.1,
+                                width: size.width * 0.4,
+                                child: Center(
+                                    child: Text(
+                                        '${intHaabDate[0]} ${MayaLists().strWinal[intHaabDate[1]]} $haabYear',
+                                        style: textStyleResult))),
+                            SizedBox(height: size.width * 0.02),
+                            Container(
+                                decoration: textBoxDecorationResult,
+                                height: size.width * 0.1,
+                                width: size.width * 0.4,
+                                child: Center(
+                                    child: Text(
+                                        '$baktun.$katun.$tun.$winal.$kin',
+                                        style: textStyleResult)))
+                          ])));
+                });
+          } else {
+            controllerYear.text = '';
+            controllerMonth.text = '';
+            controllerDay.text = '';
+            dialog();
           }
-          if (i % 100 == 0) {
-            days -= 1;
-          }
-          if (i % 400 == 0) {
-            days += 1;
-          }
+        } else {
+          controllerYear.text = '';
+          controllerMonth.text = '';
+          controllerDay.text = '';
+          dialog();
         }
-
-        var monthNr = [
-          0,
-          0 + january,
-          january + february,
-          january + february + march,
-          january + february + march + april,
-          january + february + march + april + may,
-          january + february + march + april + may + june,
-          january + february + march + april + may + june + july,
-          january + february + march + april + may + june + july + august,
-          january +
-              february +
-              march +
-              april +
-              may +
-              june +
-              july +
-              august +
-              september,
-          january +
-              february +
-              march +
-              april +
-              may +
-              june +
-              july +
-              august +
-              september +
-              october,
-          january +
-              february +
-              march +
-              april +
-              may +
-              june +
-              july +
-              august +
-              september +
-              october +
-              november
-        ];
-
-        int dayOfTheYear = monthNr[month - 1] + day;
-        int daysTotal = days + dayOfTheYear;
-
-        int kinNr = (beginKinNr + daysTotal) % 260;
-
-        var toneNahual = getToneNahual(kinNr);
-
-        int tone = toneNahual[0];
-        int nahual = toneNahual[1];
-
-        int haabYear =
-            (beginHaabYear + (daysTotal - beginHaabDays + 61) ~/ 365);
-        int haabDays = (beginHaabDays + daysTotal) % 365;
-
-        int longCount = beginLongCount + daysTotal;
-
-        int baktun = longCount ~/ 144000;
-        int katun = (longCount - baktun * 144000) ~/ 7200;
-        int tun = (longCount - baktun * 144000 - katun * 7200) ~/ 360;
-        int winal =
-            (longCount - baktun * 144000 - katun * 7200 - tun * 360) ~/ 20;
-        int kin =
-            longCount - baktun * 144000 - katun * 7200 - tun * 360 - winal * 20;
-
-        List<int> intHaabDate = getHaabDate(haabDays);
-
-        showDialog<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return Center(
-                  child: SizedBox(
-                      height: size.width * 1.3228,
-                      child: Column(children: [
-                        Container(
-                            decoration: textBoxDecorationResult,
-                            height: size.width * 0.1,
-                            width: size.width * 0.4,
-                            child: Center(
-                                child: Text(
-                                    '${MayaLists().strTone[tone]} ${MayaLists().strNahual[nahual]}',
-                                    style: textStyleResult))),
-                        SizedBox(height: size.width * 0.02),
-                        mayaCrossContainer(size, widget.backgroundImage,
-                            widget.mainColor, tone, nahual),
-                        SizedBox(height: size.width * 0.02),
-                        Container(
-                            decoration: textBoxDecorationResult,
-                            height: size.width * 0.1,
-                            width: size.width * 0.4,
-                            child: Center(
-                                child: Text(
-                                    '${intHaabDate[0]} ${MayaLists().strWinal[intHaabDate[1]]} ${haabYear + 12}',
-                                    style: textStyleResult))),
-                        SizedBox(height: size.width * 0.02),
-                        Container(
-                            decoration: textBoxDecorationResult,
-                            height: size.width * 0.1,
-                            width: size.width * 0.4,
-                            child: Center(
-                                child: Text('$baktun.$katun.$tun.$winal.$kin',
-                                    style: textStyleResult)))
-                      ])));
-            });
+      } else {
+        controllerYear.text = '';
+        controllerMonth.text = '';
+        controllerDay.text = '';
+        dialog();
       }
     } catch (e) {
+      controllerYear.text = '';
+      controllerMonth.text = '';
+      controllerDay.text = '';
       Size size = GetTextSize().getTextSize(
           'Fill in all fields correctly!'.tr, MayaStyle.popUpDialogBody);
       showDialog<void>(
