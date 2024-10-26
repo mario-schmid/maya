@@ -5,10 +5,10 @@ packages:
     dependency: "direct main"
     description:
       name: alarm
-      sha256: "544f39ba46fcdb06c2d26fd6223d4f97cd3dd2f16c10f7f5b5ff45d169347178"
+      sha256: "6b3c010248eb882abc9988cde1a68d5294a4aa0af287e8c086514823162fe683"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.3"
+    version: "4.0.8"
   android_gesture_exclusion:
     dependency: "direct main"
     description:
@@ -950,5 +950,5 @@ packages:
     source: hosted
     version: "2.0.3"
 sdks:
-  dart: ">=3.5.1 <4.0.0"
+  dart: "3.5.3"
   flutter: ">=3.24.3"
