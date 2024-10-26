@@ -1556,7 +1556,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           Size(size.width * 0.207738889, size.width * 0.192205556);
       posButtonCholqij = Position(size.height / 2 + size.width * 0.500066667,
           size.width - size.width * 0.441625);
-      //
+      //5
       sizeBoxTextToneNahual =
           Size(size.width * 0.269727778, size.width * 0.269727778);
       posBoxTextToneNahual = Position(
@@ -1564,8 +1564,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.width - sizeBoxTextToneNahual.width - size.width * 0.391062037);
       //
       textStyleToneNahual = TextStyle(
-          color: Color.lerp(mainColor, Colors.white, 0.1)!,
-          fontSize: size.width * 0.044);
+          color: Color.lerp(mainColor, Colors.black, 0.74)!,
+          fontSize: size.width * 0.044,
+          height: size.width * 0.0028);
       //
       sizeBoxLongCount =
           Size(size.width * 0.738888889, size.width * 0.138888889);
@@ -1756,8 +1757,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           size.width - sizeBoxTextToneNahual.width - size.height * 0.203442678);
       //
       textStyleToneNahual = TextStyle(
-          color: Color.lerp(mainColor, Colors.white, 0.1)!,
-          fontSize: size.height * 0.022890173);
+          color: Color.lerp(mainColor, Colors.black, 0.74)!,
+          fontSize: size.height * 0.022890173,
+          height: size.width * 0.001456647);
       //
       sizeBoxLongCount =
           Size(size.height * 0.384393064, size.height * 0.072254335);
@@ -1787,6 +1789,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           (now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) ~/
               86400000;
 
+      // FIXME: calculate with floor(), because of daysGoneBy could be negative
       baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
       katun = (daysGoneBy + dDays) ~/ 7200 % 20;
       tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
@@ -1803,7 +1806,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       chosenDay = currDay;
       xDayTotal = currDay;
 
-      //TODO: change to 5141 (5152-12) after database year index update
+      //TODO: change 5129 to 5141 (5152-12) after database year index update
       currYear = 5129 + daysGoneBy ~/ 365;
       chosenYear = currYear;
 
@@ -2778,129 +2781,108 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       width: sizeBoxTextToneNahual.width,
                       child: Center(
                           child: GestureDetector(
-                              onTap: () {
-                                int beginTone =
-                                    (startTone + 365 * (chosenYear - 5129)) %
-                                        13;
-                                int beginNahual =
-                                    (startNahual + 365 * (chosenYear - 5129)) %
-                                        20;
+                        onTap: () {
+                          int beginTone =
+                              (startTone + 365 * (chosenYear - 5129)) % 13;
+                          int beginNahual =
+                              (startNahual + 365 * (chosenYear - 5129)) % 20;
 
-                                int chosenTone = getTone(((offsetGearTones +
-                                            (angleTime + finalAngle) /
-                                                13 *
-                                                20) *
-                                        180 /
-                                        pi) %
-                                    360); // [x] calculation correct
+                          int chosenTone = getTone(((offsetGearTones +
+                                      (angleTime + finalAngle) / 13 * 20) *
+                                  180 /
+                                  pi) %
+                              360); // [x] calculation correct
 
-                                int chosenNahual = getNahuales(
-                                    ((offsetGearNahuales +
-                                                angleTime +
-                                                finalAngle) *
-                                            180 /
-                                            pi) %
-                                        360); // [x] calculation correct
+                          int chosenNahual = getNahuales(
+                              ((offsetGearNahuales + angleTime + finalAngle) *
+                                      180 /
+                                      pi) %
+                                  360); // [x] calculation correct
 
-                                int dYear = getDeltaYear((-offsetGearHaab *
-                                            9 /
-                                            pi +
-                                        ((angleTime + finalAngle) * 180 / pi) /
-                                            365) *
-                                    20); // [x] calculation correct
+                          int dYear = getDeltaYear((-offsetGearHaab * 9 / pi +
+                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
+                              20); // [x] calculation correct
 
-                                DateTime chosenGregorianDate = startDate.add(
-                                    Duration(
-                                        days: 365 * (currYear - 5129 + dYear) +
-                                            chosenDay));
+                          DateTime chosenGregorianDate = startDate.add(Duration(
+                              days:
+                                  365 * (currYear - 5129 + dYear) + chosenDay));
 
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => TheDay(
-                                            backgroundImage: backgroundImage,
-                                            mainColor: mainColor,
-                                            chosenYear: chosenYear,
-                                            chosenDay: chosenDay,
-                                            chosenTone: chosenTone,
-                                            chosenNahual: chosenNahual,
-                                            beginTone: beginTone,
-                                            beginNahual: beginNahual,
-                                            chosenLongCount: [
-                                              sBaktun,
-                                              sKatun,
-                                              sTun,
-                                              sWinal,
-                                              sKin
-                                            ],
-                                            chosenGregorianDate:
-                                                chosenGregorianDate)));
-                              },
-                              onLongPress: () {
-                                int beginTone =
-                                    (startTone + 365 * (chosenYear - 5129)) %
-                                        13;
-                                int beginNahual =
-                                    (startNahual + 365 * (chosenYear - 5129)) %
-                                        20;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TheDay(
+                                      backgroundImage: backgroundImage,
+                                      mainColor: mainColor,
+                                      chosenYear: chosenYear,
+                                      chosenDay: chosenDay,
+                                      chosenTone: chosenTone,
+                                      chosenNahual: chosenNahual,
+                                      beginTone: beginTone,
+                                      beginNahual: beginNahual,
+                                      chosenLongCount: [
+                                        sBaktun,
+                                        sKatun,
+                                        sTun,
+                                        sWinal,
+                                        sKin
+                                      ],
+                                      chosenGregorianDate:
+                                          chosenGregorianDate)));
+                        },
+                        onLongPress: () {
+                          int beginTone =
+                              (startTone + 365 * (chosenYear - 5129)) % 13;
+                          int beginNahual =
+                              (startNahual + 365 * (chosenYear - 5129)) % 20;
 
-                                int chosenTone = getTone(((offsetGearTones +
-                                            (angleTime + finalAngle) /
-                                                13 *
-                                                20) *
-                                        180 /
-                                        pi) %
-                                    360); // [x] calculation correct
+                          int chosenTone = getTone(((offsetGearTones +
+                                      (angleTime + finalAngle) / 13 * 20) *
+                                  180 /
+                                  pi) %
+                              360); // [x] calculation correct
 
-                                int chosenNahual = getNahuales(
-                                    ((offsetGearNahuales +
-                                                angleTime +
-                                                finalAngle) *
-                                            180 /
-                                            pi) %
-                                        360); // [x] calculation correct
+                          int chosenNahual = getNahuales(
+                              ((offsetGearNahuales + angleTime + finalAngle) *
+                                      180 /
+                                      pi) %
+                                  360); // [x] calculation correct
 
-                                int dYear = getDeltaYear((-offsetGearHaab *
-                                            9 /
-                                            pi +
-                                        ((angleTime + finalAngle) * 180 / pi) /
-                                            365) *
-                                    20); // [x] calculation correct
+                          int dYear = getDeltaYear((-offsetGearHaab * 9 / pi +
+                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
+                              20); // [x] calculation correct
 
-                                DateTime chosenGregorianDate = startDate.add(
-                                    Duration(
-                                        days: 365 * (currYear - 5129 + dYear) +
-                                            chosenDay));
+                          DateTime chosenGregorianDate = startDate.add(Duration(
+                              days:
+                                  365 * (currYear - 5129 + dYear) + chosenDay));
 
-                                Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                        opaque: false,
-                                        pageBuilder:
-                                            (BuildContext context, __, _) =>
-                                                DateSelection(
-                                                    backgroundImage:
-                                                        backgroundImage,
-                                                    mainColor: mainColor,
-                                                    chosenYear: chosenYear,
-                                                    chosenDay: chosenDay,
-                                                    chosenTone: chosenTone,
-                                                    chosenNahual: chosenNahual,
-                                                    beginTone: beginTone,
-                                                    beginNahual: beginNahual,
-                                                    chosenLongCount: [
-                                                      sBaktun,
-                                                      sKatun,
-                                                      sTun,
-                                                      sWinal,
-                                                      sKin
-                                                    ],
-                                                    chosenGregorianDate:
-                                                        chosenGregorianDate)));
-                              },
-                              child: Text(strTextToneNahual,
-                                  textAlign: TextAlign.center,
-                                  style: textStyleToneNahual))))),
+                          Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                  opaque: false,
+                                  pageBuilder: (BuildContext context, __, _) =>
+                                      DateSelection(
+                                          backgroundImage: backgroundImage,
+                                          mainColor: mainColor,
+                                          chosenYear: chosenYear,
+                                          chosenDay: chosenDay,
+                                          chosenTone: chosenTone,
+                                          chosenNahual: chosenNahual,
+                                          beginTone: beginTone,
+                                          beginNahual: beginNahual,
+                                          chosenLongCount: [
+                                            sBaktun,
+                                            sKatun,
+                                            sTun,
+                                            sWinal,
+                                            sKin
+                                          ],
+                                          chosenGregorianDate:
+                                              chosenGregorianDate)));
+                        },
+                        child: Text(strTextToneNahual,
+                            textAlign: TextAlign.center,
+                            style: textStyleToneNahual),
+                      )))),
               Stack(children: [
                 Positioned(
                     top: posBoxLongCount.top,
