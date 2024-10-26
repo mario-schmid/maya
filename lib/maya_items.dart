@@ -82,6 +82,7 @@ class MayaItems {
 
     int a = Globals().arrayIndex[yearIndex][dayIndex][0].last;
 
+    // FIXME: move to selection_dialog
     int eventIndex = 0;
     if (newListItem) {
       initMayaData();
@@ -95,19 +96,10 @@ class MayaItems {
       Globals().arrayIndex[yearIndex][dayIndex][4].add(0);
       setIndex(yearIndex, dayIndex);
 /* ========================================================================== */
-      int elementIndex = 0;
-      for (int i = 0;
-          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
-          i++) {
-        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 0) {
-          elementIndex++;
-        }
-      }
-
-      // TODO: check if necessary!
-      /*int elementIndex = Globals().arrayIndex[yearIndex][dayIndex][2]
-        .where((element) => element == 0)
-        .length;*/
+      int elementIndex = Globals()
+          .arrayIndex[yearIndex][dayIndex][2]
+          .where((element) => element == 0)
+          .length;
 
       DatabaseHandlerEvents().insertEvent(yearIndex, dayIndex, elementIndex - 1,
           begin, end, title, description);
@@ -120,7 +112,7 @@ class MayaItems {
             Globals().arrayIndex[yearIndex][dayIndex][2].toString());
       }
 /* ========================================================================== */
-      // TODO: move to selection_dialog
+      // FIXME: move to selection_dialog
       MayaData()
           .mayaData[yearIndex][dayIndex]
           .eventList
@@ -307,6 +299,7 @@ class MayaItems {
 
     int a = Globals().arrayIndex[yearIndex][dayIndex][0].last;
 
+    // FIXME: move to selection_dialog
     int noteIndex = 0;
     if (newListItem) {
       initMayaData();
@@ -320,19 +313,10 @@ class MayaItems {
       Globals().arrayIndex[yearIndex][dayIndex][4].add(0);
       setIndex(yearIndex, dayIndex);
 /* ========================================================================== */
-      int elementIndex = 0;
-      for (int i = 0;
-          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
-          i++) {
-        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 1) {
-          elementIndex++;
-        }
-      }
-
-      // TODO: check if necessary!
-      /*int elementIndex = Globals().arrayIndex[yearIndex][dayIndex][2]
-        .where((element) => element == 1)
-        .length;*/
+      int elementIndex = Globals()
+          .arrayIndex[yearIndex][dayIndex][2]
+          .where((element) => element == 1)
+          .length;
 
       DatabaseHandlerNotes()
           .insertNote(yearIndex, dayIndex, elementIndex - 1, note);
@@ -345,7 +329,7 @@ class MayaItems {
             Globals().arrayIndex[yearIndex][dayIndex][2].toString());
       }
 /* ========================================================================== */
-      // TODO: move to selection_dialog
+      // FIXME: move to selection_dialog
       MayaData().mayaData[yearIndex][dayIndex].noteList.add(note);
     } else {
       Globals().arrayIndex[yearIndex][dayIndex][3].add(index);
@@ -490,6 +474,7 @@ class MayaItems {
 
     int a = Globals().arrayIndex[yearIndex][dayIndex][0].last;
 
+    // FIXME: move to selection_dialog
     int taskIndex = 0;
     if (newListItem) {
       initMayaData();
@@ -503,19 +488,10 @@ class MayaItems {
       Globals().arrayIndex[yearIndex][dayIndex][4].add(0);
       setIndex(yearIndex, dayIndex);
 /* ========================================================================== */
-      int elementIndex = 0;
-      for (int i = 0;
-          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
-          i++) {
-        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 2) {
-          elementIndex++;
-        }
-      }
-
-      // TODO: check if necessary!
-      /*int elementIndex = Globals().arrayIndex[yearIndex][dayIndex][2]
-        .where((element) => element == 2)
-        .length;*/
+      int elementIndex = Globals()
+          .arrayIndex[yearIndex][dayIndex][2]
+          .where((element) => element == 2)
+          .length;
 
       DatabaseHandlerTasks()
           .insertTask(yearIndex, dayIndex, elementIndex - 1, task, false);
@@ -528,7 +504,7 @@ class MayaItems {
             Globals().arrayIndex[yearIndex][dayIndex][2].toString());
       }
 /* ========================================================================== */
-      // TODO: move to selection_dialog
+      // FIXME: move to selection_dialog
       MayaData()
           .mayaData[yearIndex][dayIndex]
           .taskList
@@ -754,6 +730,7 @@ class MayaItems {
 
     int a = Globals().arrayIndex[yearIndex][dayIndex][0].last;
 
+    // FIXME: move to selection_dialog
     int alarmIndex = 0;
     if (newListItem) {
       initMayaData();
@@ -767,19 +744,10 @@ class MayaItems {
       Globals().arrayIndex[yearIndex][dayIndex][4].add(0);
       setIndex(yearIndex, dayIndex);
 /* ========================================================================== */
-      int elementIndex = 0;
-      for (int i = 0;
-          i < Globals().arrayIndex[yearIndex][dayIndex][2].length;
-          i++) {
-        if (Globals().arrayIndex[yearIndex][dayIndex][2][i] == 3) {
-          elementIndex++;
-        }
-      }
-
-      // TODO: check if necessary!
-      /*int elementIndex = Globals().arrayIndex[yearIndex][dayIndex][2]
-        .where((element) => element == 3)
-        .length;*/
+      int elementIndex = Globals()
+          .arrayIndex[yearIndex][dayIndex][2]
+          .where((element) => element == 3)
+          .length;
 
       DatabaseHandlerAlarms().insertAlarm(
           yearIndex, dayIndex, elementIndex - 1, alarmSettings, true);
@@ -792,7 +760,7 @@ class MayaItems {
             Globals().arrayIndex[yearIndex][dayIndex][2].toString());
       }
 /* ========================================================================== */
-      // TODO: move to selection_dialog
+      // FIXME: move to selection_dialog
       MayaData()
           .mayaData[yearIndex][dayIndex]
           .alarmList
