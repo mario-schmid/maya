@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg 
+    width="80" 
+    height="80" 
+    viewBox="0 0 21.166666 21.166666" 
+    version="1.0" 
+    xmlns="http://www.w3.org/2000/svg" 
+    xmlns:svg="http://www.w3.org/2000/svg">
+    <g>
+        <circle 
+            style="fill:#ff0000" 
+            cx="10.583333" 
+            cy="6.0007496" 
+            r="5.2916665"
+            id="path3" />
+        <circle 
+            style="fill:#0200ff" 
+            cx="5.291667" 
+            cy="15.166183" 
+            r="5.2916665"
+            id="path2" />
+        <circle 
+            style="fill:#ffff00" 
+            cx="15.875" 
+            cy="15.166183" 
+            r="5.2916665"
+            id="path1" />
+    </g>
+</svg>

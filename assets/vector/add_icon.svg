@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg 
+    width="80" 
+    height="80" 
+    viewBox="0 0 21.166667 21.166667" 
+    version="1.0" 
+    xmlns="http://www.w3.org/2000/svg" 
+    xmlns:svg="http://www.w3.org/2000/svg">
+    <g>
+        <rect style="fill:#ffffff"           
+            width="5.2916665" 
+            height="21.166666" 
+            x="7.9374981" 
+            y="0" 
+            rx="2.6458333" 
+            ry="2.6458335"
+            id="rect1" />
+        <rect 
+            style="fill:#ffffff" 
+            width="5.2916665" 
+            height="21.166666" 
+            x="7.9374971" 
+            y="-21.166666" 
+            rx="2.6458333" 
+            ry="2.6458335" 
+            transform="rotate(90)"
+            id="rect2" />
+    </g>
+</svg>
