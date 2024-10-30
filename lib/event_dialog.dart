@@ -226,7 +226,7 @@ class _EventDialogState extends State<EventDialog> {
                                               left: size.width * 0.028,
                                               right: size.width * 0.028),
                                           icon: SvgPicture.asset(
-                                            "assets/vector_graphics/clock_icon.svg",
+                                            "assets/vector/clock_icon.svg",
                                             height: size.width * 0.11,
                                           ),
                                           onPressed: () {
@@ -266,7 +266,7 @@ class _EventDialogState extends State<EventDialog> {
                                           padding: EdgeInsets.only(
                                               left: size.width * 0.028),
                                           icon: SvgPicture.asset(
-                                            "assets/vector_graphics/clock_icon.svg",
+                                            "assets/vector/clock_icon.svg",
                                             height: size.width * 0.11,
                                           ),
                                           onPressed: () {
@@ -357,7 +357,7 @@ class _EventDialogState extends State<EventDialog> {
                                               }
                                             },
                                             style: MayaStyle()
-                                                .dialogButtonStyle(
+                                                .transparentButtonStyle(
                                                     Colors.amber[400]),
                                             child: Text('Cancel'.tr)))),
                                 Padding(
@@ -412,7 +412,7 @@ class _EventDialogState extends State<EventDialog> {
                                               }
                                             },
                                             style: MayaStyle()
-                                                .dialogButtonStyle(
+                                                .transparentButtonStyle(
                                                     Colors.amber[400]),
                                             child: Text('Save'.tr))))
                               ])

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:maya/chat/models/message.dart';
 import 'package:maya/chat/models/profile.dart';
 import 'package:maya/chat/utils/constants.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart';
 
@@ -11,8 +12,10 @@ import 'package:timeago/timeago.dart';
 ///
 /// Displays chat bubbles as a ListView and TextField to enter new chat.
 class ChatPage extends StatefulWidget {
+  final ImageProvider backgroundImage;
   final Color mainColor;
-  const ChatPage({super.key, required this.mainColor});
+  const ChatPage(
+      {super.key, required this.backgroundImage, required this.mainColor});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -50,9 +53,15 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat')),
-      backgroundColor: Color.lerp(widget.mainColor, Colors.white, 0.6)!,
-      body: StreamBuilder<List<Message>>(
+        body: Container(
+      height: double.infinity,
+      width: double.infinity,
+      decoration: BoxDecoration(
+          image: DecorationImage(
+        image: widget.backgroundImage,
+        fit: BoxFit.cover,
+      )),
+      child: StreamBuilder<List<Message>>(
         stream: _messagesStream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
@@ -76,13 +85,13 @@ class _ChatPageState extends State<ChatPage> {
                             _loadProfileCache(message.profileId);
 
                             return _ChatBubble(
-                              message: message,
-                              profile: _profileCache[message.profileId],
-                            );
+                                mainColor: widget.mainColor,
+                                message: message,
+                                profile: _profileCache[message.profileId]);
                           },
                         ),
                 ),
-                const _MessageBar(),
+                _MessageBar(widget.mainColor),
               ],
             );
           } else {
@@ -90,13 +99,14 @@ class _ChatPageState extends State<ChatPage> {
           }
         },
       ),
-    );
+    ));
   }
 }
 
 /// Set of widget that contains TextField and Button to submit message
 class _MessageBar extends StatefulWidget {
-  const _MessageBar();
+  final Color mainColor;
+  const _MessageBar(this.mainColor);
 
   @override
   State<_MessageBar> createState() => _MessageBarState();
@@ -108,32 +118,33 @@ class _MessageBarState extends State<_MessageBar> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.grey[200],
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  maxLines: null,
-                  autofocus: false,
-                  controller: _textController,
-                  decoration: const InputDecoration(
-                    hintText: 'Type a message',
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: EdgeInsets.all(8),
-                  ),
+      color: Color.lerp(widget.mainColor, Colors.white, 0.6),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                keyboardType: TextInputType.text,
+                maxLines: null,
+                autofocus: false,
+                controller: _textController,
+                decoration: const InputDecoration(
+                  hintText: 'Type a message',
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.all(8),
                 ),
               ),
-              TextButton(
+            ),
+            IconButton(
                 onPressed: () => _submitMessage(),
-                child: const Text('Send'),
-              ),
-            ],
-          ),
+                icon: SvgPicture.asset('assets/vector/send.svg',
+                    height: 32,
+                    width: 32,
+                    colorFilter: ColorFilter.mode(
+                        widget.mainColor, BlendMode.modulate))),
+          ],
         ),
       ),
     );
@@ -173,10 +184,12 @@ class _MessageBarState extends State<_MessageBar> {
 
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble({
+    required this.mainColor,
     required this.message,
     required this.profile,
   });
 
+  final Color mainColor;
   final Message message;
   final Profile? profile;
 
@@ -198,7 +211,7 @@ class _ChatBubble extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: message.isMine
-                ? Theme.of(context).primaryColor
+                ? Color.lerp(mainColor, Colors.white, 0.4)
                 : Colors.grey[300],
             borderRadius: BorderRadius.circular(8),
           ),

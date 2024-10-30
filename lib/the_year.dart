@@ -234,8 +234,7 @@ class _TheYearState extends State<TheYear> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child:
-                      SvgPicture.asset('assets/vector_graphics/add_icon.svg'),
+                  child: SvgPicture.asset('assets/vector/add_icon.svg'),
                 )))
       ]),
       SizedBox(

@@ -22,7 +22,23 @@ class MayaStyle {
         borderRadius: const BorderRadius.all(Radius.circular(10)));
   }
 
-  ButtonStyle dialogButtonStyle(Color? overlayColor) {
+  // EvaluatedButton
+  ButtonStyle mainButtonStyle(Color? color) {
+    return ButtonStyle(
+        padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
+        foregroundColor: const WidgetStatePropertyAll(Colors.white),
+        backgroundColor: WidgetStateProperty.all(color?.withOpacity(0.5)),
+        shadowColor: WidgetStateProperty.all(Colors.transparent),
+        side: WidgetStateProperty.all(
+            const BorderSide(color: Colors.white, width: 1)),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+        textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 18)),
+        overlayColor: WidgetStateProperty.all(color));
+  }
+
+  // EvaluatedButton
+  ButtonStyle transparentButtonStyle(Color? overlayColor) {
     return ButtonStyle(
         padding: const WidgetStatePropertyAll(EdgeInsets.all(1)),
         foregroundColor: const WidgetStatePropertyAll(Colors.white),

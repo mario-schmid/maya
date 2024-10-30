@@ -309,7 +309,7 @@ class _TheDayState extends State<TheDay> {
                                                           const EdgeInsets.all(
                                                               4),
                                                       child: SvgPicture.asset(
-                                                          'assets/vector_graphics/add_icon.svg'))))
+                                                          'assets/vector/add_icon.svg'))))
                                         ])
                                   ]),
                                 )

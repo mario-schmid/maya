@@ -118,7 +118,7 @@ class _TaskDialogState extends State<TaskDialog> {
                                               }
                                             },
                                             style: MayaStyle()
-                                                .dialogButtonStyle(
+                                                .transparentButtonStyle(
                                                     Colors.indigo[400]),
                                             child: Text('Cancel'.tr)))),
                                 Padding(
@@ -163,7 +163,7 @@ class _TaskDialogState extends State<TaskDialog> {
                                               }
                                             },
                                             style: MayaStyle()
-                                                .dialogButtonStyle(
+                                                .transparentButtonStyle(
                                                     Colors.indigo[400]),
                                             child: Text('Save'.tr))))
                               ])

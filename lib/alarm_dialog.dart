@@ -325,7 +325,7 @@ class _ADialogState extends State<ADialog> {
                                         alarmSoundPathChanged = true;
                                       },
                                       child: SvgPicture.asset(
-                                          'assets/vector_graphics/music_icon.svg',
+                                          'assets/vector/music_icon.svg',
                                           height: size.width * 0.1,
                                           width: size.width * 0.1))),
                               SizedBox(
@@ -363,7 +363,7 @@ class _ADialogState extends State<ADialog> {
                                                   }
                                                 },
                                                 style: MayaStyle()
-                                                    .dialogButtonStyle(
+                                                    .transparentButtonStyle(
                                                         Colors.indigo[400]),
                                                 child: Text('Cancel'.tr)))),
                                     Padding(
@@ -468,7 +468,7 @@ class _ADialogState extends State<ADialog> {
                                                   }
                                                 },
                                                 style: MayaStyle()
-                                                    .dialogButtonStyle(
+                                                    .transparentButtonStyle(
                                                         Colors.red[400]),
                                                 child: Text('Save'.tr))))
                                   ])

@@ -441,7 +441,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   double angleSeason = 0.0;
 
   SvgPicture iconSeason =
-      SvgPicture.asset('assets/vector_graphics/transparent_icon.svg');
+      SvgPicture.asset('assets/vector/transparent_icon.svg');
 
   double finalAngle = 0.0;
   double oldAngle = 0.0;
@@ -528,7 +528,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     Image.asset('assets/images/trecenaYellow.png')
   ];
 
-  late List<maya_alarm.AlarmSettings> alarms;
   static StreamSubscription<maya_alarm.AlarmSettings>? subscription;
   /*                                                                          */
   /* Variables - END                                                           */
@@ -1193,8 +1192,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         borderRadius: BorderRadius.circular(
                                             size.width * 0.01))),
                             overlayColor: WidgetStateProperty.all(mainColor)),
-                        child: SvgPicture.asset(
-                            "assets/vector_graphics/rby_icon.svg",
+                        child: SvgPicture.asset("assets/vector/rby_icon.svg",
                             height: size.width * 0.08,
                             width: size.width * 0.08))),
                 SizedBox(width: size.width * 0.06),
@@ -1241,8 +1239,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         borderRadius: BorderRadius.circular(
                                             size.width * 0.01))),
                             overlayColor: WidgetStateProperty.all(mainColor)),
-                        child: SvgPicture.asset(
-                            "assets/vector_graphics/image_icon.svg",
+                        child: SvgPicture.asset("assets/vector/image_icon.svg",
                             height: size.width * 0.08,
                             width: size.width * 0.08)))
               ]),
@@ -1348,8 +1345,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SvgPicture.asset(
-                                "assets/vector_graphics/github.svg",
+                            SvgPicture.asset("assets/vector/github.svg",
                                 height: size.width * 0.06,
                                 width: size.width * 0.06),
                             SizedBox(width: size.width * 0.01),
@@ -1896,31 +1892,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           case 0:
             // winter
             angleSeason = 270 + angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/winter_icon_dark.svg');
             break;
           case 1:
             // spring
             angleSeason = 180 + angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/spring_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/spring_icon_dark.svg');
             break;
           case 2:
             // summer
             angleSeason = 90 + angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/summer_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/summer_icon_dark.svg');
             break;
           case 3:
             // fall
             angleSeason = angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/fall_icon_dark.svg');
             break;
           default:
             angleSeason = 0;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/winter_icon_dark.svg');
         }
       } else {
         int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
@@ -1933,31 +1924,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           case 0:
             // spring
             angleSeason = 270 - angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/spring_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/spring_icon_dark.svg');
             break;
           case 1:
             // summer
             angleSeason = 180 - angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/summer_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/summer_icon_dark.svg');
             break;
           case 2:
             // fall
             angleSeason = 90 - angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/fall_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/fall_icon_dark.svg');
             break;
           case 3:
             // winter
             angleSeason = -angle;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/winter_icon_dark.svg');
             break;
           default:
             angleSeason = 0;
-            iconSeason =
-                SvgPicture.asset('assets/vector_graphics/winter_icon_dark.svg');
+            iconSeason = SvgPicture.asset('assets/vector/winter_icon_dark.svg');
         }
       }
     }
@@ -2496,7 +2482,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               context,
                               PageRouteBuilder(
                                   pageBuilder: (BuildContext context, __, _) =>
-                                      SplashPage(mainColor: mainColor)));
+                                      SplashPage(
+                                          backgroundImage: backgroundImage,
+                                          mainColor: mainColor)));
                         } catch (_) {
                           // NOTE: if no configuration file has been created, supabase will not start
                         }
@@ -2554,17 +2542,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           crossAxisCount: 3,
                           children: <Widget>[
                             SizedBox(),
-                            SvgPicture.asset(
-                                "assets/vector_graphics/winter_icon.svg"),
+                            SvgPicture.asset("assets/vector/winter_icon.svg"),
                             SizedBox(),
-                            SvgPicture.asset(
-                                "assets/vector_graphics/spring_icon.svg"),
+                            SvgPicture.asset("assets/vector/spring_icon.svg"),
                             SizedBox(),
-                            SvgPicture.asset(
-                                "assets/vector_graphics/fall_icon.svg"),
+                            SvgPicture.asset("assets/vector/fall_icon.svg"),
                             SizedBox(),
-                            SvgPicture.asset(
-                                "assets/vector_graphics/summer_icon.svg"),
+                            SvgPicture.asset("assets/vector/summer_icon.svg"),
                             SizedBox()
                           ]))),
               Positioned(
@@ -2627,7 +2611,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 pageBuilder: (BuildContext context, __, _) =>
                                     RandomCharacter(
                                         backgroundImage: backgroundImage,
-                                        mainColor: mainColor,
                                         tone: toneNahual[0],
                                         nahual: toneNahual[1])));
                       },

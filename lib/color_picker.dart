@@ -101,7 +101,7 @@ class _ColorPickerState extends State<ColorPicker> {
   }
 }
 
-saveMainColor(mainColor) async {
+saveMainColor(String mainColor) async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'mainColor';
   prefs.setString(key, mainColor);

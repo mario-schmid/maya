@@ -4,13 +4,11 @@ import '../helper/maya_images.dart';
 
 class RandomCharacter extends StatefulWidget {
   final ImageProvider backgroundImage;
-  final Color mainColor;
   final int tone;
   final int nahual;
   const RandomCharacter(
       {super.key,
       required this.backgroundImage,
-      required this.mainColor,
       required this.tone,
       required this.nahual});
 

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:maya/selection_dialog.dart';
 import '../chat/pages/chat_page.dart';
 import '../chat/pages/register_page.dart';
 import '../chat/utils/constants.dart';
 
 /// Page to redirect users to the appropriate page depending on the initial auth state
 class SplashPage extends StatefulWidget {
+  final ImageProvider backgroundImage;
   final Color mainColor;
-  const SplashPage({super.key, required this.mainColor});
+  const SplashPage(
+      {super.key, required this.backgroundImage, required this.mainColor});
 
   @override
   SplashPageState createState() => SplashPageState();
@@ -29,13 +32,16 @@ class SplashPageState extends State<SplashPage> {
           context,
           PageRouteBuilder(
               pageBuilder: (BuildContext context, __, _) => RegisterPage(
-                  isRegistering: false, mainColor: widget.mainColor)));
+                  isRegistering: false,
+                  backgroundImage: widget.backgroundImage,
+                  mainColor: widget.mainColor)));
     } else {
       Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-              pageBuilder: (BuildContext context, __, _) =>
-                  ChatPage(mainColor: widget.mainColor)));
+              pageBuilder: (BuildContext context, __, _) => ChatPage(
+                  backgroundImage: widget.backgroundImage,
+                  mainColor: widget.mainColor)));
     }
   }
 

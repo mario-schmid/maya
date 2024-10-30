@@ -124,7 +124,7 @@ class _NoteDialogState extends State<NoteDialog> {
                                                   }
                                                 },
                                                 style: MayaStyle()
-                                                    .dialogButtonStyle(
+                                                    .transparentButtonStyle(
                                                         Colors.green[400]),
                                                 child: Text('Cancel'.tr)))),
                                     Padding(
@@ -170,7 +170,7 @@ class _NoteDialogState extends State<NoteDialog> {
                                                   }
                                                 },
                                                 style: MayaStyle()
-                                                    .dialogButtonStyle(
+                                                    .transparentButtonStyle(
                                                         Colors.green[400]),
                                                 child: Text('Save'.tr))))
                                   ])
