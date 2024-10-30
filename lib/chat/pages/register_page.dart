@@ -3,6 +3,7 @@ import 'package:maya/chat/pages/chat_page.dart';
 import 'package:maya/chat/pages/login_page.dart';
 import 'package:maya/chat/utils/constants.dart';
 import 'package:maya/helper/maya_style.dart';
+import 'package:maya/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -40,15 +41,16 @@ class _RegisterPageState extends State<RegisterPage> {
       await supabase.auth.signUp(
           email: email, password: password, data: {'username': username});
       Navigator.pushReplacement(
-          context,
+          navigatorKey.currentContext!,
           PageRouteBuilder(
               pageBuilder: (BuildContext context, __, _) => ChatPage(
                   backgroundImage: widget.backgroundImage,
                   mainColor: widget.mainColor)));
     } on AuthException catch (error) {
-      context.showErrorSnackBar(message: error.message);
+      navigatorKey.currentContext!.showErrorSnackBar(message: error.message);
     } catch (error) {
-      context.showErrorSnackBar(message: unexpectedErrorMessage);
+      navigatorKey.currentContext!
+          .showErrorSnackBar(message: unexpectedErrorMessage);
     }
   }
 

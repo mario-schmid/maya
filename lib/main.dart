@@ -570,7 +570,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (await adjustDatabase) {
         await showDialog(
-            context: context,
+            context: navigatorKey.currentContext!,
             builder: (BuildContext context) => Center(
                     child: AlertDialog(
                         insetPadding: const EdgeInsets.all(0),
@@ -2475,11 +2475,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       },
                       onLongPress: () async {
                         try {
+                          // ignore: unused_local_variable
                           String supabaseString = await rootBundle
                               .loadString('assets/supabase.json');
 
                           Navigator.push(
-                              context,
+                              navigatorKey.currentContext!,
                               PageRouteBuilder(
                                   pageBuilder: (BuildContext context, __, _) =>
                                       SplashPage(

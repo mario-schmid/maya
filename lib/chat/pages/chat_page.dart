@@ -5,6 +5,7 @@ import 'package:maya/chat/models/message.dart';
 import 'package:maya/chat/models/profile.dart';
 import 'package:maya/chat/utils/constants.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:maya/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart';
 
@@ -175,9 +176,10 @@ class _MessageBarState extends State<_MessageBar> {
         'content': text,
       });
     } on PostgrestException catch (error) {
-      context.showErrorSnackBar(message: error.message);
+      navigatorKey.currentContext!.showErrorSnackBar(message: error.message);
     } catch (_) {
-      context.showErrorSnackBar(message: unexpectedErrorMessage);
+      navigatorKey.currentContext!
+          .showErrorSnackBar(message: unexpectedErrorMessage);
     }
   }
 }

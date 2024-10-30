@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maya/selection_dialog.dart';
+import 'package:maya/main.dart';
 import '../chat/pages/chat_page.dart';
 import '../chat/pages/register_page.dart';
 import '../chat/utils/constants.dart';
@@ -29,7 +29,7 @@ class SplashPageState extends State<SplashPage> {
     final session = supabase.auth.currentSession;
     if (session == null) {
       Navigator.pushReplacement(
-          context,
+          navigatorKey.currentContext!,
           PageRouteBuilder(
               pageBuilder: (BuildContext context, __, _) => RegisterPage(
                   isRegistering: false,
@@ -37,7 +37,7 @@ class SplashPageState extends State<SplashPage> {
                   mainColor: widget.mainColor)));
     } else {
       Navigator.pushReplacement(
-          context,
+          navigatorKey.currentContext!,
           PageRouteBuilder(
               pageBuilder: (BuildContext context, __, _) => ChatPage(
                   backgroundImage: widget.backgroundImage,
