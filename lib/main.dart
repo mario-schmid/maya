@@ -14,16 +14,18 @@ import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:matrix/matrix.dart' as matrix;
+import 'package:maya/maya_chat/maya_chat.dart';
 import 'package:moon_phase_plus/moon_phase_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../character_choice.dart';
-import '../chat/splash_page.dart';
 import '../cholqij.dart';
 import '../classes/position.dart';
 import '../color_picker.dart';
@@ -229,19 +231,6 @@ Future<void> main() async {
       }
     }
   });
-
-  // NOTE: initialize supabase
-  try {
-    String supabaseString = await rootBundle.loadString('assets/supabase.json');
-    Map<String, dynamic> supabaseMap = jsonDecode(supabaseString);
-
-    await Supabase.initialize(
-      url: supabaseMap['url'],
-      anonKey: supabaseMap['anonKey'],
-    );
-  } catch (_) {
-    // NOTE: if no configuration file has been created, supabase will not start
-  }
 
   await maya_alarm.Alarm.init();
   runApp(const MayaApp());
@@ -2474,21 +2463,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         reset();
                       },
                       onLongPress: () async {
-                        try {
-                          // ignore: unused_local_variable
-                          String supabaseString = await rootBundle
-                              .loadString('assets/supabase.json');
+                        final client = matrix.Client(
+                          'matrix',
+                          databaseBuilder: (_) async {
+                            final dir = await getApplicationSupportDirectory();
+                            final db = matrix.MatrixSdkDatabase('matrix',
+                                database:
+                                    await openDatabase('$dir/matrix.sqlite'));
+                            await db.open();
+                            return db;
+                          },
+                        );
+                        await client.init();
 
-                          Navigator.push(
-                              navigatorKey.currentContext!,
-                              PageRouteBuilder(
-                                  pageBuilder: (BuildContext context, __, _) =>
-                                      SplashPage(
-                                          backgroundImage: backgroundImage,
-                                          mainColor: mainColor)));
-                        } catch (_) {
-                          // NOTE: if no configuration file has been created, supabase will not start
-                        }
+                        Navigator.push(
+                            navigatorKey.currentContext!,
+                            PageRouteBuilder(
+                                pageBuilder: (BuildContext context, __, _) =>
+                                    MayaChat(
+                                      backgroundImage: backgroundImage,
+                                      mainColor: mainColor,
+                                      client: client,
+                                    )));
                       },
                       child: Image.asset("assets/images/shape_button_moon.png",
                           height: sizeButtonReset.height,
