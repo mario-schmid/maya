@@ -106,7 +106,7 @@ class _RoomPageState extends State<RoomPage> {
                                             timeline.events[i]
                                                 .getDisplayEvent(timeline)
                                                 .body
-                                                .contains('m.room') ||
+                                                .contains('m.room.') ||
                                             timeline.events[i]
                                                 .getDisplayEvent(timeline)
                                                 .body

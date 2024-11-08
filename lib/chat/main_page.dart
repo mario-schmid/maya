@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:matrix/matrix.dart';
-import 'package:maya/maya_chat/login_page.dart';
-import 'package:maya/maya_chat/room_list_page.dart';
+import 'package:maya/chat/login_page.dart';
+import 'package:maya/chat/room_list_page.dart';
 import 'package:provider/provider.dart';
 
-class MayaChat extends StatefulWidget {
+class MainPage extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
   final Client client;
-  const MayaChat(
+  const MainPage(
       {super.key,
       required this.backgroundImage,
       required this.mainColor,
       required this.client});
 
   @override
-  State<MayaChat> createState() => _MayaChatState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _MayaChatState extends State<MayaChat> {
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

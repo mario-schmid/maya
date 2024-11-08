@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:matrix/matrix.dart';
-import 'package:maya/maya_chat/login_page.dart';
-import 'package:maya/maya_chat/room_page.dart';
+import 'package:maya/chat/login_page.dart';
+import 'package:maya/chat/room_page.dart';
 import 'package:provider/provider.dart';
 
 class RoomListPage extends StatefulWidget {
