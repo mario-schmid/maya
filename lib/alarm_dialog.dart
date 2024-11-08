@@ -37,14 +37,15 @@ class _ADialogState extends State<ADialog> {
   late Size size;
   late DateFormat timeFormat;
 
+  late bool hour24;
   late String _hour, _minute, _time;
   String _period = '';
 
-  TimeOfDay selectedTime = const TimeOfDay(hour: 00, minute: 00);
+  late TimeOfDay initTime;
+  late TimeOfDay selectedTime;
 
   late String? alarmSoundPath;
   bool alarmSoundPathChanged = false;
-  late AlarmSettings alarmSettings;
 
   final _alarmControllerTitle = TextEditingController();
   final _alarmControllerDescription = TextEditingController();
@@ -61,18 +62,28 @@ class _ADialogState extends State<ADialog> {
     loadAlarmSoundPath();
     switch (TimeFormat().getTimeFormat.pattern) {
       case 'h:mm a':
+        hour24 = false;
         timeFormat = DateFormat('h:mm a');
         break;
       case 'HH:mm:ss':
+        hour24 = true;
         timeFormat = DateFormat('HH:mm');
         break;
     }
 
-    _hour = widget.alarmSettings.dateTime.hour.toString();
-    _minute = widget.alarmSettings.dateTime.minute.toString();
-    _time = timeFormat.format(widget.alarmSettings.dateTime);
-
-    alarmSettings = widget.alarmSettings;
+    if (widget.flagCreateChange) {
+      initTime = TimeOfDay(hour: 13, minute: 00);
+      _hour = initTime.hour.toString();
+      _minute = initTime.minute.toString();
+      _time = hour24 ? '13:00' : '1:00 pm';
+    } else {
+      initTime = TimeOfDay(
+          hour: widget.alarmSettings.dateTime.hour,
+          minute: widget.alarmSettings.dateTime.minute);
+      _hour = widget.alarmSettings.dateTime.hour.toString();
+      _minute = widget.alarmSettings.dateTime.minute.toString();
+      _time = timeFormat.format(widget.alarmSettings.dateTime);
+    }
 
     dateTime = widget.alarmSettings.dateTime;
     loopAudio = widget.alarmSettings.loopAudio;
@@ -95,7 +106,7 @@ class _ADialogState extends State<ADialog> {
       case 'h:mm a':
         final TimeOfDay? picked = await showTimePicker(
             context: context,
-            initialTime: selectedTime,
+            initialTime: initTime,
             builder: (context, Widget? child) {
               return MediaQuery(
                   data: MediaQuery.of(context)
@@ -106,16 +117,17 @@ class _ADialogState extends State<ADialog> {
           setState(() {
             selectedTime = picked;
             _hour = selectedTime.hour.toString().padLeft(2, '0');
+            String hourOfPeriod = selectedTime.hourOfPeriod.toString();
             _minute = selectedTime.minute.toString().padLeft(2, '0');
             _period = selectedTime.period.name;
-            _time = '$_hour:$_minute $_period';
+            _time = '$hourOfPeriod:$_minute $_period';
           });
         }
         break;
       case 'HH:mm:ss':
         final TimeOfDay? picked = await showTimePicker(
             context: context,
-            initialTime: selectedTime,
+            initialTime: initTime,
             builder: (context, Widget? child) {
               return MediaQuery(
                   data: MediaQuery.of(context)
@@ -378,8 +390,7 @@ class _ADialogState extends State<ADialog> {
                                                     dateTime = dateTime.add(
                                                         Duration(
                                                             hours: int.parse(
-                                                                    _hour) -
-                                                                1,
+                                                                _hour),
                                                             minutes: int.parse(
                                                                 _minute)));
                                                     Navigator.of(context,
@@ -444,10 +455,12 @@ class _ADialogState extends State<ADialog> {
                                                           assetAudioPath:
                                                               alarmSoundPathChanged
                                                                   ? alarmSoundPath!
-                                                                  : await File(alarmSettings
+                                                                  : await File(widget
+                                                                              .alarmSettings
                                                                               .assetAudioPath)
                                                                           .exists()
-                                                                      ? alarmSettings
+                                                                      ? widget
+                                                                          .alarmSettings
                                                                           .assetAudioPath
                                                                       : 'assets/audio/ringtone.mp3',
                                                           loopAudio: loopAudio,

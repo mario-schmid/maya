@@ -340,10 +340,11 @@ class DatabaseHandlerAlarms {
         'vibrate': elements['alarmSettings'].vibrate ? 1 : 0,
         'volume': elements['alarmSettings'].volume.toString(),
         'fadeDuration': elements['alarmSettings'].fadeDuration.toString(),
-        'notificationTitle': elements['alarmSettings'].notificationTitle,
-        'notificationBody': elements['alarmSettings'].notificationBody,
+        'notificationTitle':
+            elements['alarmSettings'].notificationSettings.title,
+        'notificationBody': elements['alarmSettings'].notificationSettings.body,
         'enableNotificationOnKill':
-            elements['alarmSettings'].enableNotificationOnKill ? 1 : 0,
+            elements['alarmSettings'].warningNotificationOnKill ? 1 : 0,
         'isActive': elements['isActive'],
       });
     }
