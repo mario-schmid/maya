@@ -1,6 +1,6 @@
-int getNahuales(double angle) {
+int getNahual(double angle) {
   int nahual;
-  if (angle <= 351) {
+  if (angle <= 360) {
     nahual = angle ~/ (360 / 20);
   } else {
     nahual = 0;

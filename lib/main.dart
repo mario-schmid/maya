@@ -15,7 +15,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:matrix/matrix.dart' as matrix;
-import 'package:maya/maya_chat/maya_chat.dart';
+import 'package:maya/chat/main_page.dart';
 import 'package:moon_phase_plus/moon_phase_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -2480,7 +2480,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             navigatorKey.currentContext!,
                             PageRouteBuilder(
                                 pageBuilder: (BuildContext context, __, _) =>
-                                    MayaChat(
+                                    MainPage(
                                       backgroundImage: backgroundImage,
                                       mainColor: mainColor,
                                       client: client,
@@ -2709,7 +2709,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 180 /
                                 pi) %
                             360); // [x] calculation correct
-                        int sNahual = getNahuales(
+                        int sNahual = getNahual(
                             ((offsetGearNahuales + angleTime + finalAngle) *
                                     180 /
                                     pi) %
@@ -2731,7 +2731,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 pi) %
                             360); // [x] calculation correct
 
-                        int chosenNahual = getNahuales(
+                        int chosenNahual = getNahual(
                             ((offsetGearNahuales + angleTime + finalAngle) *
                                     180 /
                                     pi) %
@@ -2773,7 +2773,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   pi) %
                               360); // [x] calculation correct
 
-                          int chosenNahual = getNahuales(
+                          int chosenNahual = getNahual(
                               ((offsetGearNahuales + angleTime + finalAngle) *
                                       180 /
                                       pi) %
@@ -2821,7 +2821,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   pi) %
                               360); // [x] calculation correct
 
-                          int chosenNahual = getNahuales(
+                          int chosenNahual = getNahual(
                               ((offsetGearNahuales + angleTime + finalAngle) *
                                       180 /
                                       pi) %
