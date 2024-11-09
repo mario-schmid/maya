@@ -90,6 +90,7 @@ Future<void> main() async {
     'assets/images/transparent.png',
     //
     'assets/images/icons/sign.png',
+    'assets/images/icons/element.png',
     //
     'assets/images/tones/01_white_curved_bottom.png',
     'assets/images/tones/02_white_curved_bottom.png',

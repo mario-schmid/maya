@@ -82,7 +82,12 @@ class LocaleString extends Translations {
               'Only mp3, ogg or wav files are allowed!',
           //
           'Please restart the app to restore all data!':
-              'Please restart the app to restore all data!'
+              'Please restart the app to restore all data!',
+          //
+          'Username': 'Username',
+          'Password': 'Password',
+          'Login': 'Login',
+          'Get Access': 'Get Access'
         },
         //GERMAN LANGUAGE
         'de_DE': {
@@ -165,7 +170,12 @@ class LocaleString extends Translations {
               'Es sind nur mp3, ogg oder wav Dateien erlaubt!',
           //
           'Please restart the app to restore all data!':
-              'Bitte starte die App neu, um alle Daten wiederherzustellen!'
+              'Bitte starte die App neu, um alle Daten wiederherzustellen!',
+          //
+          'Username': 'Benutzername',
+          'Password': 'Passwort',
+          'Login': 'Anmelden',
+          'Get Access': 'Zugang Erhalten'
         },
         //FRENCH LANGUAGE
         'fr_FR': {
@@ -248,7 +258,12 @@ class LocaleString extends Translations {
               'Seuls les fichiers mp3, ogg ou wav sont autorisés!',
           //
           'Please restart the app to restore all data!':
-              "Veuillez redémarrer l'application pour restaurer toutes les données!"
+              "Veuillez redémarrer l'application pour restaurer toutes les données!",
+          //
+          'Username': "nom d'utilisateur",
+          'Password': 'mot de passe',
+          'Login': 'se connecter',
+          'Get Access': "obtenir l'accès"
         },
         //SPAIN LANGUAGE
         'es_ES': {
@@ -331,7 +346,12 @@ class LocaleString extends Translations {
               'Sólo se permiten archivos mp3, ogg o wav!',
           //
           'Please restart the app to restore all data!':
-              'Reinicie la aplicación para restaurar todos los datos!'
+              'Reinicie la aplicación para restaurar todos los datos!',
+          //
+          'Username': "nombre de usuario",
+          'Password': 'contraseña',
+          'Login': 'acceso',
+          'Get Access': 'obtener acceso'
         },
       };
 }
