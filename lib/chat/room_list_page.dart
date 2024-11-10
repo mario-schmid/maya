@@ -58,7 +58,7 @@ class _RoomListPageState extends State<RoomListPage> {
     return Scaffold(
       appBar: AppBar(
           title: const Text('Chats'),
-          backgroundColor: widget.mainColor,
+          backgroundColor: Color.lerp(widget.mainColor, Colors.black, 0.3),
           foregroundColor: Colors.white,
           actions: [
             IconButton(

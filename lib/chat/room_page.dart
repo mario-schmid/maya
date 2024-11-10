@@ -64,7 +64,7 @@ class _RoomPageState extends State<RoomPage> {
     return Scaffold(
         appBar: AppBar(
             title: Text(widget.room.getLocalizedDisplayname()),
-            backgroundColor: widget.mainColor,
+            backgroundColor: Color.lerp(widget.mainColor, Colors.black, 0.3),
             foregroundColor: Colors.white,
             actions: [
               IconButton(
@@ -137,24 +137,32 @@ class _RoomPageState extends State<RoomPage> {
                                                     padding: EdgeInsets.all(
                                                         size.width * 0.025),
                                                     child: Row(children: [
-                                                      CircleAvatar(
-                                                          foregroundImage: timeline
-                                                                      .events[i]
-                                                                      .senderFromMemoryOrFallback
-                                                                      .avatarUrl ==
-                                                                  null
-                                                              ? null
-                                                              : NetworkImage(timeline
-                                                                  .events[i]
-                                                                  .senderFromMemoryOrFallback
-                                                                  .avatarUrl!
-                                                                  .getThumbnail(
-                                                                    widget.room
-                                                                        .client,
-                                                                    width: 56,
-                                                                    height: 56,
-                                                                  )
-                                                                  .toString())),
+                                                      SizedBox(
+                                                        height:
+                                                            size.width * 0.1,
+                                                        width: size.width * 0.1,
+                                                        child: CircleAvatar(
+                                                            foregroundImage: timeline
+                                                                        .events[
+                                                                            i]
+                                                                        .senderFromMemoryOrFallback
+                                                                        .avatarUrl ==
+                                                                    null
+                                                                ? null
+                                                                : NetworkImage(timeline
+                                                                    .events[i]
+                                                                    .senderFromMemoryOrFallback
+                                                                    .avatarUrl!
+                                                                    .getThumbnail(
+                                                                      widget
+                                                                          .room
+                                                                          .client,
+                                                                      width: 56,
+                                                                      height:
+                                                                          56,
+                                                                    )
+                                                                    .toString())),
+                                                      ),
                                                       SizedBox(
                                                           width: size.width *
                                                               0.025),
@@ -168,7 +176,7 @@ class _RoomPageState extends State<RoomPage> {
                                                               color: Color.lerp(
                                                                   widget
                                                                       .mainColor,
-                                                                  Colors.white,
+                                                                  Colors.black,
                                                                   0.2),
                                                               borderRadius:
                                                                   const BorderRadius
@@ -215,17 +223,30 @@ class _RoomPageState extends State<RoomPage> {
                                                                                 Colors.white,
                                                                             fontSize: 14)))
                                                               ])),
+                                                      SizedBox(
+                                                          width: size.width *
+                                                              0.025),
                                                       Expanded(
                                                           child: Align(
                                                               alignment: Alignment
                                                                   .centerRight,
-                                                              child: Text(
-                                                                  timePast,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          10,
-                                                                      color: Colors
-                                                                          .white))))
+                                                              child: SizedBox(
+                                                                width:
+                                                                    size.width *
+                                                                        0.1,
+                                                                child: Align(
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .centerRight,
+                                                                  child: Text(
+                                                                      timePast,
+                                                                      style: TextStyle(
+                                                                          fontSize: size.width *
+                                                                              0.03,
+                                                                          color:
+                                                                              Colors.white)),
+                                                                ),
+                                                              )))
                                                     ]))));
                                   }))
                         ]);
@@ -233,7 +254,7 @@ class _RoomPageState extends State<RoomPage> {
               Container(
                   height: 50,
                   width: double.infinity,
-                  color: widget.mainColor,
+                  color: Color.lerp(widget.mainColor, Colors.black, 0.3),
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(children: [
                     Expanded(
