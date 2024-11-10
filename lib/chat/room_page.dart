@@ -25,18 +25,18 @@ class _RoomPageState extends State<RoomPage> {
   @override
   void initState() {
     _timelineFuture = widget.room.getTimeline(onChange: (i) {
-      print('on change! $i');
+      //print('on change! $i');
       _listKey.currentState?.setState(() {});
     }, onInsert: (i) {
-      print('on insert! $i');
+      //print('on insert! $i');
       _listKey.currentState?.insertItem(i);
       _count++;
     }, onRemove: (i) {
-      print('On remove $i');
+      //print('On remove $i');
       _count--;
       _listKey.currentState?.removeItem(i, (_, __) => const ListTile());
     }, onUpdate: () {
-      print('On update');
+      //print('On update');
     });
     super.initState();
   }
@@ -60,6 +60,7 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: AppBar(
             title: Text(widget.room.getLocalizedDisplayname()),
@@ -132,59 +133,100 @@ class _RoomPageState extends State<RoomPage> {
                                                         .events[i].status.isSent
                                                     ? 1
                                                     : 0.5,
-                                                child: ListTile(
-                                                    leading: CircleAvatar(
-                                                      foregroundImage: timeline
+                                                child: Padding(
+                                                    padding: EdgeInsets.all(
+                                                        size.width * 0.025),
+                                                    child: Row(children: [
+                                                      CircleAvatar(
+                                                          foregroundImage: timeline
+                                                                      .events[i]
+                                                                      .senderFromMemoryOrFallback
+                                                                      .avatarUrl ==
+                                                                  null
+                                                              ? null
+                                                              : NetworkImage(timeline
                                                                   .events[i]
                                                                   .senderFromMemoryOrFallback
-                                                                  .avatarUrl ==
-                                                              null
-                                                          ? null
-                                                          : NetworkImage(timeline
-                                                              .events[i]
-                                                              .senderFromMemoryOrFallback
-                                                              .avatarUrl!
-                                                              .getThumbnail(
-                                                                widget.room
-                                                                    .client,
-                                                                width: 56,
-                                                                height: 56,
-                                                              )
-                                                              .toString()),
-                                                    ),
-                                                    title: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Text(
-                                                              timeline.events[i]
-                                                                  .senderFromMemoryOrFallback
-                                                                  .calcDisplayname(),
-                                                              style: TextStyle(
-                                                                  color: Color.lerp(
-                                                                      widget
-                                                                          .mainColor,
-                                                                      Colors
-                                                                          .white,
-                                                                      0.6))),
-                                                        ),
-                                                        Text(
-                                                          timePast,
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 10,
-                                                                  color: Colors
-                                                                      .white),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    subtitle: Text(
-                                                        timeline.events[i]
-                                                            .getDisplayEvent(
-                                                                timeline)
-                                                            .body,
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .white)))));
+                                                                  .avatarUrl!
+                                                                  .getThumbnail(
+                                                                    widget.room
+                                                                        .client,
+                                                                    width: 56,
+                                                                    height: 56,
+                                                                  )
+                                                                  .toString())),
+                                                      SizedBox(
+                                                          width: size.width *
+                                                              0.025),
+                                                      Container(
+                                                          padding: EdgeInsets.symmetric(
+                                                              vertical: 4,
+                                                              horizontal:
+                                                                  size.width *
+                                                                      0.02),
+                                                          decoration: BoxDecoration(
+                                                              color: Color.lerp(
+                                                                  widget
+                                                                      .mainColor,
+                                                                  Colors.white,
+                                                                  0.2),
+                                                              borderRadius:
+                                                                  const BorderRadius
+                                                                      .all(
+                                                                      Radius.circular(
+                                                                          10))),
+                                                          child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Text(
+                                                                    timeline
+                                                                        .events[
+                                                                            i]
+                                                                        .senderFromMemoryOrFallback
+                                                                        .calcDisplayname(),
+                                                                    style: TextStyle(
+                                                                        color: Color.lerp(
+                                                                            widget
+                                                                                .mainColor,
+                                                                            Colors
+                                                                                .white,
+                                                                            0.8),
+                                                                        fontSize:
+                                                                            13)),
+                                                                ConstrainedBox(
+                                                                    constraints: BoxConstraints(
+                                                                        maxWidth:
+                                                                            size.width *
+                                                                                0.66),
+                                                                    child: Text(
+                                                                        timeline
+                                                                            .events[
+                                                                                i]
+                                                                            .getDisplayEvent(
+                                                                                timeline)
+                                                                            .body,
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize: 14)))
+                                                              ])),
+                                                      Expanded(
+                                                          child: Align(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: Text(
+                                                                  timePast,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          10,
+                                                                      color: Colors
+                                                                          .white))))
+                                                    ]))));
                                   }))
                         ]);
                       })),
