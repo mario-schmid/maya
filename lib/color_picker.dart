@@ -24,7 +24,7 @@ class _ColorPickerState extends State<ColorPicker> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(

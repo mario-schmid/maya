@@ -267,8 +267,8 @@ class _TheYearState extends State<TheYear> {
   @override
   Widget build(BuildContext context) {
 /*============================================================================*/
-    Size size = MediaQuery.of(context).size;
-    double statusBarHeight = MediaQuery.of(context).viewPadding.top;
+    final Size size = MediaQuery.of(context).size;
+    final double statusBarHeight = MediaQuery.of(context).viewPadding.top;
 /*============================================================================*/
     return MaterialApp(
         debugShowCheckedModeBanner: false,

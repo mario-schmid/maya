@@ -1384,8 +1384,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    double statusBarHeight = MediaQuery.of(context).viewPadding.top;
+    final Size size = MediaQuery.of(context).size;
+    final double statusBarHeight = MediaQuery.of(context).viewPadding.top;
 
     if (size.height / size.width >= 692 / 360) {
       //

@@ -98,7 +98,7 @@ class _TheDayState extends State<TheDay> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
     double statusBarHeight = MediaQuery.of(context).viewPadding.top;
     return MaterialApp(
         debugShowCheckedModeBanner: false,

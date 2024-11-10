@@ -50,8 +50,6 @@ class _ADialogState extends State<ADialog> {
   final _alarmControllerTitle = TextEditingController();
   final _alarmControllerDescription = TextEditingController();
 
-  late TextStyle textStyle;
-  late BoxDecoration boxDecoration;
   late DateTime dateTime;
   late bool loopAudio;
   late bool vibrate;
@@ -146,14 +144,8 @@ class _ADialogState extends State<ADialog> {
     }
   }
 
-  @override
-  void didChangeDependencies() {
-    size = MediaQuery.of(context).size;
-    boxDecoration = BoxDecoration(
-        border: Border.all(color: Colors.white, width: 1),
-        borderRadius: BorderRadius.circular(10));
-    textStyle = TextStyle(color: Colors.white, fontSize: size.width * 0.04);
-    super.didChangeDependencies();
+  TextStyle getTextStyle(Size size) {
+    return TextStyle(color: Colors.white, fontSize: size.width * 0.04);
   }
 
   @override
@@ -165,6 +157,7 @@ class _ADialogState extends State<ADialog> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -201,7 +194,12 @@ class _ADialogState extends State<ADialog> {
                                       child: Container(
                                           height: size.width * 0.12,
                                           width: size.width * 0.3,
-                                          decoration: boxDecoration,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 1),
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
                                           child: Center(
                                               child: Text(_time,
                                                   style: TextStyle(
@@ -279,7 +277,7 @@ class _ADialogState extends State<ADialog> {
                                       inactiveThumbColor: Colors.indigo[400],
                                       activeColor: Colors.white,
                                       title: Text('Loop alarm audio'.tr,
-                                          style: textStyle),
+                                          style: getTextStyle(size)),
                                       value: loopAudio,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -291,8 +289,8 @@ class _ADialogState extends State<ADialog> {
                                   child: SwitchListTile(
                                       inactiveThumbColor: Colors.indigo[400],
                                       activeColor: Colors.white,
-                                      title:
-                                          Text('Vibrate'.tr, style: textStyle),
+                                      title: Text('Vibrate'.tr,
+                                          style: getTextStyle(size)),
                                       value: vibrate,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -376,7 +374,7 @@ class _ADialogState extends State<ADialog> {
                                                 },
                                                 style: MayaStyle()
                                                     .transparentButtonStyle(
-                                                        Colors.indigo[400]),
+                                                        Colors.red[400]),
                                                 child: Text('Cancel'.tr)))),
                                     Padding(
                                         padding: EdgeInsets.only(
