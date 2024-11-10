@@ -829,7 +829,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* init, load and set Language - END                                        */
   /* ------------------------------------------------------------------------ */
-  Color mainColor = const Color(0xff0000ff);
+  Color mainColor = const Color(0xff8800ff);
   /* ------------------------------------------------------------------------ */
   /* loadMainColor                                                            */
   /*                                                                          */
@@ -1164,7 +1164,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               });
                         },
                         onLongPress: () async {
-                          mainColor = const Color(0xff0000ff);
+                          mainColor = const Color(0xff8800ff);
                           deleteMainColor();
                         },
                         style: ButtonStyle(
@@ -2940,7 +2940,7 @@ saveTimeFormat(timeFormat) async {
 Future<Object> readMainColor() async {
   final prefs = await SharedPreferences.getInstance();
   const key = 'mainColor';
-  return prefs.getString(key) ?? '0xff0000ff';
+  return prefs.getString(key) ?? '0xff8800ff';
 }
 
 deleteMainColor() async {
