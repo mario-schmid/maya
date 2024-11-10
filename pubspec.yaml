@@ -44,7 +44,7 @@ dependencies:
   flutter_olm: ^2.0.0
   flutter_openssl_crypto: ^0.5.0
   flutter_splash_screen: ^3.0.0
-  flutter_svg: ^2.0.9
+  flutter_svg: ^2.0.14
   get: ^4.6.6
   installed_apps: ^1.5.2
   intl: ^0.19.0
