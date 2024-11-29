@@ -54,6 +54,7 @@ class _RoomListPageState extends State<RoomListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     final client = Provider.of<Client>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
@@ -79,16 +80,20 @@ class _RoomListPageState extends State<RoomListPage> {
           builder: (context, _) => ListView.builder(
             itemCount: client.rooms.length,
             itemBuilder: (context, i) => ListTile(
-              leading: CircleAvatar(
-                foregroundImage: client.rooms[i].avatar == null
-                    ? null
-                    : NetworkImage(client.rooms[i].avatar!
-                        .getThumbnail(
-                          client,
-                          width: 56,
-                          height: 56,
-                        )
-                        .toString()),
+              leading: SizedBox(
+                height: size.width * 0.12,
+                width: size.width * 0.12,
+                child: CircleAvatar(
+                  foregroundImage: client.rooms[i].avatar == null
+                      ? null
+                      : NetworkImage(client.rooms[i].avatar!
+                          .getThumbnail(
+                            client,
+                            width: 56,
+                            height: 56,
+                          )
+                          .toString()),
+                ),
               ),
               title: Row(
                 children: [

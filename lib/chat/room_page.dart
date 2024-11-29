@@ -124,8 +124,11 @@ class _RoomPageState extends State<RoomPage> {
                                                     .relationshipEventId !=
                                                 null ||
                                             eventBody.contains('m.room.') ||
-                                            eventBody.equals('Redacted')
-                                        ? Container()
+                                            eventBody.contains('m.call.') ||
+                                            eventBody.equals('Redacted') ||
+                                            eventBody.equals(
+                                                'The sender has not sent us the session key.')
+                                        ? SizedBox()
                                         : ScaleTransition(
                                             scale: animation,
                                             child: Opacity(
