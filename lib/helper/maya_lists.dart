@@ -18,47 +18,48 @@ class MayaLists {
 
   final List<String> strNahual = [
     // own    // alicia     // maya tecum
-    'Imox',   // Imox       // Imox
-    'Iq',     // Iq'        // Iq'
-    'Aqabal', // Aq'ab'al   // Ak'ab'al
-    'Kat',    // K'at       // K'at
-    'Kan',    // Kan        // Kan
-    'Kame',                 // Keme
-    'Kej',                  // Kiej
-    'Qanil',                // Q'anil
-    'Toj',                  // Toj
-    'Tzi',                  // Tz'i
-    'Batz',                 // B'atz'
-    'E',                    // E
-    'Aj',     // Aj         // Aj
-    'Ix',     // I'x        // I'x
-    'Tzikin', // Tz'ikin    // Tz'ikin
-    'Ajmaq',  // Ajmaq      // Ajmaq
-    'Noj',    // No'j       // N'oj
-    'Tijax',  // Tijax      // Tijax
-    'Kawoq',  // Kawoq      // Kawok
-    'Ajpu'    // Ajpu       // Ajpu
+    'Imox',   // Imox       // Imox,      IMIX
+    'Iq',     // Iq'        // Iq'        IQ'
+    'Aqabal', // Aq'ab'al   // Ak'ab'al   AKB'AL
+    'Kat',    // K'at       // K'at       K'AN
+    'Kan',    // Kan        // Kan        CHICHAN
+    'Kame',                 // Keme       KIMI
+    'Kej',                  // Kiej       MANIK'
+    'Qanil',                // Q'anil     LAMAT
+    'Toj',                  // Toj        MULUK
+    'Tzi',                  // Tz'i       OK'
+    'Batz',                 // B'atz'     CHUEN
+    'E',                    // E          EB'
+    'Aj',     // Aj         // Aj         B'EN
+    'Ix',     // I'x        // I'x        B'ALAM
+    'Tzikin', // Tz'ikin    // Tz'ikin    MEN
+    'Ajmaq',  // Ajmaq      // Ajmaq      KI'B'
+    'Noj',    // No'j       // N'oj       KAB'AN
+    'Tijax',  // Tijax      // Tijax      ETZ'NAB'
+    'Kawoq',  // Kawoq      // Kawok      KAWAK
+    'Ajpu'    // Ajpu       // Ajpu       AJAW
   ];
 
   final List<String> strWinal = [
-    'Pop',
-    'Uo',
-    'Zip',
-    'Zotz',
-    'Zek',
-    'Xul',
-    'Yaxkin',
-    'Mol',
-    'Chen',
-    'Yax',
-    'Zac',
-    'Ceh',
-    'Mac',
-    'Kankin',
-    'Muan',
-    'Pax',
-    'Kayab',
-    'Cumku',
-    'Wayeb'
+              // maya tecum
+    'Pop',    //
+    'Uo',     //
+    'Zip',    //
+    'Zotz',   //
+    'Zek',    //
+    'Xul',    //
+    'Yaxkin', //
+    'Mol',    //
+    'Chen',   //
+    'Yax',    //
+    'Zac',    //
+    'Ceh',    //
+    'Mac',    //
+    'Kankin', // Kankin
+    'Muan',   //
+    'Pax',    //
+    'Kayab',  //
+    'Cumku',  //
+    'Wayeb'   //
   ];
 }
