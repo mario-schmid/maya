@@ -5,12 +5,12 @@ import 'dart:math';
 
 import 'package:alarm/alarm.dart' as maya_alarm;
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
+import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:flutter_splash_screen/flutter_splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -243,18 +243,26 @@ class MayaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => MayaData()),
-        ChangeNotifierProvider(create: (context) => DayItems())
-      ],
-      child: GetMaterialApp(
-          navigatorKey: navigatorKey,
-          translations: LocaleString(),
-          locale: const Locale('en', 'GB'),
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(fontFamily: 'Roboto'),
-          home: const Home()),
-    );
+        providers: [
+          ChangeNotifierProvider(create: (context) => MayaData()),
+          ChangeNotifierProvider(create: (context) => DayItems())
+        ],
+        child: GetMaterialApp(
+            navigatorKey: navigatorKey,
+            translations: LocaleString(),
+            locale: const Locale('en', 'GB'),
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(fontFamily: 'Roboto'),
+            home: FlutterSplashScreen.fadeIn(
+                //duration: Duration(milliseconds: 1320),
+                //animationDuration: Duration(milliseconds: 1320),
+                backgroundColor: Colors.white,
+                childWidget: SizedBox(
+                  height: 160,
+                  width: 160,
+                  child: Image.asset("assets/images/icons/sign.png"),
+                ),
+                nextScreen: const Home())));
   }
 }
 
@@ -592,27 +600,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     ])));
       }
     });
-    hideSplashScreen();
     super.initState();
   }
 
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
-
-  /* ------------------------------------------------------------------------ */
-  /* hideSplashScreen                                                         */
-  /*                                                                          */
-  Future<void> hideSplashScreen() async {
-    Future.delayed(const Duration(milliseconds: 1111), () {
-      FlutterSplashScreen.hide();
-    });
-  }
-
-  /*                                                                          */
-  /* hideSplashScreen - END                                                   */
-  /* ------------------------------------------------------------------------ */
-
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
