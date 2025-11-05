@@ -9,68 +9,97 @@ class MayaStyle {
   // Text Field InputDecoration
   InputDecoration textFieldInputDecoration(Color mainColor, String labelText) {
     return InputDecoration(
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(width: 2, color: Colors.white),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        // Set border for focused state
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(width: 2, color: mainColor),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.white));
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(width: 2, color: Colors.white),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      // Set border for focused state
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(width: 2, color: mainColor),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.white),
+    );
   }
 
   static const TextStyle popUpDialogTitle = TextStyle(
-      fontFamily: 'Robot',
-      color: Colors.white,
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-      decoration: TextDecoration.none);
+    fontFamily: 'Robot',
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    decoration: TextDecoration.none,
+  );
 
   static const TextStyle popUpDialogBody = TextStyle(
-      fontFamily: 'Robot',
-      color: Colors.white,
-      fontSize: 14,
-      fontWeight: FontWeight.normal,
-      decoration: TextDecoration.none);
+    fontFamily: 'Robot',
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    decoration: TextDecoration.none,
+  );
 
   BoxDecoration popUpDialogDecoration(Color mainColor) {
     return BoxDecoration(
-        color: mainColor,
-        border: Border.all(width: 1, color: Colors.white),
-        borderRadius: const BorderRadius.all(Radius.circular(10)));
+      color: mainColor,
+      border: Border.all(width: 1, color: Colors.white),
+      borderRadius: const BorderRadius.all(Radius.circular(10)),
+    );
   }
 
   // EvaluatedButton
   ButtonStyle mainButtonStyle(Color? color) {
     return ButtonStyle(
-        padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
-        foregroundColor: const WidgetStatePropertyAll(Colors.white),
-        backgroundColor: WidgetStateProperty.all(color?.withOpacity(0.5)),
-        shadowColor: WidgetStateProperty.all(Colors.transparent),
-        side: WidgetStateProperty.all(
-            const BorderSide(color: Colors.white, width: 1)),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 18)),
-        overlayColor: WidgetStateProperty.all(color));
+      padding: const WidgetStatePropertyAll(EdgeInsets.all(0)),
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      backgroundColor: WidgetStateProperty.all(color?.withValues(alpha: 0.5)),
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      side: WidgetStateProperty.all(const BorderSide(color: Colors.white, width: 1)),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 18)),
+      overlayColor: WidgetStateProperty.all(color),
+    );
   }
 
-  // EvaluatedButton
+  // EvaluatedButtons for event, note, task and alarm dialogs
   ButtonStyle transparentButtonStyle(Color? overlayColor) {
     return ButtonStyle(
-        padding: const WidgetStatePropertyAll(EdgeInsets.all(1)),
-        foregroundColor: const WidgetStatePropertyAll(Colors.white),
-        backgroundColor: WidgetStateProperty.all(Colors.transparent),
-        shadowColor: WidgetStateProperty.all(Colors.transparent),
-        side: WidgetStateProperty.all(
-            const BorderSide(color: Colors.white, width: 1)),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 18)),
-        overlayColor: WidgetStateProperty.all(overlayColor));
+      padding: const WidgetStatePropertyAll(EdgeInsets.all(1)),
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      side: WidgetStateProperty.all(const BorderSide(color: Colors.white, width: 1)),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 18)),
+      overlayColor: WidgetStateProperty.all(overlayColor),
+    );
+  }
+
+  // EvaluationButtons for color, image and alarm
+  ButtonStyle settingsButtonStyleCarrot(Size size, Color mainColor, double celery) {
+    return ButtonStyle(
+      minimumSize: WidgetStateProperty.all(Size.zero),
+      padding: WidgetStateProperty.all(EdgeInsets.zero),
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      backgroundColor: WidgetStateProperty.all(mainColor.withValues(alpha: 0.5)),
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      side: WidgetStateProperty.all(BorderSide(color: Colors.white, width: 0.002 * celery)),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.01 * celery))),
+      overlayColor: WidgetStateProperty.all(mainColor),
+    );
+  }
+
+  // EvaluationButtons for Cancel and Save in the settings
+  ButtonStyle settingsButtonStyleRadish(Size size, Color mainColor) {
+    return ButtonStyle(
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      backgroundColor: WidgetStateProperty.all(mainColor.withValues(alpha: 0.5)),
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      side: WidgetStateProperty.all(const BorderSide(color: Colors.white, width: 1)),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(size.width * 0.02))),
+      textStyle: WidgetStateProperty.all(TextStyle(fontSize: size.width * 0.046)),
+      overlayColor: WidgetStateProperty.all(mainColor),
+    );
   }
 
   //TODO: implement dialogPadding

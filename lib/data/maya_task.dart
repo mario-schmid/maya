@@ -1,6 +1,7 @@
 class Task {
-  String? text;
+  String uuid;
+  String description;
   bool isChecked;
 
-  Task(this.text, this.isChecked);
+  Task(this.uuid, this.description, this.isChecked);
 }

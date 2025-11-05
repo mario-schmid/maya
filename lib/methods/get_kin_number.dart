@@ -259,8 +259,9 @@ int getKinNumber(int tone, int nahual) {
     [9, 16],
     [10, 17],
     [11, 18],
-    [12, 19]
+    [12, 19],
   ];
-  return array
-      .indexWhere((element) => element[0] == tone && element[1] == nahual);
+  return array.indexWhere(
+    (element) => element[0] == tone && element[1] == nahual,
+  );
 }
