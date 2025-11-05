@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../helper/maya_images.dart';
+import '../helper/maya_image.dart';
 
-Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
-    Color mainColor, int tone, int nahual) {
+Container mayaCrossContainer(
+  Size size,
+  ImageProvider backgroundImage,
+  Color mainColor,
+  int tone,
+  int nahual,
+) {
   final BoxDecoration mainBoxDecoration = BoxDecoration(
     image: DecorationImage(image: backgroundImage, fit: BoxFit.cover),
     border: Border.all(color: Colors.white, width: size.width * 0.0028),
@@ -13,18 +18,19 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
   );
 
   final boxDecoration = BoxDecoration(
-    color: mainColor.withOpacity(0.5),
+    color: mainColor.withValues(alpha: 0.5),
     border: Border.all(color: Colors.white, width: size.width * 0.0028),
     borderRadius: BorderRadius.circular(10),
     shape: BoxShape.rectangle,
   );
 
   final TextStyle textStyle = TextStyle(
-      fontFamily: 'Roboto',
-      color: Colors.white,
-      fontSize: size.width * 0.03,
-      fontWeight: FontWeight.normal,
-      decoration: TextDecoration.none);
+    fontFamily: 'Roboto',
+    color: Colors.white,
+    fontSize: size.width * 0.03,
+    fontWeight: FontWeight.normal,
+    decoration: TextDecoration.none,
+  );
 
   final Size sizeContainer = Size(size.width * 0.25, size.width * 0.25);
   final double heightTone = size.width * 0.058;
@@ -37,128 +43,172 @@ Container mayaCrossContainer(Size size, ImageProvider backgroundImage,
   final List<int> nahualesDirections = getDirectionsNahuales(nahual);
 
   return Container(
-      decoration: mainBoxDecoration,
-      height: size.width * 0.96,
-      width: size.width * 0.96,
-      child: Column(children: [
+    decoration: mainBoxDecoration,
+    height: size.width * 0.96,
+    width: size.width * 0.96,
+    child: Column(
+      children: [
         SizedBox(
-            height: sizeTextBox,
-            child: Column(
+          height: sizeTextBox,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('west'.tr, style: textStyle),
+              Text('Past'.tr, style: textStyle),
+            ],
+          ),
+        ),
+        Container(
+          decoration: boxDecoration,
+          height: sizeContainer.height,
+          width: sizeContainer.width,
+          child: Column(
+            children: [
+              SizedBox(height: paddingToneNahual),
+              SizedBox(
+                height: heightTone,
+                child: MayaImage.imageToneWhiteCurvedBottom[tonesDirections[0]],
+              ),
+              SizedBox(height: paddingToneNahual),
+              SizedBox(
+                height: heightNahual,
+                child: MayaImage.signNahual[nahualesDirections[0]],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: padding),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: sizeTextBox,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('west'.tr, style: textStyle),
-                  Text('Past'.tr, style: textStyle)
-                ])),
-        Container(
-            decoration: boxDecoration,
-            height: sizeContainer.height,
-            width: sizeContainer.width,
-            child: Column(children: [
-              SizedBox(height: paddingToneNahual),
-              SizedBox(
-                  height: heightTone,
-                  child: MayaImages()
-                      .imageToneWhiteCurvedBottom[tonesDirections[0]]),
-              SizedBox(height: paddingToneNahual),
-              SizedBox(
-                  height: heightNahual,
-                  child: MayaImages().signNahual[nahualesDirections[0]])
-            ])),
-        SizedBox(height: padding),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          SizedBox(
-              width: sizeTextBox,
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                RotatedBox(
+                  RotatedBox(
                     quarterTurns: -1,
-                    child: Text('south'.tr, style: textStyle)),
-                RotatedBox(
+                    child: Text('south'.tr, style: textStyle),
+                  ),
+                  RotatedBox(
                     quarterTurns: -1,
-                    child: Text('masculine'.tr, style: textStyle))
-              ])),
-          Container(
+                    child: Text('masculine'.tr, style: textStyle),
+                  ),
+                ],
+              ),
+            ),
+            Container(
               decoration: boxDecoration,
               height: sizeContainer.height,
               width: sizeContainer.width,
-              child: Column(children: [
-                SizedBox(height: paddingToneNahual),
-                SizedBox(
+              child: Column(
+                children: [
+                  SizedBox(height: paddingToneNahual),
+                  SizedBox(
                     height: heightTone,
-                    child: MayaImages()
-                        .imageToneWhiteCurvedBottom[tonesDirections[2]]),
-                SizedBox(height: paddingToneNahual),
-                SizedBox(
+                    child: MayaImage
+                        .imageToneWhiteCurvedBottom[tonesDirections[2]],
+                  ),
+                  SizedBox(height: paddingToneNahual),
+                  SizedBox(
                     height: heightNahual,
-                    child: MayaImages().signNahual[nahualesDirections[2]])
-              ])),
-          SizedBox(width: padding),
-          Container(
+                    child: MayaImage.signNahual[nahualesDirections[2]],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: padding),
+            Container(
               decoration: boxDecoration,
               height: sizeContainer.height,
               width: sizeContainer.width,
-              child: Column(children: [
-                SizedBox(height: paddingToneNahual),
-                SizedBox(
+              child: Column(
+                children: [
+                  SizedBox(height: paddingToneNahual),
+                  SizedBox(
                     height: heightTone,
-                    child: MayaImages().imageToneWhiteCurvedBottom[tone]),
-                SizedBox(height: paddingToneNahual),
-                SizedBox(
+                    child: MayaImage.imageToneWhiteCurvedBottom[tone],
+                  ),
+                  SizedBox(height: paddingToneNahual),
+                  SizedBox(
                     height: heightNahual,
-                    child: MayaImages().signNahual[nahual])
-              ])),
-          SizedBox(width: padding),
-          Container(
+                    child: MayaImage.signNahual[nahual],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: padding),
+            Container(
               decoration: boxDecoration,
               height: sizeContainer.height,
               width: sizeContainer.width,
-              child: Column(children: [
-                SizedBox(height: paddingToneNahual),
-                SizedBox(
+              child: Column(
+                children: [
+                  SizedBox(height: paddingToneNahual),
+                  SizedBox(
                     height: heightTone,
-                    child: MayaImages()
-                        .imageToneWhiteCurvedBottom[tonesDirections[3]]),
-                SizedBox(height: paddingToneNahual),
-                SizedBox(
+                    child: MayaImage
+                        .imageToneWhiteCurvedBottom[tonesDirections[3]],
+                  ),
+                  SizedBox(height: paddingToneNahual),
+                  SizedBox(
                     height: heightNahual,
-                    child: MayaImages().signNahual[nahualesDirections[3]])
-              ])),
-          SizedBox(
+                    child: MayaImage.signNahual[nahualesDirections[3]],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
               width: sizeTextBox,
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                RotatedBox(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RotatedBox(
                     quarterTurns: 1,
-                    child: Text('feminine'.tr, style: textStyle)),
-                RotatedBox(
-                    quarterTurns: 1, child: Text('north'.tr, style: textStyle))
-              ])),
-        ]),
+                    child: Text('feminine'.tr, style: textStyle),
+                  ),
+                  RotatedBox(
+                    quarterTurns: 1,
+                    child: Text('north'.tr, style: textStyle),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         SizedBox(height: padding),
         Container(
-            decoration: boxDecoration,
-            height: sizeContainer.height,
-            width: sizeContainer.width,
-            child: Column(children: [
+          decoration: boxDecoration,
+          height: sizeContainer.height,
+          width: sizeContainer.width,
+          child: Column(
+            children: [
               SizedBox(height: paddingToneNahual),
               SizedBox(
-                  height: heightTone,
-                  child: MayaImages()
-                      .imageToneWhiteCurvedBottom[tonesDirections[1]]),
+                height: heightTone,
+                child: MayaImage.imageToneWhiteCurvedBottom[tonesDirections[1]],
+              ),
               SizedBox(height: paddingToneNahual),
               SizedBox(
-                  height: heightNahual,
-                  child: MayaImages().signNahual[nahualesDirections[1]])
-            ])),
+                height: heightNahual,
+                child: MayaImage.signNahual[nahualesDirections[1]],
+              ),
+            ],
+          ),
+        ),
         SizedBox(
-            height: sizeTextBox,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('east'.tr, style: textStyle),
-                  Text('Future'.tr, style: textStyle)
-                ]))
-      ]));
+          height: sizeTextBox,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('east'.tr, style: textStyle),
+              Text('Future'.tr, style: textStyle),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 List<int> getDirectionTones(int tone) {
@@ -170,6 +220,6 @@ List<int> getDirectionsNahuales(int nahual) {
     (nahual + 12) % 20,
     (nahual + 8) % 20,
     (nahual + 14) % 20,
-    (nahual + 6) % 20
+    (nahual + 6) % 20,
   ];
 }

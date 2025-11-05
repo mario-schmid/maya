@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../helper/maya_images.dart';
+import '../helper/maya_image.dart';
 
 class RandomCharacter extends StatefulWidget {
   final ImageProvider backgroundImage;
   final int tone;
   final int nahual;
-  const RandomCharacter(
-      {super.key,
-      required this.backgroundImage,
-      required this.tone,
-      required this.nahual});
+  const RandomCharacter({
+    super.key,
+    required this.backgroundImage,
+    required this.tone,
+    required this.nahual,
+  });
 
   @override
   State<RandomCharacter> createState() => _RandomCharacterState();
@@ -26,11 +27,11 @@ class _RandomCharacterState extends State<RandomCharacter>
   @override
   void initState() {
     _controller = AnimationController(
-        duration: const Duration(seconds: 1), vsync: this, value: 0.2);
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.linear,
+      duration: const Duration(seconds: 1),
+      vsync: this,
+      value: 0.2,
     );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.linear);
     _controller.forward();
 
     int value = widget.nahual % 4;
@@ -64,37 +65,44 @@ class _RandomCharacterState extends State<RandomCharacter>
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          backgroundColor: Colors.black.withOpacity(0.7),
-          body: Stack(children: [
+        backgroundColor: Colors.black.withValues(alpha: 0.7),
+        body: Stack(
+          children: [
             Center(
               child: SizedBox(
-                  height: size.width * 0.72,
-                  width: size.width * 0.72,
-                  child: CircularProgressIndicator(
-                    color: color,
-                    strokeWidth: 22,
-                    strokeCap: StrokeCap.round,
-                  )),
+                height: size.width * 0.72,
+                width: size.width * 0.72,
+                child: CircularProgressIndicator(
+                  color: color,
+                  strokeWidth: 22,
+                  strokeCap: StrokeCap.round,
+                ),
+              ),
             ),
             Center(
               child: GestureDetector(
-                  child: ScaleTransition(
-                scale: _animation,
-                child: SizedBox(
+                child: ScaleTransition(
+                  scale: _animation,
+                  child: SizedBox(
                     width: size.width * 0.3,
                     child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                              width: size.width * 0.3 / 1.142857143,
-                              child: MayaImages()
-                                  .imageToneWhiteCurved[widget.tone]),
-                          SizedBox(height: size.width * 0.01),
-                          MayaImages().signNahual[widget.nahual]
-                        ])),
-              )),
-            )
-          ])),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: size.width * 0.3 / 1.142857143,
+                          child: MayaImage.imageToneWhiteCurved[widget.tone],
+                        ),
+                        SizedBox(height: size.width * 0.01),
+                        MayaImage.signNahual[widget.nahual],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

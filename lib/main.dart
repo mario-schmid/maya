@@ -5,26 +5,20 @@ import 'dart:math';
 
 import 'package:alarm/alarm.dart' as maya_alarm;
 import 'package:android_gesture_exclusion/android_gesture_exclusion.dart';
-import 'package:another_flutter_splash_screen/another_flutter_splash_screen.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_donation_buttons/flutter_donation_buttons.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:matrix/matrix.dart' as matrix;
-import 'package:maya/chat/main_page.dart';
 import 'package:moon_phase_plus/moon_phase_plus.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:restart_app/restart_app.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../alarm_settings.dart';
 import '../character_choice.dart';
 import '../cholqij.dart';
 import '../classes/position.dart';
@@ -32,22 +26,23 @@ import '../color_picker.dart';
 import '../data/maya_alarm.dart';
 import '../data/maya_day.dart';
 import '../data/maya_event.dart';
+import '../data/maya_location.dart';
+import '../data/maya_note.dart';
 import '../data/maya_task.dart';
 import '../database_handler.dart';
 import '../date_calculator.dart';
 import '../date_selection.dart';
 import '../helper/locale_string.dart';
-import '../helper/maya_images.dart';
-import '../helper/maya_lists.dart';
+import '../helper/maya_image.dart';
+import '../helper/maya_list.dart';
 import '../helper/maya_style.dart';
-import '../maya_items.dart';
+import '../helper/release_note_dialog.dart';
+import '../helper/shared_prefs.dart';
 import '../methods/get_delta_year.dart';
 import '../methods/get_kin_number.dart';
 import '../methods/get_nahual.dart';
-import '../methods/get_text_size.dart';
 import '../methods/get_tone.dart';
 import '../methods/get_tone_nahual.dart';
-import '../providers/dayitems.dart';
 import '../providers/mayadata.dart';
 import '../random_character.dart';
 import '../relationship.dart';
@@ -56,12 +51,10 @@ import '../the_day.dart';
 import '../the_year.dart';
 import '../time_format.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 Future<void> main() async {
-/* -------------------------------------------------------------------------- */
-/* Assets for precacheImage                                                   */
-/*                                                                            */
+  /* -------------------------------------------------------------------------- */
+  /* Assets for precacheImage                                                   */
+  /*                                                                            */
   final List<String> allAssetImages = [
     'assets/images/shape_button_left_bottom.png',
     'assets/images/shape_button_left_top.png',
@@ -87,10 +80,7 @@ Future<void> main() async {
     //
     'assets/images/moon_pattern.png',
     //
-    'assets/images/transparent.png',
-    //
     'assets/images/icons/sign.png',
-    'assets/images/icons/element.png',
     //
     'assets/images/tones/01_white_curved_bottom.png',
     'assets/images/tones/02_white_curved_bottom.png',
@@ -218,12 +208,21 @@ Future<void> main() async {
     'assets/images/cholqij_field_red.jpg',
     'assets/images/cholqij_field_white.jpg',
     'assets/images/cholqij_field_blue.jpg',
-    'assets/images/cholqij_field_yellow.jpg'
+    'assets/images/cholqij_field_yellow.jpg',
   ];
-/*                                                                          */
-/* Assets for precacheImage - END                                           */
-/* ------------------------------------------------------------------------ */
+  /*                                                                          */
+  /* Assets for precacheImage - END                                           */
+  /* ------------------------------------------------------------------------ */
   final binding = WidgetsFlutterBinding.ensureInitialized();
+
+  bool boolUpdateYear = await updateYear();
+  boolUpdateYear ? SharedPrefs.removeKey('adjustDatabase') : null;
+
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+  Color mainColor = Color(int.parse(await SharedPrefs.readMainColor()));
+  ImageProvider backgroundImage = await SharedPrefs.readBgFilePath();
+
   binding.addPostFrameCallback((_) async {
     Element? context = binding.rootElement;
     if (context != null) {
@@ -234,202 +233,65 @@ Future<void> main() async {
   });
 
   await maya_alarm.Alarm.init();
-  runApp(const MayaApp());
+  runApp(MayaApp(packageInfo: packageInfo, mainColor: mainColor, backgroundImage: backgroundImage));
 }
 
 class MayaApp extends StatelessWidget {
-  const MayaApp({super.key});
+  final PackageInfo packageInfo;
+  final Color mainColor;
+  final ImageProvider backgroundImage;
+  const MayaApp({super.key, required this.packageInfo, required this.mainColor, required this.backgroundImage});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => MayaData()),
-          ChangeNotifierProvider(create: (context) => DayItems())
-        ],
-        child: GetMaterialApp(
-            navigatorKey: navigatorKey,
-            translations: LocaleString(),
-            locale: const Locale('en', 'GB'),
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(fontFamily: 'Roboto'),
-            home: FlutterSplashScreen.fadeIn(
-                //duration: Duration(milliseconds: 1320),
-                //animationDuration: Duration(milliseconds: 1320),
-                backgroundColor: Colors.white,
-                childWidget: SizedBox(
-                  height: 160,
-                  width: 160,
-                  child: Image.asset("assets/images/icons/sign.png"),
-                ),
-                nextScreen: const Home())));
+      providers: [ChangeNotifierProvider(create: (context) => MayaData())],
+      child: GetMaterialApp(
+        translations: LocaleString(),
+        locale: const Locale('en', 'GB'),
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(fontFamily: 'Roboto'),
+        home: Home(packageInfo: packageInfo, mainColor: mainColor, backgroundImage: backgroundImage),
+      ),
+    );
   }
 }
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  final PackageInfo packageInfo;
+  final Color mainColor;
+  final ImageProvider backgroundImage;
+  const Home({super.key, required this.packageInfo, required this.mainColor, required this.backgroundImage});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
-  final DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
-  final DateFormat dateTimeformatSeasons =
-      DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
+  late Timer _timer;
+  late PackageInfo packageInfo;
 
-  late String? bgFilePath;
-  ImageProvider backgroundImage =
-      const AssetImage('assets/images/transparent.png');
-  /* ------------------------------------------------------------------------ */
-  /* Positions and Sizes                                                      */
-  /*                                                                          */
-  late Size sizeSettings;
-  late Position posSettings;
-  //
-  late Size sizeBoxTime;
-  late Position posBoxTime;
-  //
-  late double sizeIconNotification;
-  late double sizePaddingNotificationTime;
-  late TextStyle textStyleTime;
-  //
-  late Size sizeSandstoneFormTop;
-  late Position posSandstoneFormTop;
-  //
-  late Size sizeShapeRightTop;
-  late Position posShapeRightTop;
-  //
-  late Size sizeSandstoneFormBottom;
-  late Position posSandstoneFormBottom;
-  //
-  late Size sizeShapeRightBottom;
-  late Position posShapeRightBottom;
-  //
-  late Size sizeWheelNahuales;
-  late Position posWheelNahuales;
-  //
-  late Size sizeSignNahual;
-  late Offset offsetSignNahual;
-  //
-  late Size sizeWheelHaab;
-  late Position posWheelHaab;
-  //
-  late Size sizeSectionFieldWinal;
-  late Position posSectionFieldWinal;
-  late Size sizeSectionWinal;
-  late Offset offsetSectionFieldWinal;
-  //
-  late Size sizeImageToneWhiteFlatCenter;
-  late Position posImageToneWhiteFlatCenter;
-  late Offset offsetImageToneWhiteFlatCenter;
-  //
-  late Size sizeBoxTextWinal;
-  late Position posBoxTextWinal;
-  late Offset offsetBoxTextWinal;
-  //
-  late Size sizeSectionFieldWinalWayeb;
-  late Position posSectionFieldWinalWayeb;
-  late Size sizeSectionWinalWayeb;
-  late Offset offsetSectionFieldWinalWayeb;
-  //
-  late Size sizeImageToneWhiteFlatCenterWayeb;
-  late Position posImageToneWhiteFlatCenterWayeb;
-  late Offset offsetImageToneWhiteFlatCenterWayeb;
-  //
-  late Size sizeBoxTextWinalWayeb;
-  late Position posBoxTextWinalWayeb;
-  late Offset offsetBoxTextWinalWayeb;
-  //
-  late TextStyle textStyleStrWinal;
-  //
-  late Size sizeFrame;
-  late Position posFrame;
-  late Offset offsetFrame;
-  //
-  late Size sizeSandstoneMoon;
-  late Position posSandstoneMoon;
-  //
-  late Size sizeButtonReset;
-  late Position posButtonReset;
-  //
-  late Size sizeWheelTones;
-  late Position posWheelTones;
-  //
-  late Size sizeBoxSeasons;
-  late Position posBoxSeasons;
-  //
-  late Size sizeSignTone;
-  late Offset offsetSignTone;
-  //
-  late double sizeMoon;
-  late Position posMoon;
-  //
-  late double sizeBoxSolsticesEquinoxes;
-  late Position posBoxSolsticesEquinoxes;
-  //
-  late EdgeInsets paddingBoxSolsticesEquinoxes;
-  late double mainAxisSpacingBoxSolsticesEquinoxes;
-  late double crossAxisSpacingBoxSolsticesEquinoxes;
-  //
-  late double sizeCircleSeason;
-  late EdgeInsets paddingCircleSeason;
-  late Offset offsetCircleSeason;
-  //
-  late Size sizeButtonRelationship;
-  late Position posButtonRelationship;
-  //
-  late Size sizeButtonTheYear;
-  late Position posButtonTheYear;
-  //
-  late Size sizeButtonDateCalculator;
-  late Position posButtonDateCalculator;
-  //
-  late Size sizeButtonCholqij;
-  late Position posButtonCholqij;
-  //
-  late Size sizeBoxTextToneNahual;
-  late Position posBoxTextToneNahual;
-  //
-  late TextStyle textStyleToneNahual;
-  //
-  late Size sizeBoxLongCount;
-  late Position posBoxLongCount;
-  late Size sizeSandstones;
-  late Size sizeNumbers;
-  late EdgeInsets paddingSandstones;
-  late EdgeInsets paddingNumbersBaktun;
-  late EdgeInsets paddingNumbersKatun;
-  late EdgeInsets paddingNumbersTun;
-  late EdgeInsets paddingNumbersWinal;
-  late EdgeInsets paddingNumbersKin;
-  /*                                                                          */
-  /* Positions and Sizes - END                                                */
-  /* ------------------------------------------------------------------------ */
-  /* ------------------------------------------------------------------------ */
-  /* Variables                                                                 */
-  /*                                                                          */
+  late Color mainColor;
+  late ImageProvider backgroundImage;
+
+  final DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
+  final DateFormat dateTimeformatSeasons = DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
+
+  late String bgFilePath;
+
   DateTime now = DateTime.now();
 
-  // NOTE: this code is for database adjustments
-  Future<bool> adjustDatabase = updateYear();
+  final Future<List<Map<String, dynamic>>> _eventList = DatabaseHandlerEvents().retrieveEvents();
+  final Future<List<Map<String, dynamic>>> _noteList = DatabaseHandlerNotes().retrieveNotes();
+  final Future<List<Map<String, dynamic>>> _taskList = DatabaseHandlerTasks().retrieveTasks();
+  final Future<List<Map<String, dynamic>>> _alarmList = DatabaseHandlerAlarms().retrieveAlarms();
+  final Future<List<Map<String, dynamic>>> _arrangementList = DatabaseHandlerArrangements().retrieveArrangements();
 
-  final Future<Iterable<List<Object?>>> _eventList =
-      DatabaseHandlerEvents().retrieveEvents();
-  final Future<Iterable<List<Object?>>> _noteList =
-      DatabaseHandlerNotes().retrieveNotes();
-  final Future<Iterable<List<Object?>>> _taskList =
-      DatabaseHandlerTasks().retrieveTasks();
-  final Future<Iterable<List<Object?>>> _alarmList =
-      DatabaseHandlerAlarms().retrieveAlarms();
-  final Future<Iterable<List<Object?>>> _arrangementList =
-      DatabaseHandlerArrangements().retrieveArrangements();
-
-  List<List<dynamic>> eventList = [];
-  List<List<dynamic>> noteList = [];
-  List<List<dynamic>> taskList = [];
-  List<List<dynamic>> alarmList = [];
-  List<List<dynamic>> arrangementList = [];
+  List<Map<String, dynamic>> eventList = [];
+  List<Map<String, dynamic>> noteList = [];
+  List<Map<String, dynamic>> taskList = [];
+  List<Map<String, dynamic>> alarmList = [];
+  List<Map<String, dynamic>> arrangementList = [];
 
   late DateTime startDate;
   String currTime = '';
@@ -438,8 +300,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   double angleSeason = 0.0;
 
-  SvgPicture iconSeason =
-      SvgPicture.asset('assets/vector/transparent_icon.svg');
+  SvgPicture iconSeason = SvgPicture.asset('assets/vector/transparent_icon.svg');
 
   double finalAngle = 0.0;
   double oldAngle = 0.0;
@@ -496,48 +357,35 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   late String strTextToneNahual;
 
-  final List<Image> imageToneWhiteFlatBottom = [
-    Image.asset('assets/images/tones/00_white_bottom.png'),
-    Image.asset('assets/images/tones/01_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/02_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/03_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/04_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/05_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/06_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/07_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/08_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/09_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/10_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/11_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/12_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/13_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/14_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/15_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/16_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/17_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/18_white_flat_bottom.png'),
-    Image.asset('assets/images/tones/19_white_flat_bottom.png')
-  ];
-
-  final List<Image> trecenaMask = [
-    Image.asset('assets/images/trecenaRed.png'),
-    Image.asset('assets/images/trecenaWhite.png'),
-    Image.asset('assets/images/trecenaBlue.png'),
-    Image.asset('assets/images/trecenaYellow.png')
-  ];
-
-  static StreamSubscription<maya_alarm.AlarmSettings>? subscription;
-  /*                                                                          */
-  /* Variables - END                                                           */
-  /* ------------------------------------------------------------------------ */
+  static StreamSubscription<dynamic>? subscription;
 
   /* ------------------------------------------------------------------------ */
   /* initState                                                                */
   /*                                                                          */
   @override
   void initState() {
+    packageInfo = widget.packageInfo;
+    mainColor = widget.mainColor;
+    backgroundImage = widget.backgroundImage;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // TODO: save version! delete this line if startup release dialog is enabled.
+      await SharedPrefs.versionChanged(packageInfo.version);
+      // TODO: add startup release dialog in future releases!
+      /*if (await SharedPrefs.versionChanged(packageInfo.version)) {
+        if (!mounted) return;
+        Size size = MediaQuery.of(context).size;
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) => Center(
+            child: releaseNoteDialog(size, mainColor, packageInfo.version),
+          ),
+        );
+      }*/
+    });
+
     // Clock
-    Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       final DateTime nowClock = DateTime.now();
       setState(() {
         currTime = TimeFormat().getTimeFormat.format(nowClock);
@@ -549,58 +397,32 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       checkAndroidNotificationPermission();
       checkAndroidScheduleExactAlarmPermission();
     }
-    subscription ??= maya_alarm.Alarm.ringStream.stream.listen(
-      (alarmSettings) => navigateToRingScreen(alarmSettings),
-    );
 
-    loadSeasonsFromAssets('assets/seasons.json');
-
-    loadMainColor();
-    loadLanguage();
-
-    loadTimeFormat();
-    loadBgFilePath();
-    loadData();
-
-    startDate = DateTime.parse('2013-02-21 00:00:00');
-
-    // NOTE: this code is for database adjustments
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (await adjustDatabase) {
-        await showDialog(
-            context: navigatorKey.currentContext!,
-            builder: (BuildContext context) => Center(
-                    child: AlertDialog(
-                        insetPadding: const EdgeInsets.all(0),
-                        contentPadding: const EdgeInsets.all(0),
-                        actionsPadding: const EdgeInsets.all(0),
-                        actionsAlignment: MainAxisAlignment.center,
-                        content: Container(
-                          height: 120,
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          padding: const EdgeInsets.all(20),
-                          decoration:
-                              MayaStyle().popUpDialogDecoration(mainColor),
-                          child: Text(
-                              'Please restart the app to restore all data!'.tr,
-                              style: MayaStyle.popUpDialogBody),
-                        ),
-                        actions: <Widget>[
-                      RawMaterialButton(
-                          child: const Text('Restart',
-                              style: TextStyle(
-                                  fontFamily: 'Robot',
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                  decoration: TextDecoration.none)),
-                          onPressed: () {
-                            Restart.restartApp();
-                          }),
-                    ])));
+    subscription ??= maya_alarm.Alarm.ringing.listen((alarmSet) {
+      for (final alarm in alarmSet.alarms) {
+        navigateToRingScreen(alarm);
       }
     });
+
+    startDate = DateTime.parse('2013-02-21 00:00:00');
+    now.timeZoneOffset > startDate.timeZoneOffset
+        ? startDate = startDate
+              .add(Duration(hours: -1)) // if the damn "daylight saving time" is set, subtract 1 hour.
+        : null;
+
+    loadLanguage();
+    loadTimeFormat();
+    loadSeasonsFromAssets('assets/seasons.json');
+    loadData();
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: check if necessary!
+    _timer.cancel();
+    super.dispose();
   }
 
   /*                                                                          */
@@ -609,146 +431,66 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
-  loadData() async {
-    eventList = (await _eventList).toList();
-    noteList = (await _noteList).toList();
-    taskList = (await _taskList).toList();
-    alarmList = (await _alarmList).toList();
-    arrangementList = (await _arrangementList).toList();
+  void loadData() async {
+    final [eventList, noteList, taskList, alarmList, arrangementList] = await Future.wait([_eventList, _noteList, _taskList, _alarmList, _arrangementList]);
+
+    final data = MayaData();
 
     for (var event in eventList) {
-      if (!MayaData().mayaData.containsKey(event[0])) {
-        MayaData().mayaData[event[0]] = <int, Day>{};
-        MayaData().mayaData[event[0]][event[1]] = Day();
-      } else if (!MayaData().mayaData[event[0]].containsKey(event[1])) {
-        MayaData().mayaData[event[0]][event[1]] = Day();
-      }
+      data.mayaData[event['yearIndex']] ??= <int, Day>{};
+      final dayData = data.mayaData[event['yearIndex']]![event['dayIndex']] ??= Day();
 
-      MayaData()
-          .mayaData[event[0]][event[1]]
-          .eventList
-          .add(Event([event[3], event[4], event[5], event[6]]));
+      dayData.eventList.add(Event(event['uuid'], event['begin'], event['end'], event['title'], event['description']));
     }
     for (var note in noteList) {
-      if (!MayaData().mayaData.containsKey(note[0])) {
-        MayaData().mayaData[note[0]] = <int, Day>{};
-        MayaData().mayaData[note[0]][note[1]] = Day();
-      } else if (!MayaData().mayaData[note[0]].containsKey(note[1])) {
-        MayaData().mayaData[note[0]][note[1]] = Day();
-      }
+      data.mayaData[note['yearIndex']] ??= <int, Day>{};
+      final dayData = data.mayaData[note['yearIndex']]![note['dayIndex']] ??= Day();
 
-      MayaData().mayaData[note[0]][note[1]].noteList.add(note[3]);
+      dayData.noteList.add(Note(note['uuid'], note['entry']));
     }
     for (var task in taskList) {
-      if (!MayaData().mayaData.containsKey(task[0])) {
-        MayaData().mayaData[task[0]] = <int, Day>{};
-        MayaData().mayaData[task[0]][task[1]] = Day();
-      } else if (!MayaData().mayaData[task[0]].containsKey(task[1])) {
-        MayaData().mayaData[task[0]][task[1]] = Day();
-      }
+      data.mayaData[task['yearIndex']] ??= <int, Day>{};
+      final dayData = data.mayaData[task['yearIndex']]![task['dayIndex']] ??= Day();
 
-      MayaData()
-          .mayaData[task[0]][task[1]]
-          .taskList
-          .add(Task(task[3], task[4] == 0 ? false : true));
+      dayData.taskList.add(Task(task['uuid'], task['description'], task['isChecked'] == 0 ? false : true));
     }
     for (var alarm in alarmList) {
-      if (!MayaData().mayaData.containsKey(alarm[0])) {
-        MayaData().mayaData[alarm[0]] = <int, Day>{};
-        MayaData().mayaData[alarm[0]][alarm[1]] = Day();
-      } else if (!MayaData().mayaData[alarm[0]].containsKey(alarm[1])) {
-        MayaData().mayaData[alarm[0]][alarm[1]] = Day();
-      }
+      data.mayaData[alarm['yearIndex']] ??= <int, Day>{};
+      final dayData = data.mayaData[alarm['yearIndex']]![alarm['dayIndex']] ??= Day();
 
-      MayaData().mayaData[alarm[0]][alarm[1]].alarmList.add(MayaAlarm(
+      dayData.alarmList.add(
+        MayaAlarm(
+          alarm['uuid'],
           maya_alarm.AlarmSettings(
-              id: alarm[3],
-              dateTime: dateTimeformat.parse(alarm[4]),
-              assetAudioPath: alarm[5],
-              loopAudio: alarm[6] == 0 ? false : true,
-              vibrate: alarm[7] == 0 ? false : true,
-              volume: alarm[8],
-              fadeDuration: alarm[9],
-              notificationSettings: maya_alarm.NotificationSettings(
-                  title: alarm[10], body: alarm[11]),
-              warningNotificationOnKill: alarm[12] == 0 ? false : true),
-          alarm[13] == 0 ? false : true));
+            id: alarm['id'],
+            payload: alarm['payload'],
+            dateTime: dateTimeformat.parse(alarm['dateTime']),
+            assetAudioPath: alarm['assetAudioPath'],
+            loopAudio: alarm['loopAudio'] == 0 ? false : true,
+            vibrate: alarm['vibrate'] == 0 ? false : true,
+            volumeSettings: maya_alarm.VolumeSettings.fade(volume: alarm['volume'], fadeDuration: Duration(milliseconds: 500)),
+            notificationSettings: maya_alarm.NotificationSettings(
+              title: alarm['notificationTitle'],
+              body: alarm['notificationBody'],
+              stopButton: 'Stop',
+              icon: 'ic_stat_sign',
+              iconColor: Color(0xff000000),
+            ),
+            warningNotificationOnKill: alarm['warningNotificationOnKill'] == 0 ? false : true,
+          ),
+          alarm['isActive'] == 0 ? false : true,
+        ),
+      );
     }
     for (var arrangement in arrangementList) {
-      int l = 0;
-      int m = 0;
-      int n = 0;
-      int o = 0;
-      String removedBrackets =
-          arrangement[2].substring(1, arrangement[2].length - 1);
-      List<String> strArrangements = removedBrackets.split(',');
-      List<int> arrangements =
-          strArrangements.map((data) => int.parse(data)).toList();
-      for (int j = 0; j < arrangements.length; j++) {
-        if (!DayItems().dayItems.containsKey(arrangement[0])) {
-          DayItems().dayItems[arrangement[0]] = <int, List<Dismissible>>{};
-          DayItems().dayItems[arrangement[0]][arrangement[1]] = <Dismissible>[];
-        } else if (!DayItems()
-            .dayItems[arrangement[0]]
-            .containsKey(arrangement[1])) {
-          DayItems().dayItems[arrangement[0]][arrangement[1]] = <Dismissible>[];
-        }
+      data.mayaData[arrangement['yearIndex']] ??= <int, Day>{};
+      final dayData = data.mayaData[arrangement['yearIndex']]![arrangement['dayIndex']] ??= Day();
 
-        if (arrangements[j] == 0) {
-          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
-                  mainColor: mainColor,
-                  yearIndex: arrangement[0],
-                  dayIndex: arrangement[1],
-                  newListItem: false,
-                  index: l)
-              .event(eventList[l][3], eventList[l][4], eventList[l][5],
-                  eventList[l][6]));
-          l++;
-        }
-        if (arrangements[j] == 1) {
-          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
-                  mainColor: mainColor,
-                  yearIndex: arrangement[0],
-                  dayIndex: arrangement[1],
-                  newListItem: false,
-                  index: m)
-              .note(noteList[m][3]));
-          m++;
-        }
-        if (arrangements[j] == 2) {
-          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
-                  mainColor: mainColor,
-                  yearIndex: arrangement[0],
-                  dayIndex: arrangement[1],
-                  newListItem: false,
-                  index: n)
-              .task(taskList[n][3], taskList[n][4] == 0 ? false : true));
-          n++;
-        }
-        if (arrangements[j] == 3) {
-          DayItems().dayItems[arrangement[0]][arrangement[1]].add(MayaItems(
-                  mainColor: mainColor,
-                  yearIndex: arrangement[0],
-                  dayIndex: arrangement[1],
-                  newListItem: false,
-                  index: o)
-              .alarm(
-                  maya_alarm.AlarmSettings(
-                      id: alarmList[o][3],
-                      dateTime: dateTimeformat.parse(alarmList[o][4]),
-                      assetAudioPath: alarmList[o][5],
-                      loopAudio: alarmList[o][6] == 0 ? false : true,
-                      vibrate: alarmList[o][7] == 0 ? false : true,
-                      volume: alarmList[o][8],
-                      fadeDuration: alarmList[o][9],
-                      notificationSettings: maya_alarm.NotificationSettings(
-                          title: alarmList[o][10], body: alarmList[o][11]),
-                      warningNotificationOnKill:
-                          alarmList[o][12] == 0 ? false : true),
-                  alarmList[o][13] == 0 ? false : true));
-          o++;
-        }
-      }
+      final List<dynamic> decodedJson = json.decode(arrangement['arrangement']);
+
+      dayData.arrangement = decodedJson.map((jsonMap) {
+        return Location.fromMap(jsonMap);
+      }).toList();
     }
   }
 
@@ -757,26 +499,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   List<bool> isSelected = [true, false];
   /* ------------------------------------------------------------------------ */
-  /* loadTimeFormat                                                           */
-  /*                                                                          */
-  loadTimeFormat() async {
-    Future<Object> timeFormatFuture = readTimeFormat();
-    TimeFormat().setTimeFormat =
-        DateFormat((await timeFormatFuture).toString());
-    switch (TimeFormat().getTimeFormat.pattern) {
-      case 'h:mm a':
-        isSelected = [true, false];
-        break;
-      case 'HH:mm:ss':
-        isSelected = [false, true];
-        break;
-    }
-  }
-
-  /*                                                                          */
-  /* loadTimeFormat - END                                                     */
-  /* ------------------------------------------------------------------------ */
-  /* ------------------------------------------------------------------------ */
   /* init, load and set Language                                              */
   /*                                                                          */
   bool isCheckedEnglish = true;
@@ -784,9 +506,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   bool isCheckedFrance = false;
   bool isCheckedSpain = false;
 
-  loadLanguage() async {
-    Future<Object> languageFuture = readLanguage();
-    String strLanguage = (await languageFuture).toString();
+  void loadLanguage() async {
+    String strLanguage = await SharedPrefs.readLanguage();
     List<String> listLanguage = strLanguage.split('_');
 
     switch (strLanguage) {
@@ -822,35 +543,30 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* init, load and set Language - END                                        */
   /* ------------------------------------------------------------------------ */
-  Color mainColor = const Color(0xff8800ff);
   /* ------------------------------------------------------------------------ */
-  /* loadMainColor                                                            */
+  /* loadTimeFormat                                                           */
   /*                                                                          */
-  loadMainColor() async {
-    Future<Object> mainColorFuture = readMainColor();
-    String strMainColor = (await mainColorFuture).toString();
-    mainColor = Color(int.parse(strMainColor));
+  void loadTimeFormat() async {
+    TimeFormat().setTimeFormat = DateFormat((await SharedPrefs.readTimeFormat()));
+    switch (TimeFormat().getTimeFormat.pattern) {
+      case 'h:mm a':
+        isSelected = [true, false];
+        break;
+      case 'HH:mm:ss':
+        isSelected = [false, true];
+        break;
+    }
   }
 
   /*                                                                          */
-  /* loadMainColor - END                                                      */
-  /* ------------------------------------------------------------------------ */
-  /* ------------------------------------------------------------------------ */
-  /* loadBgFilePath                                                           */
-  /*                                                                          */
-  loadBgFilePath() async {
-    backgroundImage = await readBgFilePath();
-  }
-
-  /*                                                                          */
-  /* loadBgFilePath - END                                                     */
+  /* loadTimeFormat - END                                                     */
   /* ------------------------------------------------------------------------ */
 
   List<dynamic> seasons = [];
   /* ------------------------------------------------------------------------ */
   /* loadSeasonsFromAssets                                                    */
   /*                                                                          */
-  loadSeasonsFromAssets(String filePath) async {
+  void loadSeasonsFromAssets(String filePath) async {
     String jsonString = await rootBundle.loadString(filePath);
     seasons = jsonDecode(jsonString);
   }
@@ -862,12 +578,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* navigateToRingScreen                                                     */
   /*                                                                          */
-  Future<void> navigateToRingScreen(
-      maya_alarm.AlarmSettings alarmSettings) async {
+  Future<void> navigateToRingScreen(maya_alarm.AlarmSettings alarmSettings) async {
+    String alarmSnoozeIndex = await SharedPrefs.readAlarmSnoozeIndex();
+
+    if (!mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AlarmRingScreen(alarmSettings: alarmSettings),
+        builder: (context) =>
+            AlarmRingScreen(mainColor: mainColor, backgroundImage: backgroundImage, alarmSnoozeIndex: alarmSnoozeIndex, alarmSettings: alarmSettings),
       ),
     );
   }
@@ -879,7 +598,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* reset                                                                    */
   /*                                                                          */
-  reset() {
+  void reset() {
     setState(() {
       upsetAngle = 0.0;
       finalAngle = 0.0;
@@ -893,14 +612,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       dTrecenaAngle = 0.0;
       iTrecena = 1;
 
-      currTrecenaMask = trecenaMask[trecenaColor];
+      currTrecenaMask = MayaImage.trecenaMask[trecenaColor];
 
       sTone = tone;
       sNahual = nahual;
       nAngle = 0;
 
-      strTextToneNahual =
-          '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
+      strTextToneNahual = '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
 
       sBaktun = baktun;
       sKatun = katun;
@@ -921,7 +639,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* updateLanguage                                                           */
   /*                                                                          */
-  updateLanguage(Locale locale) {
+  void updateLanguage(Locale locale) {
     Get.updateLocale(locale);
   }
 
@@ -933,22 +651,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* indicator                                                               */
   /*                                                                          */
   bool indicator(int i, Map<int, Map<int, Day>> mayaData) {
-    int cYear = (currYear + (xDayTotal + i) / 365).floor();
-    int cDay = (xDayTotal + i) % 365;
+    final int cYear = (currYear + (xDayTotal + i) / 365).floor();
+    final int cDay = (xDayTotal + i) % 365;
     if (mayaData.containsKey(cYear)) {
       if (mayaData[cYear]!.containsKey(cDay)) {
-        if (mayaData[cYear]![cDay]!
-                .eventList
-                .any((element) => element.event != null) ||
-            mayaData[cYear]![cDay]!
-                .noteList
-                .any((element) => element != null) ||
-            mayaData[cYear]![cDay]!
-                .taskList
-                .any((element) => element.isChecked == false) ||
-            mayaData[cYear]![cDay]!
-                .alarmList
-                .any((element) => element.isActive == true)) {
+        final Day dayData = mayaData[cYear]![cDay]!;
+        if (dayData.eventList.isNotEmpty ||
+            dayData.noteList.isNotEmpty ||
+            dayData.taskList.any((element) => element.isChecked == false) ||
+            dayData.alarmList.any((element) => element.isActive == true)) {
           return true;
         } else {
           return false;
@@ -968,18 +679,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* tunContainer                                                             */
   /*                                                                          */
-  Container tunContainer(Size size, int value) {
+  Container tunContainer(Size sizeSandstones, Size sizeNumbers, double celery, int value) {
     return Container(
       height: sizeSandstones.height,
       width: sizeSandstones.width,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(size.width * 0.02)),
-          image: const DecorationImage(
-              image: AssetImage('assets/images/sandstone_tun.jpg'),
-              fit: BoxFit.cover)),
+        borderRadius: BorderRadius.all(Radius.circular(0.02 * celery)),
+        image: const DecorationImage(image: AssetImage('assets/images/sandstone_tun.jpg'), fit: BoxFit.cover),
+      ),
       child: Center(
-        child: SizedBox(
-            width: sizeNumbers.width, child: imageToneWhiteFlatBottom[value]),
+        child: SizedBox(width: sizeNumbers.width, child: MayaImage.imageToneWhiteFlatBottom[value]),
       ),
     );
   }
@@ -991,380 +700,523 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* Drawer                                                                   */
   /*                                                                          */
-  Drawer _customDrawer(BuildContext context, Size size) {
-    double statusBarHeight = MediaQuery.of(context).viewPadding.top;
+  Drawer _customDrawer(BuildContext context, Size size, double celery) {
+    final double statusBarHeight = MediaQuery.of(context).viewPadding.top;
+    final double navigationBarHeight = MediaQuery.of(context).padding.bottom;
+
+    final double drawerWidth = 0.8 * celery;
+
+    final EdgeInsets paddingSign = EdgeInsets.all(0.02 * celery);
+    final double sizeSign = 0.3 * celery;
+
+    final double dividerTickness = 0.003 * celery;
+
+    final double size01 = 0.01 * celery;
+    final double size02 = 0.02 * celery;
+    final double size03 = 0.03 * celery;
+    final double size04 = 0.04 * celery;
+    final double size05 = 0.05 * celery;
+    final double size06 = 0.06 * celery;
+    final double size12 = 0.12 * celery;
+
+    final double fontSizeLanguage = 0.04 * celery;
+    final double flagHeight = 0.07 * celery;
+    final double flagWidth = 0.108 * celery;
+
+    final BoxConstraints toggleButtonsConstraints = BoxConstraints(minHeight: 0.1 * celery, minWidth: 0.3 * celery);
+    final double toggleButtonsBorderWidth = 0.002 * celery;
+    final BorderRadius toggleButtonsBorderRadius = BorderRadius.all(Radius.circular(0.01 * celery));
+    final double toggleButtonsFontSize = 0.04 * celery;
+
+    final double settingButtonsHeight = 0.1 * celery;
+    final double settingButtonsWidth = 0.2 * celery;
+    final double settingIconSize = 0.08 * celery;
+
+    final double space = 1.86 * celery;
+
+    final EdgeInsets paddingSocialButtons = EdgeInsets.all(0.01 * celery);
+    final double sizeSocialButtons = 0.14 * celery;
+    final double borderWidthSocialButtons = 0.003 * celery;
+    final EdgeInsets paddingIconSocialButtons = EdgeInsets.all(0.017 * celery);
+
+    final double heightButtonGitLab = 0.08 * celery;
+    final double widthButtonGitLab = 0.22 * celery;
+    final double borderWidthButtonGitLab = 0.002 * celery;
+    final double borderRadiusButtonGitLab = 0.01 * celery;
+    final double sizeGitLabIcon = 0.06 * celery;
+    final double fontSizeGitLab = 0.034 * celery;
+
+    final double heightButtonPrivacyPolicy = 0.08 * celery;
+    final double widthButtonPrivacyPolicy = 0.26 * celery;
+    final double borderWidthButtonPrivacyPolicy = 0.002 * celery;
+    final double borderRadiusButtonPrivacyPolicy = 0.01 * celery;
+    final double fontSizePrivacyPolicy = 0.034 * celery;
+
+    final double fontSizeVersion = 0.036 * celery;
+
     return Drawer(
-        width: size.width * 0.8,
-        child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: backgroundImage,
-                fit: BoxFit.cover,
+      width: drawerWidth,
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: backgroundImage, fit: BoxFit.cover),
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: statusBarHeight),
+            SizedBox(
+              child: Padding(
+                padding: paddingSign,
+                child: Image(image: const AssetImage("assets/images/icons/sign.png"), height: sizeSign, width: sizeSign),
               ),
             ),
-            child: Column(children: [
-              SizedBox(height: statusBarHeight),
-              SizedBox(
-                  child: Padding(
-                      padding: EdgeInsets.all(size.width * 0.02),
-                      child: Image(
-                          image:
-                              const AssetImage("assets/images/icons/sign.png"),
-                          height: size.width * 0.3,
-                          width: size.width * 0.3))),
-              Divider(
-                  color: Colors.white,
-                  height: 0,
-                  thickness: size.width * 0.003,
-                  indent: 0,
-                  endIndent: 0),
-              SizedBox(height: size.width * 0.02),
-              SizedBox(
-                  height: size.width * 0.12,
-                  child: CheckboxListTile(
-                      activeColor: mainColor.withOpacity(0.5),
-                      side: const BorderSide(color: Colors.white),
-                      title: Text('English'.tr,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.width * 0.04)),
-                      secondary: Flag.fromCode(FlagsCode.GB,
-                          height: size.width * 0.07, width: size.width * 0.108),
-                      value: isCheckedEnglish,
-                      onChanged: (newValue) {
-                        setState(() {
-                          isCheckedEnglish = newValue!;
-                          isCheckedGerman = !newValue;
-                          isCheckedFrance = !newValue;
-                          isCheckedSpain = !newValue;
-                        });
-                        updateLanguage(const Locale('en', 'GB'));
-                        saveLanguage('en_GB');
-                      })),
-              SizedBox(
-                  height: size.width * 0.12,
-                  child: CheckboxListTile(
-                      activeColor: mainColor.withOpacity(0.5),
-                      side: const BorderSide(color: Colors.white),
-                      title: Text('German'.tr,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.width * 0.04)),
-                      secondary: Flag.fromCode(FlagsCode.DE,
-                          height: size.width * 0.07, width: size.width * 0.108),
-                      value: isCheckedGerman,
-                      onChanged: (newValue) {
-                        setState(() {
-                          isCheckedGerman = newValue!;
-                          isCheckedEnglish = !newValue;
-                          isCheckedFrance = !newValue;
-                          isCheckedSpain = !newValue;
-                        });
-                        updateLanguage(const Locale('de', 'DE'));
-                        saveLanguage('de_DE');
-                      })),
-              SizedBox(
-                  height: size.width * 0.12,
-                  child: CheckboxListTile(
-                      activeColor: mainColor.withOpacity(0.5),
-                      side: const BorderSide(color: Colors.white),
-                      title: Text('French'.tr,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.width * 0.04)),
-                      secondary: Flag.fromCode(FlagsCode.FR,
-                          height: size.width * 0.07, width: size.width * 0.108),
-                      value: isCheckedFrance,
-                      onChanged: (newValue) {
-                        setState(() {
-                          isCheckedFrance = newValue!;
-                          isCheckedEnglish = !newValue;
-                          isCheckedGerman = !newValue;
-                          isCheckedSpain = !newValue;
-                        });
-                        updateLanguage(const Locale('fr', 'FR'));
-                        saveLanguage('fr_FR');
-                      })),
-              SizedBox(
-                  height: size.width * 0.12,
-                  child: CheckboxListTile(
-                      activeColor: mainColor.withOpacity(0.5),
-                      side: const BorderSide(color: Colors.white),
-                      title: Text('Spain'.tr,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.width * 0.04)),
-                      secondary: Flag.fromCode(FlagsCode.ES,
-                          height: size.width * 0.07, width: size.width * 0.108),
-                      value: isCheckedSpain,
-                      onChanged: (newValue) {
-                        setState(() {
-                          isCheckedSpain = newValue!;
-                          isCheckedEnglish = !newValue;
-                          isCheckedGerman = !newValue;
-                          isCheckedFrance = !newValue;
-                        });
-                        updateLanguage(const Locale('es', 'ES'));
-                        saveLanguage('es_ES');
-                      })),
-              SizedBox(height: size.width * 0.04),
-              Center(
-                  child: ToggleButtons(
-                      constraints: BoxConstraints(
-                          minHeight: size.width * 0.1,
-                          minWidth: size.width * 0.3),
-                      fillColor: mainColor.withOpacity(0.5),
-                      borderColor: Colors.white,
-                      selectedBorderColor: Colors.white,
-                      borderRadius:
-                          BorderRadius.all(Radius.circular(size.width * 0.01)),
-                      isSelected: isSelected,
-                      onPressed: (int index) {
-                        setState(() {
-                          if (index == 0) {
-                            isSelected[1] = false;
-                            isSelected[0] = true;
-                            TimeFormat().setTimeFormat = DateFormat('h:mm a');
-                            saveTimeFormat('h:mm a');
-                          } else {
-                            isSelected[0] = false;
-                            isSelected[1] = true;
-                            TimeFormat().setTimeFormat = DateFormat('HH:mm:ss');
-                            saveTimeFormat('HH:mm:ss');
-                          }
-                        });
-                      },
-                      children: <Widget>[
-                    Text('12 ${'Hours'.tr}',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.width * 0.04)),
-                    Text('24 ${'Hours'.tr}',
-                        style: TextStyle(
-                            color: Colors.white, fontSize: size.width * 0.04))
-                  ])),
-              SizedBox(height: size.width * 0.04),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                SizedBox(
-                    height: size.width * 0.1,
-                    width: size.width * 0.2,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          Navigator.of(context, rootNavigator: true).pop();
-                          mainColor = await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return ColorPicker(mainColor: mainColor);
-                              });
-                        },
-                        onLongPress: () async {
-                          mainColor = const Color(0xff8800ff);
-                          deleteMainColor();
-                        },
-                        style: ButtonStyle(
-                            foregroundColor:
-                                const WidgetStatePropertyAll(Colors.white),
-                            backgroundColor: WidgetStateProperty.all(
-                                mainColor.withOpacity(0.5)),
-                            shadowColor:
-                                WidgetStateProperty.all(Colors.transparent),
-                            side: WidgetStateProperty.all(const BorderSide(
-                                color: Colors.white, width: 1)),
-                            shape:
-                                WidgetStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            size.width * 0.01))),
-                            overlayColor: WidgetStateProperty.all(mainColor)),
-                        child: SvgPicture.asset("assets/vector/rby_icon.svg",
-                            height: size.width * 0.08,
-                            width: size.width * 0.08))),
-                SizedBox(width: size.width * 0.06),
-                SizedBox(
-                    height: size.width * 0.1,
-                    width: size.width * 0.2,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          const params = OpenFileDialogParams(
-                            dialogType: OpenFileDialogType.image,
-                            sourceType: SourceType.photoLibrary,
-                          );
-                          bgFilePath =
-                              await FlutterFileDialog.pickFile(params: params);
-                          if (bgFilePath != null) {
-                            String ext = bgFilePath!.split('.').last;
-                            if (ext == 'jpg' || ext == 'jpeg' || ext == 'png') {
-                              saveBgFilePath(bgFilePath!);
-                              backgroundImage = FileImage(File(bgFilePath!));
-                            } else {
-                              if (!context.mounted) return;
-                              showImageFileFormatDialog(
-                                  context, mainColor, size);
-                            }
-                          }
-                        },
-                        onLongPress: () async {
-                          backgroundImage =
-                              const AssetImage('assets/images/leaves.jpg');
-                          deleteBgImagePath();
-                        },
-                        style: ButtonStyle(
-                            foregroundColor:
-                                const WidgetStatePropertyAll(Colors.white),
-                            backgroundColor: WidgetStateProperty.all(
-                                mainColor.withOpacity(0.5)),
-                            shadowColor:
-                                WidgetStateProperty.all(Colors.transparent),
-                            side: WidgetStateProperty.all(const BorderSide(
-                                color: Colors.white, width: 1)),
-                            shape:
-                                WidgetStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            size.width * 0.01))),
-                            overlayColor: WidgetStateProperty.all(mainColor)),
-                        child: SvgPicture.asset("assets/vector/image_icon.svg",
-                            height: size.width * 0.08,
-                            width: size.width * 0.08)))
-              ]),
-              SizedBox(height: size.width * 0.04),
-              SizedBox(
-                  height: size.height - size.width * 1.78 - statusBarHeight),
-              Column(children: [
-                Padding(
-                    padding: EdgeInsets.only(bottom: size.width * 0.02),
-                    child: SizedBox(
-                        height: size.width * 0.1,
-                        width: size.width * 0.6,
-                        child: KofiButton(
-                            kofiName: "mario_schmid",
-                            kofiColor: KofiColor.Blue,
-                            style: ButtonStyle(
-                                foregroundColor:
-                                    const WidgetStatePropertyAll(Colors.white),
-                                shape: WidgetStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            size.width * 0.014)))),
-                            onDonation: () {
-                              // Runs after the button has been pressed
-                              debugPrint("On donation");
-                            }))),
-                Padding(
-                  padding: EdgeInsets.only(bottom: size.width * 0.02),
-                  child: SizedBox(
-                      height: size.width * 0.1,
-                      width: size.width * 0.6,
-                      child: PayPalButton(
-                        paypalButtonId: "S9YDP9YQ2KHVL",
-                        style: ButtonStyle(
-                            foregroundColor:
-                                const WidgetStatePropertyAll(Colors.white),
-                            shape:
-                                WidgetStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            size.width * 0.014)))),
-                      )),
+            Divider(color: Colors.white, height: 0, thickness: dividerTickness, indent: 0, endIndent: 0),
+            SizedBox(height: size02),
+            SizedBox(
+              height: size12,
+              child: CheckboxListTile(
+                activeColor: mainColor.withValues(alpha: 0.5),
+                side: const BorderSide(color: Colors.white),
+                title: Text(
+                  'English'.tr,
+                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: size.width * 0.02),
-                  child: SizedBox(
-                      height: size.width * 0.1,
-                      width: size.width * 0.66,
-                      child: PatreonButton(
-                        patreonName: "mario_schmid",
-                        style: ButtonStyle(
-                            backgroundColor:
-                                const WidgetStatePropertyAll(Colors.red),
-                            foregroundColor:
-                                const WidgetStatePropertyAll(Colors.white),
-                            shape:
-                                WidgetStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            size.width * 0.014)))),
-                      )),
+                secondary: Flag.fromCode(FlagsCode.GB, height: flagHeight, width: flagWidth),
+                value: isCheckedEnglish,
+                onChanged: (newValue) {
+                  setState(() {
+                    isCheckedEnglish = newValue!;
+                    isCheckedGerman = !newValue;
+                    isCheckedFrance = !newValue;
+                    isCheckedSpain = !newValue;
+                  });
+                  updateLanguage(const Locale('en', 'GB'));
+                  SharedPrefs.saveLanguage('en_GB');
+                },
+              ),
+            ),
+            SizedBox(
+              height: size12,
+              child: CheckboxListTile(
+                activeColor: mainColor.withValues(alpha: 0.5),
+                side: const BorderSide(color: Colors.white),
+                title: Text(
+                  'German'.tr,
+                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
                 ),
+                secondary: Flag.fromCode(FlagsCode.DE, height: flagHeight, width: flagWidth),
+                value: isCheckedGerman,
+                onChanged: (newValue) {
+                  setState(() {
+                    isCheckedGerman = newValue!;
+                    isCheckedEnglish = !newValue;
+                    isCheckedFrance = !newValue;
+                    isCheckedSpain = !newValue;
+                  });
+                  updateLanguage(const Locale('de', 'DE'));
+                  SharedPrefs.saveLanguage('de_DE');
+                },
+              ),
+            ),
+            SizedBox(
+              height: size12,
+              child: CheckboxListTile(
+                activeColor: mainColor.withValues(alpha: 0.5),
+                side: const BorderSide(color: Colors.white),
+                title: Text(
+                  'French'.tr,
+                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
+                ),
+                secondary: Flag.fromCode(FlagsCode.FR, height: flagHeight, width: flagWidth),
+                value: isCheckedFrance,
+                onChanged: (newValue) {
+                  setState(() {
+                    isCheckedFrance = newValue!;
+                    isCheckedEnglish = !newValue;
+                    isCheckedGerman = !newValue;
+                    isCheckedSpain = !newValue;
+                  });
+                  updateLanguage(const Locale('fr', 'FR'));
+                  SharedPrefs.saveLanguage('fr_FR');
+                },
+              ),
+            ),
+            SizedBox(
+              height: size12,
+              child: CheckboxListTile(
+                activeColor: mainColor.withValues(alpha: 0.5),
+                side: const BorderSide(color: Colors.white),
+                title: Text(
+                  'Spain'.tr,
+                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
+                ),
+                secondary: Flag.fromCode(FlagsCode.ES, height: flagHeight, width: flagWidth),
+                value: isCheckedSpain,
+                onChanged: (newValue) {
+                  setState(() {
+                    isCheckedSpain = newValue!;
+                    isCheckedEnglish = !newValue;
+                    isCheckedGerman = !newValue;
+                    isCheckedFrance = !newValue;
+                  });
+                  updateLanguage(const Locale('es', 'ES'));
+                  SharedPrefs.saveLanguage('es_ES');
+                },
+              ),
+            ),
+            SizedBox(height: size04),
+            Center(
+              child: ToggleButtons(
+                constraints: toggleButtonsConstraints,
+                fillColor: mainColor.withValues(alpha: 0.5),
+                borderColor: Colors.white,
+                selectedBorderColor: Colors.white,
+                borderWidth: toggleButtonsBorderWidth,
+                borderRadius: toggleButtonsBorderRadius,
+                isSelected: isSelected,
+                onPressed: (int index) {
+                  setState(() {
+                    if (index == 0) {
+                      isSelected[1] = false;
+                      isSelected[0] = true;
+                      TimeFormat().setTimeFormat = DateFormat('h:mm a');
+                      SharedPrefs.saveTimeFormat('h:mm a');
+                    } else {
+                      isSelected[0] = false;
+                      isSelected[1] = true;
+                      TimeFormat().setTimeFormat = DateFormat('HH:mm:ss');
+                      SharedPrefs.saveTimeFormat('HH:mm:ss');
+                    }
+                  });
+                },
+                children: <Widget>[
+                  Text(
+                    '12 ${'Hours'.tr}',
+                    style: TextStyle(color: Colors.white, fontSize: toggleButtonsFontSize),
+                  ),
+                  Text(
+                    '24 ${'Hours'.tr}',
+                    style: TextStyle(color: Colors.white, fontSize: toggleButtonsFontSize),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: size04),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 SizedBox(
-                    height: size.width * 0.1,
-                    width: size.width * 0.56,
-                    child: BuyMeACoffeeButton(
-                      buyMeACoffeeName: "mario_schmid",
-                      color: BuyMeACoffeeColor.Green,
-                      style: ButtonStyle(
-                          shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          size.width * 0.014)))),
-                    ))
-              ]),
-              SizedBox(height: size.width * 0.03),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                SizedBox(
-                    height: size.width * 0.08,
-                    width: size.width * 0.22,
-                    child: ElevatedButton(
-                        onPressed: _launchGithub,
-                        style: ButtonStyle(
-                            padding:
-                                const WidgetStatePropertyAll(EdgeInsets.zero),
-                            foregroundColor:
-                                const WidgetStatePropertyAll(Colors.white),
-                            backgroundColor: WidgetStateProperty.all(
-                                mainColor.withOpacity(0.5)),
-                            shadowColor:
-                                WidgetStateProperty.all(Colors.transparent),
-                            side: WidgetStateProperty.all(const BorderSide(
-                                color: Colors.white, width: 1)),
-                            shape:
-                                WidgetStateProperty.all<RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            size.width * 0.01))),
-                            overlayColor: WidgetStateProperty.all(mainColor)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset("assets/vector/github.svg",
-                                height: size.width * 0.06,
-                                width: size.width * 0.06),
-                            SizedBox(width: size.width * 0.01),
-                            Text('Github',
-                                style: TextStyle(fontSize: size.width * 0.034))
-                          ],
-                        ))),
-                SizedBox(width: size.width * 0.03),
-                SizedBox(
-                  height: size.width * 0.08,
-                  width: size.width * 0.26,
+                  height: settingButtonsHeight,
+                  width: settingButtonsWidth,
                   child: ElevatedButton(
-                    style: ButtonStyle(
-                        padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                        foregroundColor:
-                            const WidgetStatePropertyAll(Colors.white),
-                        backgroundColor:
-                            WidgetStateProperty.all(mainColor.withOpacity(0.5)),
-                        shadowColor:
-                            WidgetStateProperty.all(Colors.transparent),
-                        side: WidgetStateProperty.all(
-                            const BorderSide(color: Colors.white, width: 1)),
-                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(size.width * 0.01))),
-                        overlayColor: WidgetStateProperty.all(mainColor)),
-                    onPressed: _launchPrivacyPolicy,
-                    child: Text(
-                      'Privacy Policy',
-                      style: TextStyle(fontSize: size.width * 0.034),
+                    onPressed: () async {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      mainColor = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ColorPicker(mainColor: mainColor);
+                        },
+                      );
+                    },
+                    onLongPress: () async {
+                      mainColor = const Color(0xff8800ff);
+                      SharedPrefs.deleteMainColor();
+                    },
+                    style: MayaStyle().settingsButtonStyleCarrot(size, mainColor, celery),
+                    child: SvgPicture.asset("assets/vector/rby_icon.svg", height: settingIconSize, width: settingIconSize),
+                  ),
+                ),
+                SizedBox(width: size06),
+                SizedBox(
+                  height: settingButtonsHeight,
+                  width: settingButtonsWidth,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['jpg', 'png']);
+                      if (result != null) {
+                        bgFilePath = result.files.first.path!;
+                        SharedPrefs.saveBgFilePath(bgFilePath);
+                        backgroundImage = FileImage(File(bgFilePath));
+                      }
+                    },
+                    onLongPress: () async {
+                      backgroundImage = const AssetImage('assets/images/leaves.jpg');
+                      SharedPrefs.deleteBgImagePath();
+                    },
+                    style: MayaStyle().settingsButtonStyleCarrot(size, mainColor, celery),
+                    child: SvgPicture.asset("assets/vector/image_icon.svg", height: settingIconSize, width: settingIconSize),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size04),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: settingButtonsHeight,
+                  width: settingButtonsWidth,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final String customAlarmSoundPath = (await SharedPrefs.readCustomAlarmSoundPath());
+                      final String alarmSoundIndex = (await SharedPrefs.readAlarmSoundIndex());
+                      final String globalAlarmSoundVolume = (await SharedPrefs.readGlobalAlarmSoundVolume());
+                      final String alarmSnoozeIndex = (await SharedPrefs.readAlarmSnoozeIndex());
+
+                      if (!context.mounted) return;
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          opaque: false,
+                          pageBuilder: (BuildContext context, _, _) => AlarmSet(
+                            backgroundImage: backgroundImage,
+                            mainColor: mainColor,
+                            alarmSoundIndex: alarmSoundIndex,
+                            customAlarmSoundPath: customAlarmSoundPath,
+                            globalAlarmSoundVolume: globalAlarmSoundVolume,
+                            alarmSnoozeIndex: alarmSnoozeIndex,
+                          ),
+                        ),
+                      );
+                    },
+                    style: MayaStyle().settingsButtonStyleCarrot(size, mainColor, celery),
+                    child: SvgPicture.asset("assets/vector/alarm_clock_icon.svg", height: settingIconSize, width: settingIconSize),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size.height - statusBarHeight - navigationBarHeight - space),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://pixelfed.social/@morgenfrost');
+                      },
+                      icon: Image.asset('assets/images/icons/pixelfed.png'),
                     ),
                   ),
                 ),
-              ])
-            ])));
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://mastodon.social/@morgenfrost');
+                      },
+                      icon: Image.asset('assets/images/icons/mastodon.png'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://matrix.to/#/@morgenfrost:matrix.org');
+                      },
+                      icon: Image.asset('assets/images/icons/matrix.png'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://www.patreon.com/c/morgenfrost');
+                      },
+                      icon: Image.asset('assets/images/icons/patreon.png'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://www.paypal.com/donate/?hosted_button_id=L4F6W8ATK42K2');
+                      },
+                      icon: Image.asset('assets/images/icons/paypal.png'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://buymeacoffee.com/morgenfrost');
+                      },
+                      icon: Image.asset('assets/images/icons/buy-me-a-coffee.png'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://ko-fi.com/morgenfrost');
+                      },
+                      icon: Image.asset('assets/images/icons/kofi.png'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: paddingSocialButtons,
+                  child: Container(
+                    height: sizeSocialButtons,
+                    width: sizeSocialButtons,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: mainColor.withValues(alpha: 0.5),
+                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                    ),
+                    child: IconButton(
+                      padding: paddingIconSocialButtons,
+                      onPressed: () {
+                        _launchUrl('https://de.liberapay.com/morgenfrost');
+                      },
+                      icon: Image.asset('assets/images/icons/liberapay.png'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size05),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: heightButtonGitLab,
+                  width: widthButtonGitLab,
+                  child: ElevatedButton(
+                    onPressed: _launchGitLab,
+                    style: ButtonStyle(
+                      padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                      backgroundColor: WidgetStateProperty.all(mainColor.withValues(alpha: 0.5)),
+                      shadowColor: WidgetStateProperty.all(Colors.transparent),
+                      side: WidgetStateProperty.all(BorderSide(color: Colors.white, width: borderWidthButtonGitLab)),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadiusButtonGitLab)),
+                      ),
+                      overlayColor: WidgetStateProperty.all(mainColor),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset("assets/vector/gitlab.svg", height: sizeGitLabIcon, width: sizeGitLabIcon),
+                        SizedBox(width: size01),
+                        Text('GitLab', style: TextStyle(fontSize: fontSizeGitLab)),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: size03),
+                SizedBox(
+                  height: heightButtonPrivacyPolicy,
+                  width: widthButtonPrivacyPolicy,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                      backgroundColor: WidgetStateProperty.all(mainColor.withValues(alpha: 0.5)),
+                      shadowColor: WidgetStateProperty.all(Colors.transparent),
+                      side: WidgetStateProperty.all(BorderSide(color: Colors.white, width: borderWidthButtonPrivacyPolicy)),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadiusButtonPrivacyPolicy)),
+                      ),
+                      overlayColor: WidgetStateProperty.all(mainColor),
+                    ),
+                    onPressed: _launchPrivacyPolicy,
+                    child: Text('Privacy Policy', style: TextStyle(fontSize: fontSizePrivacyPolicy)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size03),
+            InkWell(
+              child: Text(
+                'v${packageInfo.version}',
+                style: TextStyle(color: Colors.white, fontSize: fontSizeVersion),
+              ),
+              onTap: () async {
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) => Center(child: ReleaseNoteDialog().alertDialog(size, mainColor, packageInfo.version)),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /*                                                                          */
@@ -1379,394 +1231,139 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final double statusBarHeight = MediaQuery.of(context).viewPadding.top;
+    final double navigationBarHeight = MediaQuery.of(context).padding.bottom;
 
-    if (size.height / size.width >= 692 / 360) {
-      //
-      // TODO: calculate the size based on the display size
-      sizeSettings = const Size(16, 120);
-      posSettings =
-          Position(statusBarHeight + 10, size.width - sizeSettings.width);
-      //
-      sizeBoxTime = Size(size.width * 0.52, size.width * 0.1);
-      posBoxTime = Position(size.height / 2 - size.width * 0.84,
-          size.width - sizeBoxTime.width - size.width * 0.4);
-      //
-      sizeIconNotification = size.width * 0.067;
-      //
-      sizePaddingNotificationTime = size.width * 0.014;
-      //
-      textStyleTime = TextStyle(
-          color: Colors.white,
-          fontSize: size.width * 0.06,
-          fontWeight: FontWeight.normal);
-      //
-      sizeSandstoneFormTop =
-          Size(size.width * 0.776591667, size.width * 0.417247222);
-      posSandstoneFormTop = Position(size.height / 2 - size.width * 0.793058333,
-          size.width - size.width * 0.949322222);
-      //
-      sizeShapeRightTop =
-          Size(size.width * 0.403827667, size.width * 0.317301957);
-      posShapeRightTop = Position(size.height / 2 - size.width * 0.748390489,
-          size.width - size.width * 0.602768191);
-      //
-      sizeSandstoneFormBottom =
-          Size(size.width * 0.776591667, size.width * 0.417247222);
-      posSandstoneFormBottom = Position(
-          size.height / 2 + size.width * 0.375811111,
-          size.width - size.width * 0.949322222);
-      //
-      sizeShapeRightBottom =
-          Size(size.width * 0.403827667, size.width * 0.317301957);
-      posShapeRightBottom = Position(size.height / 2 + size.width * 0.431143267,
-          size.width - size.width * 0.602768191);
-      //
-      sizeWheelNahuales =
-          Size(size.width * 1.092592593, size.width * 1.092592593);
-      posWheelNahuales = Position((size.height - sizeWheelNahuales.height) / 2,
-          size.width - sizeWheelNahuales.width - size.width * 0.113888889);
-      //
-      sizeSignNahual = Size(size.width * 0.128, size.width * 0.117333333);
-      offsetSignNahual = Offset(-size.width * 0.435995852, 0);
-      //
-      sizeWheelHaab =
-          Size(size.width * 18.503703704, size.width * 18.503703704);
-      posWheelHaab = Position((size.height - sizeWheelHaab.height) / 2,
-          size.width - size.width * 0.155555556);
-      //
-      sizeSectionFieldWinal =
-          Size(size.width * 9.251851852, size.width * 3.169558333);
-      posSectionFieldWinal = Position(size.width * 7.667072685, 0);
-      sizeSectionWinal =
-          Size(size.width * 0.375630556, size.width * 3.169558333);
-      offsetSectionFieldWinal = Offset(size.width * 4.625925926, 0);
-      //
-      sizeImageToneWhiteFlatCenter = Size(size.width * 0.086111111, 0);
-      posImageToneWhiteFlatCenter =
-          Position(size.width * 1.557425, size.width * 0.009702778);
-      offsetImageToneWhiteFlatCenter = Offset(size.width * 9.199093519, 0);
-      //
-      sizeBoxTextWinal = Size(size.width * 0.166666667, size.width * 0.05);
-      posBoxTextWinal =
-          Position(size.width * 1.501447222, size.width * 0.099958333);
-      offsetBoxTextWinal = Offset(size.width * 9.126893519, 0);
-      //
-      sizeSectionFieldWinalWayeb =
-          Size(size.width * 9.251851852, size.width * 0.796069444);
-      posSectionFieldWinalWayeb = Position(size.width * 8.853816667, 0);
-      sizeSectionWinalWayeb =
-          Size(size.width * 0.260044444, size.width * 0.796069444);
-      offsetSectionFieldWinalWayeb = Offset(size.width * 4.625925926, 0);
-      //
-      sizeImageToneWhiteFlatCenterWayeb = Size(size.width * 0.086111111, 0);
-      posImageToneWhiteFlatCenterWayeb =
-          Position(size.width * 0.370680556, size.width * 0.009702778);
-      offsetImageToneWhiteFlatCenterWayeb = Offset(size.width * 9.199093519, 0);
-      //
-      sizeBoxTextWinalWayeb = Size(size.width * 0.166666667, size.width * 0.05);
-      posBoxTextWinalWayeb =
-          Position(size.width * 0.314702778, size.width * 0.099958333);
-      offsetBoxTextWinalWayeb = Offset(size.width * 9.126893519, 0);
-      //
-      textStyleStrWinal =
-          TextStyle(color: Colors.white, fontSize: size.width * 0.044444444);
-      //
-      sizeFrame = Size(size.width * 0.099958333, size.width * 0.099958333);
-      posFrame = Position(sizeWheelHaab.height / 2 - size.width * 0.049980556,
-          size.width * 0.002777778);
-      offsetFrame = Offset(size.width * 9.199093519, 0);
-      //
-      sizeSandstoneMoon =
-          Size(size.width * 0.398594444, size.width * 0.629252778);
-      posSandstoneMoon = Position((size.height - size.width * 0.629252778) / 2,
-          size.width - size.width * 0.977588889);
-      //
-      sizeButtonReset =
-          Size(size.width * 0.274891667, size.width * 0.581611111);
-      posButtonReset = Position((size.height - size.width * 0.581611111) / 2,
-          size.width - size.width * 0.954027778);
-      //
-      sizeWheelTones = Size(size.width * 0.496296296, size.width * 0.496296296);
-      posWheelTones = Position((size.height - sizeWheelTones.height) / 2,
-          size.width - sizeWheelTones.width - size.width * 0.277777778);
-      //
-      sizeSignTone = Size(size.width * 0.048, size.width * 0.1);
-      offsetSignTone = Offset(-size.width * 0.201733333, 0);
-      //
-      sizeBoxSeasons = Size(size.width * 0.496296296, size.width * 0.496296296);
-      posBoxSeasons = Position((size.height - sizeBoxSeasons.height) / 2,
-          size.width - sizeBoxSeasons.width - size.width * 0.277777778);
-      //
-      sizeMoon = size.width * 0.231965889;
-      posMoon = Position((size.height - sizeMoon) / 2,
-          size.width - sizeMoon - size.width * 0.409942981);
-      //
-      sizeBoxSolsticesEquinoxes = size.width * 0.269727778;
-      posBoxSolsticesEquinoxes = Position(
-          (size.height - sizeBoxSolsticesEquinoxes) / 2,
-          size.width - sizeBoxSolsticesEquinoxes - size.width * 0.391062037);
-      //
-      paddingBoxSolsticesEquinoxes = EdgeInsets.all(size.width * 0.072222222);
-      mainAxisSpacingBoxSolsticesEquinoxes = size.width * 0.066666667;
-      crossAxisSpacingBoxSolsticesEquinoxes = size.width * 0.066666667;
-      //
-      sizeCircleSeason = size.width * 0.064;
-      paddingCircleSeason = EdgeInsets.all(size.width * 0.077);
-      offsetCircleSeason = Offset(0, size.width * 0.1396);
-      //
-      sizeButtonRelationship =
-          Size(size.width * 0.214533333, size.width * 0.102897222);
-      posButtonRelationship = Position(
-          size.height / 2 - size.width * 0.659097222,
-          size.width - size.width * 0.926025);
-      //
-      sizeButtonTheYear =
-          Size(size.width * 0.207738889, size.width * 0.192205556);
-      posButtonTheYear = Position(size.height / 2 - size.width * 0.692102778,
-          size.width - size.width * 0.441625);
-      //
-      sizeButtonDateCalculator =
-          Size(size.width * 0.214533333, size.width * 0.102897222);
-      posButtonDateCalculator = Position(
-          size.height / 2 + size.width * 0.556369444,
-          size.width - size.width * 0.926025);
-      //
-      sizeButtonCholqij =
-          Size(size.width * 0.207738889, size.width * 0.192205556);
-      posButtonCholqij = Position(size.height / 2 + size.width * 0.500066667,
-          size.width - size.width * 0.441625);
-      //5
-      sizeBoxTextToneNahual =
-          Size(size.width * 0.269727778, size.width * 0.269727778);
-      posBoxTextToneNahual = Position(
-          (size.height - sizeBoxTextToneNahual.height) / 2,
-          size.width - sizeBoxTextToneNahual.width - size.width * 0.391062037);
-      //
-      textStyleToneNahual = TextStyle(
-          color: Color.lerp(mainColor, Colors.black, 0.74)!,
-          fontSize: size.width * 0.044,
-          height: size.width * 0.0028);
-      //
-      sizeBoxLongCount =
-          Size(size.width * 0.738888889, size.width * 0.138888889);
-      posBoxLongCount = Position(size.height - size.width * 0.152777778,
-          size.width - size.width * 0.927777778);
-      sizeSandstones = Size(size.width * 0.138888889, size.width * 0.138888889);
-      sizeNumbers = Size(size.width * 0.111111111, 0);
-      paddingSandstones = EdgeInsets.only(right: size.width * 0.011111111);
-      paddingNumbersBaktun = EdgeInsets.fromLTRB(
-          size.width * 0.013888889, 0, size.width * 0.019444444, 0);
-      paddingNumbersKatun = EdgeInsets.fromLTRB(
-          size.width * 0.019444444, 0, size.width * 0.019444444, 0);
-      paddingNumbersTun = EdgeInsets.fromLTRB(
-          size.width * 0.019444444, 0, size.width * 0.019444444, 0);
-      paddingNumbersWinal = EdgeInsets.fromLTRB(
-          size.width * 0.019444444, 0, size.width * 0.019444444, 0);
-      paddingNumbersKin = EdgeInsets.fromLTRB(
-          size.width * 0.019444444, 0, size.width * 0.013888889, 0);
-      //
-    } else {
-      //
-      // TODO: calculate the size based on the display size
-      sizeSettings = const Size(16, 120);
-      posSettings =
-          Position(statusBarHeight + 10, size.width - sizeSettings.width);
-      //
-      sizeBoxTime = Size(size.height * 0.270520231, size.height * 0.052023121);
-      posBoxTime = Position(size.height / 2 - size.height * 0.436994220,
-          size.width - sizeBoxTime.width - size.height * 0.208092486);
-      //
-      sizeIconNotification = size.height * 0.034855491;
-      //
-      sizePaddingNotificationTime = size.height * 0.007283237;
-      //
-      textStyleTime = TextStyle(
-          color: Colors.white,
-          fontSize: size.height * 0.031213873,
-          fontWeight: FontWeight.normal);
-      //
-      sizeSandstoneFormTop =
-          Size(size.height * 0.404007225, size.height * 0.217065029);
-      posSandstoneFormTop = Position(
-          size.height / 2 - size.height * 0.412573699,
-          size.width - size.height * 0.493867052);
-      //
-      sizeShapeRightTop =
-          Size(size.height * 0.210083757, size.height * 0.1650703825);
-      posShapeRightTop = Position(size.height / 2 - size.height * 0.389336093,
-          size.width - size.height * 0.313578828);
-      //
-      sizeSandstoneFormBottom =
-          Size(size.height * 0.404007225, size.height * 0.217065029);
-      posSandstoneFormBottom = Position(
-          size.height / 2 + size.height * 0.195508671,
-          size.width - size.height * 0.493867052);
-      //
-      sizeShapeRightBottom =
-          Size(size.height * 0.210083757, size.height * 0.1650703825);
-      posShapeRightBottom = Position(
-          size.height / 2 + size.height * 0.224294185,
-          size.width - size.height * 0.313578828);
-      //
-      sizeWheelNahuales =
-          Size(size.height * 0.568400771, size.height * 0.568400771);
-      posWheelNahuales = Position((size.height - sizeWheelNahuales.height) / 2,
-          size.width - sizeWheelNahuales.width - size.height * 0.059248555);
-      //
-      sizeSignNahual =
-          Size(size.height * 0.066589595, size.height * 0.061040462);
-      offsetSignNahual = Offset(-size.height * 0.226818651, 0);
-      //
-      sizeWheelHaab =
-          Size(size.height * 9.626204239, size.height * 9.626204239);
-      posWheelHaab = Position((size.height - sizeWheelHaab.height) / 2,
-          size.width - size.height * 0.080924855);
-      //
-      sizeSectionFieldWinal =
-          Size(size.height * 4.813102119, size.height * 1.648903179);
-      posSectionFieldWinal = Position(size.height * 3.98865053, 0);
-      sizeSectionWinal =
-          Size(size.height * 0.19541474, size.height * 1.648903179);
-      offsetSectionFieldWinal = Offset(size.height * 2.40655106, 0);
-      //
-      sizeImageToneWhiteFlatCenter = Size(size.height * 0.044797688, 0);
-      posImageToneWhiteFlatCenter =
-          Position(size.height * 0.810221098, size.height * 0.005047688);
-      offsetImageToneWhiteFlatCenter = Offset(size.height * 4.785655588, 0);
-      //
-      sizeBoxTextWinal =
-          Size(size.height * 0.086705202, size.height * 0.026011561);
-      posBoxTextWinal =
-          Position(size.height * 0.781099711, size.height * 0.052001445);
-      offsetBoxTextWinal = Offset(size.height * 4.748094894, 0);
-      //
-      sizeSectionFieldWinalWayeb =
-          Size(size.height * 4.813102119, size.height * 0.414140173);
-      posSectionFieldWinalWayeb = Position(size.height * 4.606031792, 0);
-      sizeSectionWinalWayeb =
-          Size(size.height * 0.135283237, size.height * 0.414140173);
-      offsetSectionFieldWinalWayeb = Offset(size.height * 2.40655106, 0);
-      //
-      sizeImageToneWhiteFlatCenterWayeb = Size(size.height * 0.044797688, 0);
-      posImageToneWhiteFlatCenterWayeb =
-          Position(size.height * 0.192839595, size.height * 0.005047688);
-      offsetImageToneWhiteFlatCenterWayeb =
-          Offset(size.height * 4.785655588, 0);
-      //
-      sizeBoxTextWinalWayeb =
-          Size(size.height * 0.086705202, size.height * 0.026011561);
-      posBoxTextWinalWayeb =
-          Position(size.height * 0.163718208, size.height * 0.052001445);
-      offsetBoxTextWinalWayeb = Offset(size.height * 4.748094894, 0);
-      //
-      textStyleStrWinal =
-          TextStyle(color: Colors.white, fontSize: size.height * 0.023121387);
-      //
-      sizeFrame = Size(size.height * 0.052001445, size.height * 0.052001445);
-      posFrame = Position(sizeWheelHaab.height / 2 - size.height * 0.026001445,
-          size.height * 0.001445087);
-      offsetFrame = Offset(size.height * 4.785655588, 0);
-      //
-      sizeSandstoneMoon =
-          Size(size.height * 0.207361272, size.height * 0.327356936);
-      posSandstoneMoon = Position((size.height - size.height * 0.327356936) / 2,
-          size.width - size.height * 0.508572254);
-      //
-      sizeButtonReset =
-          Size(size.height * 0.143007225, size.height * 0.302572254);
-      posButtonReset = Position((size.height - size.height * 0.302572254) / 2,
-          size.width - size.height * 0.496315029);
-      //
-      sizeWheelTones =
-          Size(size.height * 0.258188825, size.height * 0.258188825);
-      posWheelTones = Position((size.height - sizeWheelTones.height) / 2,
-          size.width - sizeWheelTones.width - size.height * 0.144508671);
-      //
-      sizeSignTone = Size(size.height * 0.024971098, size.height * 0.052023121);
-      offsetSignTone = Offset(-size.height * 0.104947977, 0);
-      //
-      sizeBoxSeasons =
-          Size(size.height * 0.258188825, size.height * 0.258188825);
-      posBoxSeasons = Position((size.height - sizeBoxSeasons.height) / 2,
-          size.width - sizeBoxSeasons.width - size.height * 0.144508671);
-      //
-      sizeMoon = size.height * 0.120675896;
-      posMoon = Position((size.height - sizeMoon) / 2,
-          size.width - sizeMoon - size.height * 0.213265135);
-      //
-      sizeBoxSolsticesEquinoxes = size.width * 0.140320809;
-      posBoxSolsticesEquinoxes = Position(
-          (size.height - sizeBoxSolsticesEquinoxes) / 2,
-          size.width - sizeBoxSolsticesEquinoxes - size.width * 0.203442678);
-      //
-      paddingBoxSolsticesEquinoxes = EdgeInsets.all(size.height * 0.037572254);
-      mainAxisSpacingBoxSolsticesEquinoxes = size.height * 0.034682081;
-      crossAxisSpacingBoxSolsticesEquinoxes = size.height * 0.034682081;
-      //
-      sizeCircleSeason = size.height * 0.033295;
-      paddingCircleSeason = EdgeInsets.all(size.height * 0.040058);
-      offsetCircleSeason = Offset(0, size.height * 0.072624);
-      //
-      sizeButtonRelationship =
-          Size(size.height * 0.111606936, size.height * 0.053530347);
-      posButtonRelationship = Position(
-          size.height / 2 - size.height * 0.342882948,
-          size.width - size.height * 0.48174711);
-      //
-      sizeButtonTheYear =
-          Size(size.height * 0.108072254, size.height * 0.099991329);
-      posButtonTheYear = Position(size.height / 2 - size.height * 0.360053468,
-          size.width - size.height * 0.22974711);
-      //
-      sizeButtonDateCalculator =
-          Size(size.height * 0.111606936, size.height * 0.053530347);
-      posButtonDateCalculator = Position(
-          size.height / 2 + size.height * 0.289440751,
-          size.width - size.height * 0.48174711);
-      //
-      sizeButtonCholqij =
-          Size(size.height * 0.108072254, size.height * 0.099991329);
-      posButtonCholqij = Position(size.height / 2 + size.height * 0.260150289,
-          size.width - size.height * 0.22974711);
-      //
-      sizeBoxTextToneNahual =
-          Size(size.height * 0.140320809, size.height * 0.140320809);
-      posBoxTextToneNahual = Position(
-          (size.height - sizeBoxTextToneNahual.height) / 2,
-          size.width - sizeBoxTextToneNahual.width - size.height * 0.203442678);
-      //
-      textStyleToneNahual = TextStyle(
-          color: Color.lerp(mainColor, Colors.black, 0.74)!,
-          fontSize: size.height * 0.022890173,
-          height: size.width * 0.001456647);
-      //
-      sizeBoxLongCount =
-          Size(size.height * 0.384393064, size.height * 0.072254335);
-      posBoxLongCount = Position(size.height - size.height * 0.079479769,
-          size.width - size.height * 0.48265896);
-      sizeSandstones =
-          Size(size.height * 0.072254335, size.height * 0.072254335);
-      sizeNumbers = Size(size.height * 0.057803468, 0);
-      paddingSandstones = EdgeInsets.only(right: size.height * 0.005780347);
-      paddingNumbersBaktun = EdgeInsets.fromLTRB(
-          size.height * 0.007225434, 0, size.height * 0.010115607, 0);
-      paddingNumbersKatun = EdgeInsets.fromLTRB(
-          size.height * 0.010115607, 0, size.height * 0.010115607, 0);
-      paddingNumbersTun = EdgeInsets.fromLTRB(
-          size.height * 0.010115607, 0, size.height * 0.010115607, 0);
-      paddingNumbersWinal = EdgeInsets.fromLTRB(
-          size.height * 0.010115607, 0, size.height * 0.010115607, 0);
-      paddingNumbersKin = EdgeInsets.fromLTRB(
-          size.height * 0.010115607, 0, size.height * 0.007225434, 0);
-      //
-    }
-
+    final double minAspectRatio = 18 / 38;
+    final double celery = size.width / size.height <= minAspectRatio ? size.width : size.height * minAspectRatio;
+    //
+    final Size sizeSettings = Size(0.046 * celery, 0.3 * celery);
+    final Position posSettings = Position(statusBarHeight + 0.07 * celery, size.width - sizeSettings.width);
+    final double borderWidthSettings = 0.002 * celery;
+    final double borderRadiusSettings = 0.046 * celery;
+    //
+    final Size sizeBoxTime = Size(0.52 * celery, 0.1 * celery);
+    final Position posBoxTime = Position(size.height / 2 - 0.84 * celery, size.width - sizeBoxTime.width - 0.4 * celery);
+    //
+    final TextStyle textStyleTime = TextStyle(color: Colors.white, fontSize: 0.06 * celery, fontWeight: FontWeight.normal);
+    //
+    final Size sizeSandstoneFormTop = Size(0.776591667 * celery, 0.417247222 * celery);
+    final Position posSandstoneFormTop = Position(size.height / 2 - 0.793058333 * celery, size.width - 0.949322222 * celery);
+    //
+    final Size sizeShapeRightTop = Size(0.403827667 * celery, 0.317301957 * celery);
+    final Position posShapeRightTop = Position(size.height / 2 - 0.748390489 * celery, size.width - 0.602768191 * celery);
+    //
+    final Size sizeSandstoneFormBottom = Size(0.776591667 * celery, 0.417247222 * celery);
+    final Position posSandstoneFormBottom = Position(size.height / 2 + 0.375811111 * celery, size.width - 0.949322222 * celery);
+    //
+    final Size sizeShapeRightBottom = Size(0.403827667 * celery, 0.317301957 * celery);
+    final Position posShapeRightBottom = Position(size.height / 2 + 0.431143267 * celery, size.width - 0.602768191 * celery);
+    //
+    final Size sizeWheelNahuales = Size(1.092592593 * celery, 1.092592593 * celery);
+    final Position posWheelNahuales = Position((size.height - sizeWheelNahuales.height) / 2, size.width - sizeWheelNahuales.width - 0.113888889 * celery);
+    //
+    final Size sizeSignNahual = Size(0.128 * celery, 0.117333333 * celery);
+    final Offset offsetSignNahual = Offset(-0.435995852 * celery, 0);
+    //
+    final Size sizeWheelHaab = Size(18.503703704 * celery, 18.503703704 * celery);
+    final Position posWheelHaab = Position((size.height - sizeWheelHaab.height) / 2, size.width - 0.155555556 * celery);
+    //
+    final Size sizeSectionFieldWinal = Size(9.251851852 * celery, 3.169558333 * celery);
+    final Position posSectionFieldWinal = Position(7.667072685 * celery, 0);
+    final Size sizeSectionWinal = Size(0.375630556 * celery, 3.169558333 * celery);
+    final Offset offsetSectionFieldWinal = Offset(4.625925926 * celery, 0);
+    //
+    final Size sizeImageToneWhiteFlatCenter = Size(0.086111111 * celery, 0);
+    final Position posImageToneWhiteFlatCenter = Position(1.557425 * celery, 0.009702778 * celery);
+    final Offset offsetImageToneWhiteFlatCenter = Offset(9.199093519 * celery, 0);
+    //
+    final Size sizeBoxTextWinal = Size(0.166666667 * celery, 0.05 * celery);
+    final Position posBoxTextWinal = Position(1.501447222 * celery, 0.099958333 * celery);
+    final Offset offsetBoxTextWinal = Offset(9.126893519 * celery, 0);
+    //
+    final Size sizeSectionFieldWinalWayeb = Size(9.251851852 * celery, 0.796069444 * celery);
+    final Position posSectionFieldWinalWayeb = Position(8.853816667 * celery, 0);
+    final Size sizeSectionWinalWayeb = Size(0.260044444 * celery, 0.796069444 * celery);
+    final Offset offsetSectionFieldWinalWayeb = Offset(4.625925926 * celery, 0);
+    //
+    final Size sizeImageToneWhiteFlatCenterWayeb = Size(0.086111111 * celery, 0);
+    final Position posImageToneWhiteFlatCenterWayeb = Position(0.370680556 * celery, 0.009702778 * celery);
+    final Offset offsetImageToneWhiteFlatCenterWayeb = Offset(9.199093519 * celery, 0);
+    //
+    final Size sizeBoxTextWinalWayeb = Size(0.166666667 * celery, 0.05 * celery);
+    final Position posBoxTextWinalWayeb = Position(0.314702778 * celery, 0.099958333 * celery);
+    final Offset offsetBoxTextWinalWayeb = Offset(9.126893519 * celery, 0);
+    //
+    final TextStyle textStyleStrWinal = TextStyle(color: Colors.white, fontSize: 0.044444444 * celery);
+    //
+    final Size sizeFrame = Size(0.099958333 * celery, 0.099958333 * celery);
+    final Position posFrame = Position(sizeWheelHaab.height / 2 - 0.049980556 * celery, 0.002777778 * celery);
+    final Offset offsetFrame = Offset(9.199093519 * celery, 0);
+    //
+    final Size sizeSandstoneMoon = Size(0.398594444 * celery, 0.629252778 * celery);
+    final Position posSandstoneMoon = Position((size.height - 0.629252778 * celery) / 2, size.width - 0.977588889 * celery);
+    //
+    final Size sizeButtonReset = Size(0.274891667 * celery, 0.581611111 * celery);
+    final Position posButtonReset = Position((size.height - 0.581611111 * celery) / 2, size.width - 0.954027778 * celery);
+    //
+    final Size sizeWheelTones = Size(0.496296296 * celery, 0.496296296 * celery);
+    final Position posWheelTones = Position((size.height - sizeWheelTones.height) / 2, size.width - sizeWheelTones.width - 0.277777778 * celery);
+    //
+    final Size sizeSignTone = Size(0.048 * celery, 0.1 * celery);
+    final Offset offsetSignTone = Offset(-0.201733333 * celery, 0);
+    //
+    final Size sizeBoxSeasons = Size(0.496296296 * celery, 0.496296296 * celery);
+    final Position posBoxSeasons = Position((size.height - sizeBoxSeasons.height) / 2, size.width - sizeBoxSeasons.width - 0.277777778 * celery);
+    //
+    final double sizeMoon = 0.231965889 * celery;
+    final Position posMoon = Position((size.height - sizeMoon) / 2, size.width - sizeMoon - 0.409942981 * celery);
+    //
+    final EdgeInsets paddingBoxSolsticesEquinoxes = EdgeInsets.all(0.072222222 * celery);
+    final double mainAxisSpacingBoxSolsticesEquinoxes = 0.066666667 * celery;
+    final double crossAxisSpacingBoxSolsticesEquinoxes = 0.066666667 * celery;
+    //
+    final double sizeCircleSeason = 0.064 * celery;
+    final EdgeInsets paddingCircleSeason = EdgeInsets.all(0.077 * celery);
+    final Offset offsetCircleSeason = Offset(0, 0.1396 * celery);
+    //
+    final Size sizeButtonRelationship = Size(0.214533333 * celery, 0.102897222 * celery);
+    final Position posButtonRelationship = Position(size.height / 2 - 0.659097222 * celery, size.width - 0.926025 * celery);
+    //
+    final Size sizeButtonTheYear = Size(0.207738889 * celery, 0.192205556 * celery);
+    final Position posButtonTheYear = Position(size.height / 2 - 0.692102778 * celery, size.width - 0.441625 * celery);
+    //
+    final Size sizeButtonDateCalculator = Size(0.214533333 * celery, 0.102897222 * celery);
+    final Position posButtonDateCalculator = Position(size.height / 2 + 0.556369444 * celery, size.width - 0.926025 * celery);
+    //
+    final Size sizeButtonCholqij = Size(0.207738889 * celery, 0.192205556 * celery);
+    final Position posButtonCholqij = Position(size.height / 2 + 0.500066667 * celery, size.width - 0.441625 * celery);
+    //5
+    final Size sizeBoxTextToneNahual = Size(0.269727778 * celery, 0.269727778 * celery);
+    final Position posBoxTextToneNahual = Position(
+      (size.height - sizeBoxTextToneNahual.height) / 2,
+      size.width - sizeBoxTextToneNahual.width - 0.391062037 * celery,
+    );
+    //
+    final TextStyle textStyleToneNahualStroke = TextStyle(
+      fontSize: 0.044 * celery,
+      height: 0.0028 * celery,
+      foreground: Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.005 * celery
+        ..color = Color.lerp(mainColor, Colors.black, 0.3)!,
+    );
+    //
+    final TextStyle textStyleToneNahualText = TextStyle(color: Colors.grey[350], fontSize: 0.044 * celery, height: 0.0028 * celery);
+    //
+    final Size sizeBoxLongCount = Size(0.738888889 * celery, 0.138888889 * celery);
+    final Position posBoxLongCount = Position(size.height - 0.152777778 * celery, size.width - 0.927777778 * celery);
+    final Size sizeSandstones = Size(0.138888889 * celery, 0.138888889 * celery);
+    final Size sizeNumbers = Size(0.111111111 * celery, 0);
+    final EdgeInsets paddingSandstones = EdgeInsets.only(right: 0.011111111 * celery);
+    //
     if (finalAngle == 0.0) {
       now = DateTime.now();
 
-      final int daysGoneBy =
-          (now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) ~/
-              86400000;
+      final int daysGoneBy = (now.difference(startDate)).inDays;
 
       // FIXME: calculate with floor(), because of daysGoneBy could be negative
       baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
@@ -1785,8 +1382,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       chosenDay = currDay;
       xDayTotal = currDay;
 
-      //TODO: change 5129 to 5141 (5152-12) after database year index update
-      currYear = 5129 + daysGoneBy ~/ 365;
+      currYear = 5141 + daysGoneBy ~/ 365;
       chosenYear = currYear;
 
       tone = (startTone + daysGoneBy) % 13;
@@ -1808,16 +1404,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       diffAngle = initialValueTrecenamask % 13;
       trecenaOffsetAngle = 18 * initialValueTrecenamask / 180 * pi;
 
-      currTrecenaMask = trecenaMask[trecenaColor];
+      currTrecenaMask = MayaImage.trecenaMask[trecenaColor];
 
-      angleTime = (now.hour * 60 + now.minute) / 14400 * pi;
+      angleTime = (now.hour * 3600 + now.minute * 60 + now.second) / 864000 * pi;
 
-      strTextToneNahual =
-          '${MayaLists().strTone[tone]}\n${MayaLists().strNahual[nahual]}';
+      strTextToneNahual = '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
     }
     if (seasons.isNotEmpty) {
-      DateTime nowSeasons =
-          now.toUtc().add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+      DateTime nowSeasons = now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
       int index = nowSeasons.year - 2001;
 
       List<String> strDateTimeSeasons = [
@@ -1826,7 +1420,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         seasons[index]['summer'],
         seasons[index]['fall'],
         seasons[index]['winter'],
-        seasons[index + 1]['spring']
+        seasons[index + 1]['spring'],
       ];
 
       List<DateTime> dateTimeSolsticesEquinoxes = [
@@ -1835,7 +1429,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         dateTimeformatSeasons.parse(strDateTimeSeasons[2]),
         dateTimeformatSeasons.parse(strDateTimeSeasons[3]),
         dateTimeformatSeasons.parse(strDateTimeSeasons[4]),
-        dateTimeformatSeasons.parse(strDateTimeSeasons[5])
+        dateTimeformatSeasons.parse(strDateTimeSeasons[5]),
       ];
 
       List<Duration> durations = [
@@ -1845,29 +1439,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         nowSeasons.difference(dateTimeSolsticesEquinoxes[4]),
       ];
 
-      List<int> diffSeasons = [
-        durations[0].inMinutes,
-        durations[1].inMinutes,
-        durations[2].inMinutes,
-        durations[3].inMinutes,
-      ];
+      List<int> diffSeasons = [durations[0].inMinutes, durations[1].inMinutes, durations[2].inMinutes, durations[3].inMinutes];
 
-      List<int> diffSeasonsAbs = [
-        durations[0].inMinutes.abs(),
-        durations[1].inMinutes.abs(),
-        durations[2].inMinutes.abs(),
-        durations[3].inMinutes.abs(),
-      ];
+      List<int> diffSeasonsAbs = [durations[0].inMinutes.abs(), durations[1].inMinutes.abs(), durations[2].inMinutes.abs(), durations[3].inMinutes.abs()];
 
       int minimum = diffSeasonsAbs.reduce(min);
 
-      int indexMinimum =
-          diffSeasonsAbs.indexWhere((element) => element == minimum);
+      int indexMinimum = diffSeasonsAbs.indexWhere((element) => element == minimum);
 
       if (diffSeasons[indexMinimum] < 0) {
-        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
-            .difference(dateTimeSolsticesEquinoxes[indexMinimum])
-            .inMinutes;
+        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1].difference(dateTimeSolsticesEquinoxes[indexMinimum]).inMinutes;
 
         double angle = (90 / seasonTime) * -diffSeasons[indexMinimum];
 
@@ -1897,9 +1478,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             iconSeason = SvgPicture.asset('assets/vector/winter_icon_dark.svg');
         }
       } else {
-        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
-            .difference(dateTimeSolsticesEquinoxes[indexMinimum + 2])
-            .inMinutes;
+        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1].difference(dateTimeSolsticesEquinoxes[indexMinimum + 2]).inMinutes;
 
         double angle = (90 / seasonTime) * -diffSeasons[indexMinimum];
 
@@ -1931,1102 +1510,876 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     }
 
-    strTextToneNahual =
-        '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
+    strTextToneNahual = '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
 
-    DateTime datetimeMoon =
-        now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+    DateTime dateTimeMoon = now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
 
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light),
+      child: Scaffold(
         key: _scaffoldKey,
-        endDrawer: _customDrawer(context, size),
+        endDrawer: _customDrawer(context, size, celery),
         endDrawerEnableOpenDragGesture: false,
         body: Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: backgroundImage,
-                fit: BoxFit.cover,
+          height: double.infinity,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(image: backgroundImage, fit: BoxFit.cover),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: posBoxTime.top,
+                left: posBoxTime.left,
+                child: Container(
+                  height: sizeBoxTime.height,
+                  width: sizeBoxTime.width,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 2),
+                    borderRadius: BorderRadius.all(Radius.elliptical(sizeBoxTime.width, sizeBoxTime.height)),
+                    image: const DecorationImage(image: AssetImage('assets/images/sandstone_time.jpg'), fit: BoxFit.cover),
+                  ),
+                  child: Text(currTime, textAlign: TextAlign.center, style: textStyleTime),
+                ),
               ),
-            ),
-            child: Stack(children: [
               Positioned(
-                  top: posBoxTime.top,
-                  left: posBoxTime.left,
-                  child: Container(
-                    height: sizeBoxTime.height,
-                    width: sizeBoxTime.width,
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 2),
-                        borderRadius: BorderRadius.all(Radius.elliptical(
-                            sizeBoxTime.width, sizeBoxTime.height)),
-                        image: const DecorationImage(
-                            image:
-                                AssetImage('assets/images/sandstone_time.jpg'),
-                            fit: BoxFit.cover)),
-                    child: Text(currTime,
-                        textAlign: TextAlign.center, style: textStyleTime),
-                  )),
+                top: posSandstoneFormTop.top,
+                left: posSandstoneFormTop.left,
+                child: Image.asset('assets/images/sandstoneForm_top.png', height: sizeSandstoneFormTop.height, width: sizeSandstoneFormTop.width),
+              ),
               Positioned(
-                  top: posSandstoneFormTop.top,
-                  left: posSandstoneFormTop.left,
-                  child: Image.asset('assets/images/sandstoneForm_top.png',
-                      height: sizeSandstoneFormTop.height,
-                      width: sizeSandstoneFormTop.width)),
+                top: posShapeRightTop.top,
+                left: posShapeRightTop.left,
+                child: Image.asset(
+                  'assets/images/shape_right_top.png',
+                  height: sizeShapeRightTop.height,
+                  width: sizeShapeRightTop.width,
+                  color: mainColor,
+                  colorBlendMode: BlendMode.modulate,
+                ),
+              ),
               Positioned(
-                  top: posShapeRightTop.top,
-                  left: posShapeRightTop.left,
-                  child: Image.asset('assets/images/shape_right_top.png',
-                      height: sizeShapeRightTop.height,
-                      width: sizeShapeRightTop.width,
-                      color: mainColor,
-                      colorBlendMode: BlendMode.modulate)),
+                top: posSandstoneFormBottom.top,
+                left: posSandstoneFormBottom.left,
+                child: Image.asset('assets/images/sandstoneForm_bottom.png', height: sizeSandstoneFormBottom.height, width: sizeSandstoneFormBottom.width),
+              ),
               Positioned(
-                  top: posSandstoneFormBottom.top,
-                  left: posSandstoneFormBottom.left,
-                  child: Image.asset('assets/images/sandstoneForm_bottom.png',
-                      height: sizeSandstoneFormBottom.height,
-                      width: sizeSandstoneFormBottom.width)),
+                top: posShapeRightBottom.top,
+                left: posShapeRightBottom.left,
+                child: Image.asset(
+                  'assets/images/shape_right_bottom.png',
+                  height: sizeShapeRightBottom.height,
+                  width: sizeShapeRightBottom.width,
+                  color: mainColor,
+                  colorBlendMode: BlendMode.modulate,
+                ),
+              ),
               Positioned(
-                  top: posShapeRightBottom.top,
-                  left: posShapeRightBottom.left,
-                  child: Image.asset('assets/images/shape_right_bottom.png',
-                      height: sizeShapeRightBottom.height,
-                      width: sizeShapeRightBottom.width,
-                      color: mainColor,
-                      colorBlendMode: BlendMode.modulate)),
-              Positioned(
-                  top: posWheelHaab.top,
-                  left: posWheelHaab.left,
-                  child: Transform.rotate(
-                      angle: offsetGearHaab -
-                          4 * (angleTime + finalAngle) / 73 +
-                          pi / 365, // [x] calculation correct
-                      child: SizedBox(
-                          height: sizeWheelHaab.height,
-                          width: sizeWheelHaab.width,
-                          child: Stack(children: [
-                            for (int i = 0; i < 18; i++)
-                              Positioned(
-                                  top: posSectionFieldWinal.top,
-                                  left: posSectionFieldWinal.left,
-                                  child: Transform.rotate(
-                                      angle: 4 *
-                                          pi *
-                                          (2 * i + 1) /
-                                          73, // [x] calculation correct
-                                      origin: offsetSectionFieldWinal,
-                                      child: SizedBox(
-                                          height: sizeSectionFieldWinal.height,
-                                          width: sizeSectionFieldWinal.width,
-                                          child: Stack(children: [
-                                            Positioned(
-                                                child: Image.asset(
-                                                    'assets/images/shape_section_winal.png',
-                                                    height:
-                                                        sizeSectionWinal.height,
-                                                    width:
-                                                        sizeSectionWinal.width,
-                                                    color: mainColor,
-                                                    colorBlendMode:
-                                                        BlendMode.modulate)),
-                                            for (int j = 0; j < 20; j++)
-                                              Positioned(
-                                                  top:
-                                                      posImageToneWhiteFlatCenter
-                                                          .top,
-                                                  left:
-                                                      posImageToneWhiteFlatCenter
-                                                          .left,
-                                                  child: Transform.rotate(
-                                                      angle: 2 *
-                                                          pi *
-                                                          (j - 10) /
-                                                          365, // [x] calculation correct
-                                                      origin:
-                                                          offsetImageToneWhiteFlatCenter,
-                                                      child: SizedBox(
-                                                          width:
-                                                              sizeImageToneWhiteFlatCenter
-                                                                  .width,
-                                                          child: MayaImages()
-                                                                  .imageToneWhiteFlatCenter[
-                                                              j]))),
-                                            for (int j = 0; j < 20; j++)
-                                              Positioned(
-                                                  top: posBoxTextWinal.top,
-                                                  left: posBoxTextWinal.left,
-                                                  child: Transform.rotate(
-                                                      angle: 2 *
-                                                          pi *
-                                                          (j - 10) /
-                                                          365, // [x] calculation correct
-                                                      origin:
-                                                          offsetBoxTextWinal,
-                                                      child: RotatedBox(
-                                                          quarterTurns: -1,
-                                                          child: SizedBox(
-                                                              height:
-                                                                  sizeBoxTextWinal
-                                                                      .height,
-                                                              width:
-                                                                  sizeBoxTextWinal
-                                                                      .width,
-                                                              child: Center(
-                                                                  child: Text(
-                                                                      MayaLists()
-                                                                              .strWinal[
-                                                                          i],
-                                                                      style:
-                                                                          textStyleStrWinal))))))
-                                          ])))),
-                            Positioned(
-                                top: posSectionFieldWinalWayeb.top,
-                                left: posSectionFieldWinalWayeb.left,
-                                child: Transform.rotate(
-                                    angle: 145 *
-                                        pi /
-                                        73, // [x] calculation correct
-                                    origin: offsetSectionFieldWinalWayeb,
-                                    child: SizedBox(
-                                        height:
-                                            sizeSectionFieldWinalWayeb.height,
-                                        width: sizeSectionFieldWinalWayeb.width,
-                                        child: Stack(children: [
-                                          Positioned(
-                                              child: Image.asset(
-                                                  'assets/images/shape_section_winal_wayeb.png',
-                                                  height: sizeSectionWinalWayeb
-                                                      .height,
-                                                  width: sizeSectionWinalWayeb
-                                                      .width,
-                                                  color: mainColor,
-                                                  colorBlendMode:
-                                                      BlendMode.modulate)),
-                                          for (int i = 0; i < 5; i++)
-                                            Positioned(
-                                                top:
-                                                    posImageToneWhiteFlatCenterWayeb
-                                                        .top,
-                                                left:
-                                                    posImageToneWhiteFlatCenterWayeb
-                                                        .left,
-                                                child: Transform.rotate(
-                                                    angle: pi *
-                                                        (2 * i - 5) /
-                                                        365, // [x] calculation correct
-                                                    origin:
-                                                        offsetImageToneWhiteFlatCenterWayeb,
-                                                    child: SizedBox(
-                                                        width:
-                                                            sizeImageToneWhiteFlatCenterWayeb
-                                                                .width,
-                                                        child: MayaImages()
-                                                                .imageToneWhiteFlatCenter[
-                                                            i]))),
-                                          Positioned(
-                                              top:
-                                                  posImageToneWhiteFlatCenterWayeb
-                                                      .top,
-                                              left:
-                                                  posImageToneWhiteFlatCenterWayeb
-                                                      .left,
-                                              child: Transform.rotate(
-                                                  angle: pi /
-                                                      73, // [x] calculation correct
-                                                  origin:
-                                                      offsetImageToneWhiteFlatCenterWayeb,
-                                                  child: SizedBox(
-                                                      width:
-                                                          sizeImageToneWhiteFlatCenterWayeb
-                                                              .width,
-                                                      child: MayaImages()
-                                                              .imageToneWhiteFlatCenter[
-                                                          0]))),
-                                          for (int i = 0; i < 5; i++)
-                                            Positioned(
-                                                top: posBoxTextWinalWayeb.top,
-                                                left: posBoxTextWinalWayeb.left,
-                                                child: Transform.rotate(
-                                                    angle: pi *
-                                                        (2 * i - 5) /
-                                                        365, // [x] calculation correct
-                                                    origin:
-                                                        offsetBoxTextWinalWayeb,
-                                                    child: RotatedBox(
-                                                        quarterTurns: -1,
-                                                        child: SizedBox(
-                                                            height:
-                                                                sizeBoxTextWinalWayeb
-                                                                    .height,
-                                                            width:
-                                                                sizeBoxTextWinalWayeb
-                                                                    .width,
-                                                            child: Center(
-                                                                child: Text(
-                                                                    MayaLists()
-                                                                            .strWinal[
-                                                                        18],
-                                                                    style:
-                                                                        textStyleStrWinal)))))),
-                                          Positioned(
-                                              top: posBoxTextWinalWayeb.top,
-                                              left: posBoxTextWinalWayeb.left,
-                                              child: Transform.rotate(
-                                                  angle: pi /
-                                                      73, // [x] calculation correct
-                                                  origin:
-                                                      offsetBoxTextWinalWayeb,
-                                                  child: RotatedBox(
-                                                      quarterTurns: -1,
-                                                      child: SizedBox(
-                                                          height:
-                                                              sizeBoxTextWinalWayeb
-                                                                  .height,
-                                                          width:
-                                                              sizeBoxTextWinalWayeb
-                                                                  .width,
-                                                          child: Center(
-                                                              child: Text(
-                                                                  MayaLists()
-                                                                          .strWinal[
-                                                                      0],
-                                                                  style:
-                                                                      textStyleStrWinal))))))
-                                        ]))))
-                          ])))),
-              Positioned(
-                  top: posWheelHaab.top,
-                  left: posWheelHaab.left,
-                  child: Transform.rotate(
-                      angle: offsetGearHaab -
-                          4 * (angleTime + finalAngle) / 73 +
-                          pi / 365, // [x] calculation correct
-                      child: SizedBox(
-                          height: sizeWheelHaab.height,
-                          width: sizeWheelHaab.width,
-                          child: Consumer<MayaData>(
-                              builder: (context, data, child) {
-                            return Stack(children: [
-                              for (int i = -20; i < 21; i++)
-                                if (indicator(i, data.mayaData))
-                                  Positioned(
-                                      top: posFrame.top,
-                                      left: posFrame.left,
-                                      child: Transform.rotate(
-                                          angle: 360 /
-                                              365 *
-                                              ((xDayTotal + i) % 365) /
-                                              180 *
-                                              pi,
-                                          origin: offsetFrame,
-                                          child: Container(
-                                              height: sizeFrame.height,
-                                              width: sizeFrame.width,
-                                              decoration: BoxDecoration(
-                                                  color: const Color.fromARGB(
-                                                      32, 255, 255, 255),
-                                                  border: Border.all(
-                                                      color: Colors.white,
-                                                      width: 1),
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  shape: BoxShape.rectangle))))
-                            ]);
-                          })))),
-              Positioned(
-                  top: posSandstoneMoon.top,
-                  left: posSandstoneMoon.left,
-                  child: Image.asset("assets/images/sandstoneMoon.png",
-                      height: sizeSandstoneMoon.height,
-                      width: sizeSandstoneMoon.width)),
-              Positioned(
-                  top: posWheelNahuales.top,
-                  left: posWheelNahuales.left,
-                  child: Transform.rotate(
-                      angle: offsetGearNahuales + angleTime + finalAngle,
-                      child: Image.asset('assets/images/gearNahuales.png',
-                          height: sizeWheelNahuales.height,
-                          width: sizeWheelNahuales.width,
-                          color: mainColor,
-                          colorBlendMode: BlendMode.modulate))),
-              Positioned(
-                  top: posWheelNahuales.top,
-                  left: posWheelNahuales.left,
-                  child: Transform.rotate(
-                      angle: (trecenaOffsetAngle +
-                          dTrecenaAngle +
-                          angleTime +
-                          finalAngle),
-                      child: SizedBox(
-                          height: sizeWheelNahuales.height,
-                          width: sizeWheelNahuales.width,
-                          child: currTrecenaMask))),
-              Positioned(
-                  top: posWheelNahuales.top,
-                  left: posWheelNahuales.left,
+                top: posWheelHaab.top,
+                left: posWheelHaab.left,
+                child: Transform.rotate(
+                  angle: offsetGearHaab - 4 * (angleTime + finalAngle) / 73 + pi / 365, // [celery] calculation correct
                   child: SizedBox(
-                      height: sizeWheelNahuales.height,
-                      width: sizeWheelNahuales.width,
-                      child: LayoutBuilder(builder: (context, constraints) {
-                        Offset centerOfGestureDetector = Offset(
-                            constraints.maxWidth / 2,
-                            constraints.maxHeight / 2);
-                        return GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onPanStart: (details) {
-                              final touchPositionFromCenter =
-                                  details.localPosition -
-                                      centerOfGestureDetector;
-                              upsetAngle =
-                                  oldAngle - touchPositionFromCenter.direction;
-                            },
-                            onPanUpdate: (details) {
-                              final touchPositionFromCenter =
-                                  details.localPosition -
-                                      centerOfGestureDetector;
-                              setState(() {
-                                prevAngle = finalAngle;
-
-                                finalAngle = touchPositionFromCenter.direction +
-                                    upsetAngle;
-
-                                finalAngle = (finalAngle + 2 * pi) % (2 * pi);
-
-                                if (finalAngle + mAngle - prevAngle <
-                                    -1.5 * pi) {
-                                  iRounds++;
-                                  mAngle = 2 * pi * iRounds;
-                                }
-
-                                if (finalAngle + mAngle - prevAngle >
-                                    1.5 * pi) {
-                                  mAngle = 2 * pi * iRounds - 2 * pi;
-                                  iRounds--;
-                                }
-
-                                finalAngle = finalAngle + mAngle;
-
-                                double angle = offsetGearHaab -
-                                    (angleTime + finalAngle) * 20 / 365;
-
-                                // get chosenDayTotal, chosenDay
-                                int chosenDayTotal =
-                                    (-angle * 180 / pi * 365 / 360).floor();
-                                chosenDay = chosenDayTotal % 365;
-
-                                // get chosenYear, chosenHaabYear
-                                chosenYear = currYear +
-                                    (-angle * 180 / pi / 360).floor();
-
-                                if (chosenDayTotal % 10 == 0) {
-                                  xDayTotal = chosenDayTotal;
-                                }
-
-                                // increase Tone Name, Nahual Name and the Long Count
-                                if ((angleTime + finalAngle) * 180 / pi >
-                                    18 * nAngle + 18) {
-                                  sTone++;
-                                  sNahual++;
-                                  nAngle++;
-
-                                  if (sTone > 12) {
-                                    sTone = 0;
-                                  }
-                                  if (sNahual > 19) {
-                                    sNahual = 0;
-                                  }
-
-                                  strTextToneNahual =
-                                      '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
-
-                                  sKin++;
-                                  if (sKin > 19) {
-                                    sKin = 0;
-                                    sWinal++;
-                                    if (sWinal > 17) {
-                                      sWinal = 0;
-                                      sTun++;
-                                      if (sTun > 19) {
-                                        sTun = 0;
-                                        sKatun++;
-                                        if (sKatun > 19) {
-                                          sKatun = 0;
-                                          sBaktun++;
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-
-                                // decrease Tone Name, Nahual Name and the Long Count
-                                if ((angleTime + finalAngle) * 180 / pi <
-                                    18 * nAngle) {
-                                  sTone--;
-                                  sNahual--;
-                                  nAngle--;
-
-                                  if (sTone < 0) {
-                                    sTone = 12;
-                                  }
-                                  if (sNahual < 0) {
-                                    sNahual = 19;
-                                  }
-
-                                  strTextToneNahual =
-                                      '${MayaLists().strTone[sTone]}\n${MayaLists().strNahual[sNahual]}';
-
-                                  sKin--;
-                                  if (sKin < 0) {
-                                    sKin = 19;
-                                    sWinal--;
-                                    if (sWinal < 0) {
-                                      sWinal = 17;
-                                      sTun--;
-                                      if (sTun < 0) {
-                                        sTun = 19;
-                                        sKatun--;
-                                        if (sKatun < 0) {
-                                          sKatun = 19;
-                                          sBaktun--;
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-
-                                // change Trecena
-                                if ((finalAngle + angleTime) * 180 / pi >
-                                    234 * iTrecena - diffAngle * 18) {
-                                  nTrecenaColor++;
-                                  if (nTrecenaColor > 3) {
-                                    nTrecenaColor = 0;
-                                  }
-                                  if (nTrecenaColor == 0) {
-                                    nTrecenaAngle++;
-                                    dTrecenaAngle =
-                                        144.0 * nTrecenaAngle / 180 * pi;
-                                  }
-                                  currTrecenaMask = trecenaMask[nTrecenaColor];
-                                  iTrecena++;
-                                }
-                                if ((finalAngle + angleTime) * 180 / pi <
-                                    234 * iTrecena - 234 - diffAngle * 18) {
-                                  nTrecenaColor--;
-                                  if (nTrecenaColor < 0) {
-                                    nTrecenaColor = 3;
-                                  }
-                                  if (nTrecenaColor == 3) {
-                                    nTrecenaAngle--;
-                                    dTrecenaAngle =
-                                        144.0 * nTrecenaAngle / 180 * pi;
-                                  }
-                                  currTrecenaMask = trecenaMask[nTrecenaColor];
-                                  iTrecena--;
-                                }
-                              });
-                            },
-                            onPanEnd: (details) {
-                              oldAngle = finalAngle;
-                            },
+                    height: sizeWheelHaab.height,
+                    width: sizeWheelHaab.width,
+                    child: Stack(
+                      children: [
+                        for (int i = 0; i < 18; i++)
+                          Positioned(
+                            top: posSectionFieldWinal.top,
+                            left: posSectionFieldWinal.left,
                             child: Transform.rotate(
-                                angle:
-                                    offsetGearNahuales + angleTime + finalAngle,
-                                child: Stack(children: [
-                                  for (int i = 0; i < 20; i++)
-                                    Align(
-                                        alignment: const Alignment(0.904, 0),
+                              angle: 4 * pi * (2 * i + 1) / 73, // [celery] calculation correct
+                              origin: offsetSectionFieldWinal,
+                              child: SizedBox(
+                                height: sizeSectionFieldWinal.height,
+                                width: sizeSectionFieldWinal.width,
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      child: Image.asset(
+                                        'assets/images/shape_section_winal.png',
+                                        height: sizeSectionWinal.height,
+                                        width: sizeSectionWinal.width,
+                                        color: mainColor,
+                                        colorBlendMode: BlendMode.modulate,
+                                      ),
+                                    ),
+                                    for (int j = 0; j < 20; j++)
+                                      Positioned(
+                                        top: posImageToneWhiteFlatCenter.top,
+                                        left: posImageToneWhiteFlatCenter.left,
                                         child: Transform.rotate(
-                                            origin: offsetSignNahual,
-                                            angle: pi *
-                                                (-2 * i - 1) /
-                                                20, // [x] calculation correct
+                                          angle: 2 * pi * (j - 10) / 365, // [celery] calculation correct
+                                          origin: offsetImageToneWhiteFlatCenter,
+                                          child: SizedBox(width: sizeImageToneWhiteFlatCenter.width, child: MayaImage.imageToneWhiteFlatCenter[j]),
+                                        ),
+                                      ),
+                                    for (int j = 0; j < 20; j++)
+                                      Positioned(
+                                        top: posBoxTextWinal.top,
+                                        left: posBoxTextWinal.left,
+                                        child: Transform.rotate(
+                                          angle: 2 * pi * (j - 10) / 365, // [celery] calculation correct
+                                          origin: offsetBoxTextWinal,
+                                          child: RotatedBox(
+                                            quarterTurns: -1,
                                             child: SizedBox(
-                                                height: sizeSignNahual.height,
-                                                width: sizeSignNahual.width,
-                                                child: MayaImages()
-                                                    .signNahual[i])))
-                                ])));
-                      }))),
-              Positioned(
-                  top: posButtonReset.top,
-                  left: posButtonReset.left,
-                  child: GestureDetector(
-                      onTap: () {
-                        reset();
-                      },
-                      onLongPress: () async {
-                        final client = matrix.Client(
-                          'matrix',
-                          databaseBuilder: (_) async {
-                            final dir = await getApplicationSupportDirectory();
-                            final db = matrix.MatrixSdkDatabase('matrix',
-                                database:
-                                    await openDatabase('$dir/matrix.sqlite'));
-                            await db.open();
-                            return db;
-                          },
-                        );
-                        await client.init();
-
-                        Navigator.push(
-                            navigatorKey.currentContext!,
-                            PageRouteBuilder(
-                                pageBuilder: (BuildContext context, __, _) =>
-                                    MainPage(
-                                      backgroundImage: backgroundImage,
-                                      mainColor: mainColor,
-                                      client: client,
-                                    )));
-                      },
-                      child: Image.asset("assets/images/shape_button_moon.png",
-                          height: sizeButtonReset.height,
-                          width: sizeButtonReset.width,
-                          color: mainColor,
-                          colorBlendMode: BlendMode.modulate))),
-              Positioned(
-                  top: posWheelTones.top,
-                  left: posWheelTones.left,
-                  child: Transform.rotate(
-                      angle:
-                          offsetGearTones + (angleTime + finalAngle) / 13 * 20,
-                      child: SizedBox(
-                          height: sizeWheelTones.height,
-                          width: sizeWheelTones.width,
-                          child: Stack(children: [
-                            Image.asset(
-                              'assets/images/gearTones.png',
-                              color: mainColor,
-                              colorBlendMode: BlendMode.modulate,
+                                              height: sizeBoxTextWinal.height,
+                                              width: sizeBoxTextWinal.width,
+                                              child: Center(child: Text(MayaList.strWinal[i], style: textStyleStrWinal)),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            Stack(children: [
-                              for (int i = 0; i < 13; i++)
-                                Align(
-                                    alignment: const Alignment(0.9, 0),
+                          ),
+                        Positioned(
+                          top: posSectionFieldWinalWayeb.top,
+                          left: posSectionFieldWinalWayeb.left,
+                          child: Transform.rotate(
+                            angle: 145 * pi / 73, // [celery] calculation correct
+                            origin: offsetSectionFieldWinalWayeb,
+                            child: SizedBox(
+                              height: sizeSectionFieldWinalWayeb.height,
+                              width: sizeSectionFieldWinalWayeb.width,
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    child: Image.asset(
+                                      'assets/images/shape_section_winal_wayeb.png',
+                                      height: sizeSectionWinalWayeb.height,
+                                      width: sizeSectionWinalWayeb.width,
+                                      color: mainColor,
+                                      colorBlendMode: BlendMode.modulate,
+                                    ),
+                                  ),
+                                  for (int i = 0; i < 5; i++)
+                                    Positioned(
+                                      top: posImageToneWhiteFlatCenterWayeb.top,
+                                      left: posImageToneWhiteFlatCenterWayeb.left,
+                                      child: Transform.rotate(
+                                        angle: pi * (2 * i - 5) / 365, // [celery] calculation correct
+                                        origin: offsetImageToneWhiteFlatCenterWayeb,
+                                        child: SizedBox(width: sizeImageToneWhiteFlatCenterWayeb.width, child: MayaImage.imageToneWhiteFlatCenter[i]),
+                                      ),
+                                    ),
+                                  Positioned(
+                                    top: posImageToneWhiteFlatCenterWayeb.top,
+                                    left: posImageToneWhiteFlatCenterWayeb.left,
                                     child: Transform.rotate(
-                                        origin: offsetSignTone,
-                                        angle: -2 /
-                                                13 * // -360 / 13 / 180 = -2 / 13
-                                                pi *
-                                                i -
-                                            1 / 13 * pi,
+                                      angle: pi / 73, // [celery] calculation correct
+                                      origin: offsetImageToneWhiteFlatCenterWayeb,
+                                      child: SizedBox(width: sizeImageToneWhiteFlatCenterWayeb.width, child: MayaImage.imageToneWhiteFlatCenter[0]),
+                                    ),
+                                  ),
+                                  for (int i = 0; i < 5; i++)
+                                    Positioned(
+                                      top: posBoxTextWinalWayeb.top,
+                                      left: posBoxTextWinalWayeb.left,
+                                      child: Transform.rotate(
+                                        angle: pi * (2 * i - 5) / 365, // [celery] calculation correct
+                                        origin: offsetBoxTextWinalWayeb,
+                                        child: RotatedBox(
+                                          quarterTurns: -1,
+                                          child: SizedBox(
+                                            height: sizeBoxTextWinalWayeb.height,
+                                            width: sizeBoxTextWinalWayeb.width,
+                                            child: Center(child: Text(MayaList.strWinal[18], style: textStyleStrWinal)),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  Positioned(
+                                    top: posBoxTextWinalWayeb.top,
+                                    left: posBoxTextWinalWayeb.left,
+                                    child: Transform.rotate(
+                                      angle: pi / 73, // [celery] calculation correct
+                                      origin: offsetBoxTextWinalWayeb,
+                                      child: RotatedBox(
+                                        quarterTurns: -1,
                                         child: SizedBox(
-                                            height: sizeSignTone.height,
-                                            width: sizeSignTone.width,
-                                            child: MayaImages()
-                                                .imageToneWhiteVertical[i])))
-                            ])
-                          ])))),
+                                          height: sizeBoxTextWinalWayeb.height,
+                                          width: sizeBoxTextWinalWayeb.width,
+                                          child: Center(child: Text(MayaList.strWinal[0], style: textStyleStrWinal)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               Positioned(
-                  top: posBoxSeasons.top,
-                  left: posBoxSeasons.left,
+                top: posWheelHaab.top,
+                left: posWheelHaab.left,
+                child: Transform.rotate(
+                  angle: offsetGearHaab - 4 * (angleTime + finalAngle) / 73 + pi / 365, // [celery] calculation correct
                   child: SizedBox(
-                      height: sizeBoxSeasons.height,
-                      width: sizeBoxSeasons.width,
-                      child: GridView.count(
-                          primary: false,
-                          padding: paddingBoxSolsticesEquinoxes,
-                          mainAxisSpacing: mainAxisSpacingBoxSolsticesEquinoxes,
-                          crossAxisSpacing:
-                              crossAxisSpacingBoxSolsticesEquinoxes,
-                          crossAxisCount: 3,
-                          children: <Widget>[
-                            SizedBox(),
-                            SvgPicture.asset("assets/vector/winter_icon.svg"),
-                            SizedBox(),
-                            SvgPicture.asset("assets/vector/spring_icon.svg"),
-                            SizedBox(),
-                            SvgPicture.asset("assets/vector/fall_icon.svg"),
-                            SizedBox(),
-                            SvgPicture.asset("assets/vector/summer_icon.svg"),
-                            SizedBox()
-                          ]))),
+                    height: sizeWheelHaab.height,
+                    width: sizeWheelHaab.width,
+                    child: Consumer<MayaData>(
+                      builder: (context, data, child) {
+                        return Stack(
+                          children: [
+                            for (int i = -20; i < 21; i++)
+                              if (indicator(i, data.mayaData))
+                                Positioned(
+                                  top: posFrame.top,
+                                  left: posFrame.left,
+                                  child: Transform.rotate(
+                                    angle: 360 / 365 * ((xDayTotal + i) % 365) / 180 * pi,
+                                    origin: offsetFrame,
+                                    child: Container(
+                                      height: sizeFrame.height,
+                                      width: sizeFrame.width,
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(32, 255, 255, 255),
+                                        border: Border.all(color: Colors.white, width: 1),
+                                        borderRadius: BorderRadius.circular(5),
+                                        shape: BoxShape.rectangle,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
               Positioned(
-                  top: posBoxSeasons.top,
-                  left: posBoxSeasons.left,
+                top: posSandstoneMoon.top,
+                left: posSandstoneMoon.left,
+                child: Image.asset("assets/images/sandstoneMoon.png", height: sizeSandstoneMoon.height, width: sizeSandstoneMoon.width),
+              ),
+              Positioned(
+                top: posWheelNahuales.top,
+                left: posWheelNahuales.left,
+                child: Transform.rotate(
+                  angle: offsetGearNahuales + angleTime + finalAngle,
+                  child: Image.asset(
+                    'assets/images/gearNahuales.png',
+                    height: sizeWheelNahuales.height,
+                    width: sizeWheelNahuales.width,
+                    color: mainColor,
+                    colorBlendMode: BlendMode.modulate,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posWheelNahuales.top,
+                left: posWheelNahuales.left,
+                child: Transform.rotate(
+                  angle: (trecenaOffsetAngle + dTrecenaAngle + angleTime + finalAngle),
+                  child: SizedBox(height: sizeWheelNahuales.height, width: sizeWheelNahuales.width, child: currTrecenaMask),
+                ),
+              ),
+              Positioned(
+                top: posWheelNahuales.top,
+                left: posWheelNahuales.left,
+                child: SizedBox(
+                  height: sizeWheelNahuales.height,
+                  width: sizeWheelNahuales.width,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      Offset centerOfGestureDetector = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+                      return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onPanStart: (details) {
+                          final touchPositionFromCenter = details.localPosition - centerOfGestureDetector;
+                          upsetAngle = oldAngle - touchPositionFromCenter.direction;
+                        },
+                        onPanUpdate: (details) {
+                          final touchPositionFromCenter = details.localPosition - centerOfGestureDetector;
+                          setState(() {
+                            prevAngle = finalAngle;
+
+                            finalAngle = touchPositionFromCenter.direction + upsetAngle;
+
+                            finalAngle = (finalAngle + 2 * pi) % (2 * pi);
+
+                            if (finalAngle + mAngle - prevAngle < -1.5 * pi) {
+                              iRounds++;
+                              mAngle = 2 * pi * iRounds;
+                            }
+
+                            if (finalAngle + mAngle - prevAngle > 1.5 * pi) {
+                              mAngle = 2 * pi * iRounds - 2 * pi;
+                              iRounds--;
+                            }
+
+                            finalAngle = finalAngle + mAngle;
+
+                            double angle = offsetGearHaab - (angleTime + finalAngle) * 20 / 365;
+
+                            // get chosenDayTotal, chosenDay
+                            int chosenDayTotal = (-angle * 180 / pi * 365 / 360).floor();
+                            chosenDay = chosenDayTotal % 365;
+
+                            // get chosenYear, chosenHaabYear
+                            chosenYear = currYear + (-angle * 180 / pi / 360).floor();
+
+                            if (chosenDayTotal % 10 == 0) {
+                              xDayTotal = chosenDayTotal;
+                            }
+
+                            // increase Tone Name, Nahual Name and the Long Count
+                            if ((angleTime + finalAngle) * 180 / pi > 18 * nAngle + 18) {
+                              sTone++;
+                              sNahual++;
+                              nAngle++;
+
+                              if (sTone > 12) {
+                                sTone = 0;
+                              }
+                              if (sNahual > 19) {
+                                sNahual = 0;
+                              }
+
+                              strTextToneNahual = '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
+
+                              sKin++;
+                              if (sKin > 19) {
+                                sKin = 0;
+                                sWinal++;
+                                if (sWinal > 17) {
+                                  sWinal = 0;
+                                  sTun++;
+                                  if (sTun > 19) {
+                                    sTun = 0;
+                                    sKatun++;
+                                    if (sKatun > 19) {
+                                      sKatun = 0;
+                                      sBaktun++;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+
+                            // decrease Tone Name, Nahual Name and the Long Count
+                            if ((angleTime + finalAngle) * 180 / pi < 18 * nAngle) {
+                              sTone--;
+                              sNahual--;
+                              nAngle--;
+
+                              if (sTone < 0) {
+                                sTone = 12;
+                              }
+                              if (sNahual < 0) {
+                                sNahual = 19;
+                              }
+
+                              strTextToneNahual = '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
+
+                              sKin--;
+                              if (sKin < 0) {
+                                sKin = 19;
+                                sWinal--;
+                                if (sWinal < 0) {
+                                  sWinal = 17;
+                                  sTun--;
+                                  if (sTun < 0) {
+                                    sTun = 19;
+                                    sKatun--;
+                                    if (sKatun < 0) {
+                                      sKatun = 19;
+                                      sBaktun--;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+
+                            // change Trecena
+                            if ((finalAngle + angleTime) * 180 / pi > 234 * iTrecena - diffAngle * 18) {
+                              nTrecenaColor++;
+                              if (nTrecenaColor > 3) {
+                                nTrecenaColor = 0;
+                              }
+                              if (nTrecenaColor == 0) {
+                                nTrecenaAngle++;
+                                dTrecenaAngle = 144.0 * nTrecenaAngle / 180 * pi;
+                              }
+                              currTrecenaMask = MayaImage.trecenaMask[nTrecenaColor];
+                              iTrecena++;
+                            }
+                            if ((finalAngle + angleTime) * 180 / pi < 234 * iTrecena - 234 - diffAngle * 18) {
+                              nTrecenaColor--;
+                              if (nTrecenaColor < 0) {
+                                nTrecenaColor = 3;
+                              }
+                              if (nTrecenaColor == 3) {
+                                nTrecenaAngle--;
+                                dTrecenaAngle = 144.0 * nTrecenaAngle / 180 * pi;
+                              }
+                              currTrecenaMask = MayaImage.trecenaMask[nTrecenaColor];
+                              iTrecena--;
+                            }
+                          });
+                        },
+                        onPanEnd: (details) {
+                          oldAngle = finalAngle;
+                        },
+                        child: Transform.rotate(
+                          angle: offsetGearNahuales + angleTime + finalAngle,
+                          child: Stack(
+                            children: [
+                              for (int i = 0; i < 20; i++)
+                                Align(
+                                  alignment: const Alignment(0.904, 0),
+                                  child: Transform.rotate(
+                                    origin: offsetSignNahual,
+                                    angle: pi * (-2 * i - 1) / 20, // [celery] calculation correct
+                                    child: SizedBox(height: sizeSignNahual.height, width: sizeSignNahual.width, child: MayaImage.signNahual[i]),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posButtonReset.top,
+                left: posButtonReset.left,
+                child: GestureDetector(
+                  onTap: () {
+                    reset();
+                  },
+                  child: Image.asset(
+                    "assets/images/shape_button_moon.png",
+                    height: sizeButtonReset.height,
+                    width: sizeButtonReset.width,
+                    color: mainColor,
+                    colorBlendMode: BlendMode.modulate,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posWheelTones.top,
+                left: posWheelTones.left,
+                child: Transform.rotate(
+                  angle: offsetGearTones + (angleTime + finalAngle) / 13 * 20,
+                  child: SizedBox(
+                    height: sizeWheelTones.height,
+                    width: sizeWheelTones.width,
+                    child: Stack(
+                      children: [
+                        Image.asset('assets/images/gearTones.png', color: mainColor, colorBlendMode: BlendMode.modulate),
+                        Stack(
+                          children: [
+                            for (int i = 0; i < 13; i++)
+                              Align(
+                                alignment: const Alignment(0.9, 0),
+                                child: Transform.rotate(
+                                  origin: offsetSignTone,
+                                  angle:
+                                      -2 /
+                                          13 * // -360 / 13 / 180 = -2 / 13
+                                          pi *
+                                          i -
+                                      1 / 13 * pi,
+                                  child: SizedBox(height: sizeSignTone.height, width: sizeSignTone.width, child: MayaImage.imageToneWhiteVertical[i]),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posBoxSeasons.top,
+                left: posBoxSeasons.left,
+                child: SizedBox(
+                  height: sizeBoxSeasons.height,
+                  width: sizeBoxSeasons.width,
+                  child: GridView.count(
+                    primary: false,
+                    padding: paddingBoxSolsticesEquinoxes,
+                    mainAxisSpacing: mainAxisSpacingBoxSolsticesEquinoxes,
+                    crossAxisSpacing: crossAxisSpacingBoxSolsticesEquinoxes,
+                    crossAxisCount: 3,
+                    children: <Widget>[
+                      // TODO: check what the 'SizedBox'es are for!
+                      SizedBox(),
+                      SvgPicture.asset("assets/vector/winter_icon.svg"),
+                      SizedBox(),
+                      SvgPicture.asset("assets/vector/spring_icon.svg"),
+                      SizedBox(),
+                      SvgPicture.asset("assets/vector/fall_icon.svg"),
+                      SizedBox(),
+                      SvgPicture.asset("assets/vector/summer_icon.svg"),
+                      SizedBox(),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posBoxSeasons.top,
+                left: posBoxSeasons.left,
+                child: Container(
+                  height: sizeBoxSeasons.height,
+                  width: sizeBoxSeasons.width,
+                  padding: paddingCircleSeason,
+                  alignment: Alignment.topCenter,
+                  child: Transform.rotate(
+                    angle: angleSeason / 180 * pi,
+                    origin: offsetCircleSeason,
+                    child: SizedBox(height: sizeCircleSeason, width: sizeCircleSeason, child: iconSeason),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posMoon.top + sizeMoon / 4,
+                left: posMoon.left + sizeMoon / 4,
+                child: MoonWidget(
+                  date: dateTimeMoon,
+                  resolution: sizeMoon,
+                  size: sizeMoon,
+                  moonColor: Color.fromARGB(255, 215, 215, 215),
+                  earthshineColor: Color.lerp(mainColor, Colors.black, 0.32)!,
+                ),
+              ),
+              Positioned(
+                top: posMoon.top,
+                left: posMoon.left,
+                child: Opacity(
+                  opacity: 0.6,
+                  child: Image.asset(
+                    'assets/images/moon_pattern.png',
+                    height: sizeMoon,
+                    width: sizeMoon,
+                    colorBlendMode: BlendMode.modulate,
+                    color: Color.lerp(mainColor, Colors.black, 0.52)!,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posButtonRelationship.top,
+                left: posButtonRelationship.left,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Relationship(backgroundImage: backgroundImage, mainColor: mainColor),
+                      ),
+                    );
+                  },
+                  onLongPress: () {
+                    int character = Random().nextInt(260);
+
+                    List<int> toneNahual = getToneNahual(character + 150 % 260);
+
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (BuildContext context, _, _) =>
+                            RandomCharacter(backgroundImage: backgroundImage, tone: toneNahual[0], nahual: toneNahual[1]),
+                      ),
+                    );
+                  },
+                  child: Image.asset(
+                    'assets/images/shape_button_left_top.png',
+                    height: sizeButtonRelationship.height,
+                    width: sizeButtonRelationship.width,
+                    color: mainColor,
+                    colorBlendMode: BlendMode.modulate,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: posButtonTheYear.top,
+                left: posButtonTheYear.left,
+                child: GestureDetector(
+                  onTap: () {
+                    int beginTone = (startTone + 365 * (chosenYear - 5141)) % 13;
+                    int beginNahual = (startNahual + 365 * (chosenYear - 5141)) % 20;
+                    int beginKinIndex = (startKinIndex + 365 * (chosenYear - 5141)) % 260;
+
+                    int cBaktun = 13 + (365 * (chosenYear - 5141) + dDays) ~/ 144000 % 14;
+                    int cKatun = (365 * (chosenYear - 5141) + dDays) ~/ 7200 % 20;
+                    int cTun = (365 * (chosenYear - 5141) + dDays - cKatun * 7200) ~/ 360 % 20;
+                    int cWinal = (365 * (chosenYear - 5141) + dDays - cKatun * 7200 - cTun * 360) ~/ 20 % 18;
+                    int cKin = (365 * (chosenYear - 5141) + dDays - cKatun * 7200 - cTun * 360 - cWinal * 20) % 20;
+
+                    DateTime chosenBeginGregorianDate = startDate.add(Duration(days: 365 * (chosenYear - 5141)));
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TheYear(
+                          backgroundImage: backgroundImage,
+                          mainColor: mainColor,
+                          chosenYear: chosenYear,
+                          chosenDay: chosenDay,
+                          beginTone: beginTone,
+                          beginNahual: beginNahual,
+                          beginKinIndex: beginKinIndex,
+                          beginLongCount: [cBaktun, cKatun, cTun, cWinal, cKin],
+                          chosenBeginGregorianDate: chosenBeginGregorianDate,
+                        ),
+                      ),
+                    );
+                  },
                   child: Container(
-                      height: sizeBoxSeasons.height,
-                      width: sizeBoxSeasons.width,
-                      padding: paddingCircleSeason,
-                      alignment: Alignment.topCenter,
-                      child: Transform.rotate(
-                          angle: angleSeason / 180 * pi,
-                          origin: offsetCircleSeason,
-                          child: SizedBox(
-                              height: sizeCircleSeason,
-                              width: sizeCircleSeason,
-                              child: iconSeason)))),
+                    height: sizeButtonTheYear.height,
+                    width: sizeButtonTheYear.width,
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                  ),
+                ),
+              ),
               Positioned(
-                  top: posMoon.top + sizeMoon / 4,
-                  left: posMoon.left + sizeMoon / 4,
-                  child: MoonWidget(
-                      date: datetimeMoon,
-                      resolution: sizeMoon,
-                      size: sizeMoon,
-                      moonColor: Color.fromARGB(255, 215, 215, 215),
-                      earthshineColor:
-                          Color.lerp(mainColor, Colors.black, 0.32)!)),
+                top: posButtonDateCalculator.top,
+                left: posButtonDateCalculator.left,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DateCalculator(backgroundImage: backgroundImage, mainColor: mainColor),
+                      ),
+                    );
+                  },
+                  child: Image.asset(
+                    'assets/images/shape_button_left_bottom.png',
+                    height: sizeButtonDateCalculator.height,
+                    width: sizeButtonDateCalculator.width,
+                    color: mainColor,
+                    colorBlendMode: BlendMode.modulate,
+                  ),
+                ),
+              ),
               Positioned(
-                  top: posMoon.top,
-                  left: posMoon.left,
-                  child: Opacity(
-                      opacity: 0.6,
-                      child: Image.asset('assets/images/moon_pattern.png',
-                          height: sizeMoon,
-                          width: sizeMoon,
-                          colorBlendMode: BlendMode.modulate,
-                          color: Color.lerp(mainColor, Colors.black, 0.52)!))),
+                top: posButtonCholqij.top,
+                left: posButtonCholqij.left,
+                child: GestureDetector(
+                  onTap: () {
+                    int sTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
+                    int sNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+                    int cKinIndex = getKinNumber(sTone, sNahual);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Cholqij(backgroundImage: backgroundImage, mainColor: mainColor, cKinIndex: cKinIndex),
+                      ),
+                    );
+                  },
+                  onLongPress: () {
+                    int chosenTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
+
+                    int chosenNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        opaque: false,
+                        pageBuilder: (BuildContext context, _, _) =>
+                            CharacterChoice(backgroundImage: backgroundImage, mainColor: mainColor, chosenTone: chosenTone, chosenNahual: chosenNahual),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: sizeButtonCholqij.height,
+                    width: sizeButtonCholqij.width,
+                    decoration: const BoxDecoration(color: Colors.transparent),
+                  ),
+                ),
+              ),
               Positioned(
-                  top: posButtonRelationship.top,
-                  left: posButtonRelationship.left,
-                  child: GestureDetector(
+                top: posBoxTextToneNahual.top,
+                left: posBoxTextToneNahual.left,
+                child: SizedBox(
+                  height: sizeBoxTextToneNahual.height,
+                  width: sizeBoxTextToneNahual.width,
+                  child: Center(
+                    child: GestureDetector(
                       onTap: () {
+                        int beginTone = (startTone + 365 * (chosenYear - 5141)) % 13;
+                        int beginNahual = (startNahual + 365 * (chosenYear - 5141)) % 20;
+
+                        int chosenTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
+
+                        int chosenNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+
+                        int dYear = getDeltaYear((-offsetGearHaab * 9 / pi + ((angleTime + finalAngle) * 180 / pi) / 365) * 20); // [celery] calculation correct
+
+                        DateTime chosenGregorianDate = startDate.add(Duration(days: 365 * (currYear - 5141 + dYear) + chosenDay));
+
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Relationship(
-                                    backgroundImage: backgroundImage,
-                                    mainColor: mainColor)));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TheDay(
+                              backgroundImage: backgroundImage,
+                              mainColor: mainColor,
+                              chosenYear: chosenYear,
+                              chosenDay: chosenDay,
+                              chosenTone: chosenTone,
+                              chosenNahual: chosenNahual,
+                              beginTone: beginTone,
+                              beginNahual: beginNahual,
+                              chosenLongCount: [sBaktun, sKatun, sTun, sWinal, sKin],
+                              chosenGregorianDate: chosenGregorianDate,
+                            ),
+                          ),
+                        );
                       },
                       onLongPress: () {
-                        int character = Random().nextInt(260);
+                        int beginTone = (startTone + 365 * (chosenYear - 5141)) % 13;
+                        int beginNahual = (startNahual + 365 * (chosenYear - 5141)) % 20;
 
-                        List<int> toneNahual =
-                            getToneNahual(character + 150 % 260);
+                        int chosenTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
 
-                        Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                                opaque: false,
-                                pageBuilder: (BuildContext context, __, _) =>
-                                    RandomCharacter(
-                                        backgroundImage: backgroundImage,
-                                        tone: toneNahual[0],
-                                        nahual: toneNahual[1])));
-                      },
-                      child: Image.asset(
-                          'assets/images/shape_button_left_top.png',
-                          height: sizeButtonRelationship.height,
-                          width: sizeButtonRelationship.width,
-                          color: mainColor,
-                          colorBlendMode: BlendMode.modulate))),
-              Positioned(
-                  top: posButtonTheYear.top,
-                  left: posButtonTheYear.left,
-                  child: GestureDetector(
-                      onTap: () {
-                        int beginTone =
-                            (startTone + 365 * (chosenYear - 5129)) % 13;
-                        int beginNahual =
-                            (startNahual + 365 * (chosenYear - 5129)) % 20;
-                        int beginKinIndex =
-                            (startKinIndex + 365 * (chosenYear - 5129)) % 260;
+                        int chosenNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
 
-                        int cBaktun = 13 +
-                            (365 * (chosenYear - 5129) + dDays) ~/ 144000 % 14;
-                        int cKatun =
-                            (365 * (chosenYear - 5129) + dDays) ~/ 7200 % 20;
-                        int cTun = (365 * (chosenYear - 5129) +
-                                dDays -
-                                cKatun * 7200) ~/
-                            360 %
-                            20;
-                        int cWinal = (365 * (chosenYear - 5129) +
-                                dDays -
-                                cKatun * 7200 -
-                                cTun * 360) ~/
-                            20 %
-                            18;
-                        int cKin = (365 * (chosenYear - 5129) +
-                                dDays -
-                                cKatun * 7200 -
-                                cTun * 360 -
-                                cWinal * 20) %
-                            20;
+                        int dYear = getDeltaYear((-offsetGearHaab * 9 / pi + ((angleTime + finalAngle) * 180 / pi) / 365) * 20); // [celery] calculation correct
 
-                        DateTime chosenBeginGregorianDate = startDate
-                            .add(Duration(days: 365 * (chosenYear - 5129)));
+                        DateTime chosenGregorianDate = startDate.add(Duration(days: 365 * (currYear - 5141 + dYear) + chosenDay));
 
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TheYear(
-                                      backgroundImage: backgroundImage,
-                                      mainColor: mainColor,
-                                      chosenYear: chosenYear,
-                                      chosenDay: chosenDay,
-                                      beginTone: beginTone,
-                                      beginNahual: beginNahual,
-                                      beginKinIndex: beginKinIndex,
-                                      beginLongCount: [
-                                        cBaktun,
-                                        cKatun,
-                                        cTun,
-                                        cWinal,
-                                        cKin
-                                      ],
-                                      chosenBeginGregorianDate:
-                                          chosenBeginGregorianDate,
-                                    )));
+                          context,
+                          PageRouteBuilder(
+                            opaque: false,
+                            pageBuilder: (BuildContext context, _, _) => DateSelection(
+                              backgroundImage: backgroundImage,
+                              mainColor: mainColor,
+                              chosenYear: chosenYear,
+                              chosenDay: chosenDay,
+                              chosenTone: chosenTone,
+                              chosenNahual: chosenNahual,
+                              beginTone: beginTone,
+                              beginNahual: beginNahual,
+                              chosenLongCount: [sBaktun, sKatun, sTun, sWinal, sKin],
+                              chosenGregorianDate: chosenGregorianDate,
+                            ),
+                          ),
+                        );
                       },
-                      child: Container(
-                          height: sizeButtonTheYear.height,
-                          width: sizeButtonTheYear.width,
-                          decoration:
-                              const BoxDecoration(color: Colors.transparent)))),
-              Positioned(
-                  top: posButtonDateCalculator.top,
-                  left: posButtonDateCalculator.left,
-                  child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DateCalculator(
-                                    backgroundImage: backgroundImage,
-                                    mainColor: mainColor)));
-                      },
-                      child: Image.asset(
-                          'assets/images/shape_button_left_bottom.png',
-                          height: sizeButtonDateCalculator.height,
-                          width: sizeButtonDateCalculator.width,
-                          color: mainColor,
-                          colorBlendMode: BlendMode.modulate))),
-              Positioned(
-                  top: posButtonCholqij.top,
-                  left: posButtonCholqij.left,
-                  child: GestureDetector(
-                      onTap: () {
-                        int sTone = getTone(((offsetGearTones +
-                                    (angleTime + finalAngle) / 13 * 20) *
-                                180 /
-                                pi) %
-                            360); // [x] calculation correct
-                        int sNahual = getNahual(
-                            ((offsetGearNahuales + angleTime + finalAngle) *
-                                    180 /
-                                    pi) %
-                                360); // [x] calculation correct
-                        int cKinIndex = getKinNumber(sTone, sNahual);
-
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Cholqij(
-                                    backgroundImage: backgroundImage,
-                                    mainColor: mainColor,
-                                    cKinIndex: cKinIndex)));
-                      },
-                      onLongPress: () {
-                        int chosenTone = getTone(((offsetGearTones +
-                                    (angleTime + finalAngle) / 13 * 20) *
-                                180 /
-                                pi) %
-                            360); // [x] calculation correct
-
-                        int chosenNahual = getNahual(
-                            ((offsetGearNahuales + angleTime + finalAngle) *
-                                    180 /
-                                    pi) %
-                                360); // [x] calculation correct
-
-                        Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                                opaque: false,
-                                pageBuilder: (BuildContext context, __, _) =>
-                                    CharacterChoice(
-                                        backgroundImage: backgroundImage,
-                                        mainColor: mainColor,
-                                        chosenTone: chosenTone,
-                                        chosenNahual: chosenNahual)));
-                      },
-                      child: Container(
-                          height: sizeButtonCholqij.height,
-                          width: sizeButtonCholqij.width,
-                          decoration:
-                              const BoxDecoration(color: Colors.transparent)))),
-              Positioned(
-                  top: posBoxTextToneNahual.top,
-                  left: posBoxTextToneNahual.left,
-                  child: SizedBox(
-                      height: sizeBoxTextToneNahual.height,
-                      width: sizeBoxTextToneNahual.width,
-                      child: Center(
-                          child: GestureDetector(
-                        onTap: () {
-                          int beginTone =
-                              (startTone + 365 * (chosenYear - 5129)) % 13;
-                          int beginNahual =
-                              (startNahual + 365 * (chosenYear - 5129)) % 20;
-
-                          int chosenTone = getTone(((offsetGearTones +
-                                      (angleTime + finalAngle) / 13 * 20) *
-                                  180 /
-                                  pi) %
-                              360); // [x] calculation correct
-
-                          int chosenNahual = getNahual(
-                              ((offsetGearNahuales + angleTime + finalAngle) *
-                                      180 /
-                                      pi) %
-                                  360); // [x] calculation correct
-
-                          int dYear = getDeltaYear((-offsetGearHaab * 9 / pi +
-                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
-                              20); // [x] calculation correct
-
-                          DateTime chosenGregorianDate = startDate.add(Duration(
-                              days:
-                                  365 * (currYear - 5129 + dYear) + chosenDay));
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => TheDay(
-                                      backgroundImage: backgroundImage,
-                                      mainColor: mainColor,
-                                      chosenYear: chosenYear,
-                                      chosenDay: chosenDay,
-                                      chosenTone: chosenTone,
-                                      chosenNahual: chosenNahual,
-                                      beginTone: beginTone,
-                                      beginNahual: beginNahual,
-                                      chosenLongCount: [
-                                        sBaktun,
-                                        sKatun,
-                                        sTun,
-                                        sWinal,
-                                        sKin
-                                      ],
-                                      chosenGregorianDate:
-                                          chosenGregorianDate)));
-                        },
-                        onLongPress: () {
-                          int beginTone =
-                              (startTone + 365 * (chosenYear - 5129)) % 13;
-                          int beginNahual =
-                              (startNahual + 365 * (chosenYear - 5129)) % 20;
-
-                          int chosenTone = getTone(((offsetGearTones +
-                                      (angleTime + finalAngle) / 13 * 20) *
-                                  180 /
-                                  pi) %
-                              360); // [x] calculation correct
-
-                          int chosenNahual = getNahual(
-                              ((offsetGearNahuales + angleTime + finalAngle) *
-                                      180 /
-                                      pi) %
-                                  360); // [x] calculation correct
-
-                          int dYear = getDeltaYear((-offsetGearHaab * 9 / pi +
-                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
-                              20); // [x] calculation correct
-
-                          DateTime chosenGregorianDate = startDate.add(Duration(
-                              days:
-                                  365 * (currYear - 5129 + dYear) + chosenDay));
-
-                          Navigator.push(
-                              context,
-                              PageRouteBuilder(
-                                  opaque: false,
-                                  pageBuilder: (BuildContext context, __, _) =>
-                                      DateSelection(
-                                          backgroundImage: backgroundImage,
-                                          mainColor: mainColor,
-                                          chosenYear: chosenYear,
-                                          chosenDay: chosenDay,
-                                          chosenTone: chosenTone,
-                                          chosenNahual: chosenNahual,
-                                          beginTone: beginTone,
-                                          beginNahual: beginNahual,
-                                          chosenLongCount: [
-                                            sBaktun,
-                                            sKatun,
-                                            sTun,
-                                            sWinal,
-                                            sKin
-                                          ],
-                                          chosenGregorianDate:
-                                              chosenGregorianDate)));
-                        },
-                        child: Text(strTextToneNahual,
-                            textAlign: TextAlign.center,
-                            style: textStyleToneNahual),
-                      )))),
-              Stack(children: [
-                Positioned(
-                    top: posBoxLongCount.top,
+                      child: Stack(
+                        children: [
+                          Text(strTextToneNahual, textAlign: TextAlign.center, style: textStyleToneNahualStroke),
+                          Text(strTextToneNahual, textAlign: TextAlign.center, style: textStyleToneNahualText),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Stack(
+                children: [
+                  Positioned(
+                    top: posBoxLongCount.top - navigationBarHeight,
                     left: posBoxLongCount.left,
                     child: SizedBox(
-                        height: sizeBoxLongCount.height,
-                        width: sizeBoxLongCount.width,
-                        child: Row(children: [
-                          Padding(
-                              padding: paddingSandstones,
-                              child: tunContainer(size, sBaktun)),
-                          Padding(
-                              padding: paddingSandstones,
-                              child: tunContainer(size, sKatun)),
-                          Padding(
-                              padding: paddingSandstones,
-                              child: tunContainer(size, sTun)),
-                          Padding(
-                              padding: paddingSandstones,
-                              child: tunContainer(size, sWinal)),
-                          tunContainer(size, sKin)
-                        ]))),
-                Positioned(
+                      height: sizeBoxLongCount.height,
+                      width: sizeBoxLongCount.width,
+                      child: Row(
+                        children: [
+                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sBaktun)),
+                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sKatun)),
+                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sTun)),
+                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sWinal)),
+                          tunContainer(sizeSandstones, sizeNumbers, celery, sKin),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
                     top: posSettings.top,
                     left: posSettings.left,
                     child: GestureDetector(
-                        onHorizontalDragUpdate: (details) {
-                          _scaffoldKey.currentState!.openEndDrawer();
-                        },
-                        child: AndroidGestureExclusionContainer(
-                          child: Container(
-                              height: sizeSettings.height,
-                              width: sizeSettings.width,
-                              decoration: BoxDecoration(
-                                  color: mainColor.withOpacity(0.5),
-                                  border:
-                                      Border.all(width: 1, color: Colors.white),
-                                  borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10)))),
-                        ))),
-              ])
-            ])));
+                      onHorizontalDragUpdate: (details) {
+                        _scaffoldKey.currentState!.openEndDrawer();
+                      },
+                      child: AndroidGestureExclusionContainer(
+                        child: Container(
+                          height: sizeSettings.height,
+                          width: sizeSettings.width,
+                          decoration: BoxDecoration(
+                            color: mainColor.withValues(alpha: 0.5),
+                            border: Border.all(width: borderWidthSettings, color: Colors.white),
+                            // TODO: calcuate border radius based on display size!
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(borderRadiusSettings), bottomLeft: Radius.circular(borderRadiusSettings)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
+
   /*                                                                          */
   /* Build - END                                                              */
   /* ------------------------------------------------------------------------ */
 }
 
-Future<Object> readLanguage() async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'language';
-  return prefs.getString(key) ?? 'en_GB';
-}
-
-saveLanguage(language) async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'language';
-  prefs.setString(key, language);
-}
-
-Future<Object> readTimeFormat() async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'timeformat';
-  return prefs.getString(key) ?? 'h:mm a';
-}
-
-saveTimeFormat(timeFormat) async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'timeformat';
-  prefs.setString(key, timeFormat);
-}
-
-Future<Object> readMainColor() async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'mainColor';
-  return prefs.getString(key) ?? '0xff8800ff';
-}
-
-deleteMainColor() async {
-  final prefs = await SharedPreferences.getInstance();
-  prefs.remove('mainColor');
-}
-
-Future<ImageProvider> readBgFilePath() async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'bgFilePath';
-  String bgFilePath = prefs.getString(key) ?? 'assets/images/leaves.jpg';
-  if (!await File(bgFilePath).exists()) {
-    return const AssetImage('assets/images/leaves.jpg');
-  } else {
-    return FileImage(File(bgFilePath));
-  }
-}
-
-saveBgFilePath(String bgFilePath) async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'bgFilePath';
-  prefs.setString(key, bgFilePath);
-}
-
-deleteBgImagePath() async {
-  final prefs = await SharedPreferences.getInstance();
-  prefs.remove('bgFilePath');
-}
-
 Future<void> checkAndroidScheduleExactAlarmPermission() async {
   final status = await Permission.scheduleExactAlarm.status;
-  maya_alarm.alarmPrint('Schedule exact alarm permission: $status.');
+  debugPrint('Schedule exact alarm permission: $status.');
   if (status.isDenied) {
-    maya_alarm.alarmPrint('Requesting schedule exact alarm permission...');
+    debugPrint('Requesting schedule exact alarm permission...');
     final res = await Permission.scheduleExactAlarm.request();
-    maya_alarm.alarmPrint(
-      'Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.',
-    );
+    debugPrint('Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.');
   }
 }
 
 Future<void> checkAndroidNotificationPermission() async {
   final status = await Permission.notification.status;
   if (status.isDenied) {
-    maya_alarm.alarmPrint('Requesting notification permission...');
+    debugPrint('Requesting notification permission...');
     final res = await Permission.notification.request();
-    maya_alarm.alarmPrint(
-      'Notification permission ${res.isGranted ? '' : 'not '}granted.',
-    );
+    debugPrint('Notification permission ${res.isGranted ? '' : 'not '}granted.');
   }
 }
 
-showImageFileFormatDialog(BuildContext context, Color mainColor, Size size) {
-  Size size = GetTextSize().getTextSize(
-      'Only jpeg/jpg and png files are allowed!'.tr, MayaStyle.popUpDialogBody);
-  showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Center(
-            child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: MayaStyle().popUpDialogDecoration(mainColor),
-                height: 93,
-                width: size.width + 42,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('Invalid File Format!'.tr,
-                          style: MayaStyle.popUpDialogTitle),
-                      Text('\n${'Only jpeg/jpg and png files are allowed!'.tr}',
-                          style: MayaStyle.popUpDialogBody)
-                    ])));
-      });
+Future<void> _launchUrl(String urlString) async {
+  Uri url = Uri.parse(urlString);
+  if (!await launchUrl(url)) {
+    throw Exception('Could not launch $url');
+  }
 }
 
 Future<void> _launchPrivacyPolicy() async {
-  final Uri urlPrivacyPolicy =
-      Uri.parse('https://sites.google.com/view/privacy-policy-of-maya');
+  final Uri urlPrivacyPolicy = Uri.parse('https://sites.google.com/view/privacy-policy-of-maya');
   if (!await launchUrl(urlPrivacyPolicy)) {
     throw Exception('Could not launch $urlPrivacyPolicy');
   }
 }
 
-Future<void> _launchGithub() async {
-  final Uri urlGithub = Uri.parse('https://github.com/mario-schmid/maya');
-  if (!await launchUrl(urlGithub)) {
-    throw Exception('Could not launch $urlGithub');
+Future<void> _launchGitLab() async {
+  final Uri urlGitLab = Uri.parse('https://gitlab.com/morgenfrost/maya');
+  if (!await launchUrl(urlGitLab)) {
+    throw Exception('Could not launch $urlGitLab');
   }
 }
 
 // NOTE: this code is for database adjustments
 Future<bool> updateYear() async {
-  bool adjustDatabase = await readAdjustDatabase() == 'true' ? true : false;
+  bool adjustDatabase = await SharedPrefs.readAdjustDatabase() == 'true' ? true : false;
   if (adjustDatabase) {
     bool flagEvents = await DatabaseHandlerEvents().updateYear();
     bool flagNotes = await DatabaseHandlerNotes().updateYear();
@@ -3034,27 +2387,13 @@ Future<bool> updateYear() async {
     bool flagAlarms = await DatabaseHandlerAlarms().updateYear();
     bool flagArrangement = await DatabaseHandlerArrangements().updateYear();
     if (flagEvents || flagNotes || flagTasks || flagAlarms || flagArrangement) {
-      saveAdjustDatabase(false.toString());
+      SharedPrefs.saveAdjustDatabase(false.toString());
       return true;
     } else {
-      saveAdjustDatabase(false.toString());
+      SharedPrefs.saveAdjustDatabase(false.toString());
       return false;
     }
   } else {
     return false;
   }
-}
-
-// NOTE: this code is for database adjustments
-Future<Object> readAdjustDatabase() async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'adjustDatabase';
-  return prefs.getString(key) ?? 'true';
-}
-
-// NOTE: this code is for database adjustments
-saveAdjustDatabase(String adjustDatabase) async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'adjustDatabase';
-  prefs.setString(key, adjustDatabase);
 }

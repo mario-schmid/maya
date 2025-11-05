@@ -1,33 +1,46 @@
-import 'dart:io';
+import 'dart:convert';
+import 'dart:math';
 
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
+import '../data/maya_day.dart';
+import '../data/maya_location.dart';
+import '../database_handler.dart';
+import '../helper/maya_list.dart';
 import '../helper/maya_style.dart';
-import '../maya_items.dart';
-import '../methods/get_text_size.dart';
-import '../providers/dayitems.dart';
+import '../methods/set_stop_alarm.dart';
+import '../providers/mayadata.dart';
 import '../time_format.dart';
 
 class ADialog extends StatefulWidget {
   final Color mainColor;
   final int yearIndex;
   final int dayIndex;
-  final AlarmSettings alarmSettings;
-  final bool flagCreateChange;
-  const ADialog(
-      {super.key,
-      required this.mainColor,
-      required this.yearIndex,
-      required this.dayIndex,
-      required this.alarmSettings,
-      required this.flagCreateChange});
+  final int? elementIndex;
+  final DateTime? chosenGregorianDate;
+  final AlarmSettings? alarmSettings;
+  final String? alarmSoundIndex;
+  final String? customAlarmSoundPath;
+  final String? globalAlarmSoundVolume;
+  final bool create;
+  const ADialog({
+    super.key,
+    required this.mainColor,
+    required this.yearIndex,
+    required this.dayIndex,
+    required this.elementIndex,
+    required this.chosenGregorianDate,
+    required this.alarmSettings,
+    required this.alarmSoundIndex,
+    required this.customAlarmSoundPath,
+    required this.globalAlarmSoundVolume,
+    required this.create,
+  });
 
   @override
   State<ADialog> createState() => _ADialogState();
@@ -44,8 +57,8 @@ class _ADialogState extends State<ADialog> {
   late TimeOfDay initTime;
   late TimeOfDay selectedTime;
 
-  late String? alarmSoundPath;
-  bool alarmSoundPathChanged = false;
+  late String alarmSoundPath;
+  late double alarmSoundVolume;
 
   final _alarmControllerTitle = TextEditingController();
   final _alarmControllerDescription = TextEditingController();
@@ -53,11 +66,9 @@ class _ADialogState extends State<ADialog> {
   late DateTime dateTime;
   late bool loopAudio;
   late bool vibrate;
-  late double volume;
 
   @override
   void initState() {
-    loadAlarmSoundPath();
     switch (TimeFormat().getTimeFormat.pattern) {
       case 'h:mm a':
         hour24 = false;
@@ -69,48 +80,62 @@ class _ADialogState extends State<ADialog> {
         break;
     }
 
-    if (widget.flagCreateChange) {
+    if (widget.create) {
       initTime = TimeOfDay(hour: 13, minute: 00);
       _hour = initTime.hour.toString();
       _minute = initTime.minute.toString();
       _time = hour24 ? '13:00' : '1:00 pm';
+
+      dateTime = widget.chosenGregorianDate!;
+      loopAudio = true;
+      vibrate = false;
+      final int index = int.parse(widget.alarmSoundIndex!);
+      if (index != 9) {
+        alarmSoundPath = 'assets/${MayaList.listAlarmSoundPath[index]}';
+      } else {
+        alarmSoundPath = widget.customAlarmSoundPath!;
+      }
+      alarmSoundVolume = double.parse(widget.globalAlarmSoundVolume!) / 100;
+      _alarmControllerTitle.text = '';
+      _alarmControllerDescription.text = '';
     } else {
       initTime = TimeOfDay(
-          hour: widget.alarmSettings.dateTime.hour,
-          minute: widget.alarmSettings.dateTime.minute);
-      _hour = widget.alarmSettings.dateTime.hour.toString();
-      _minute = widget.alarmSettings.dateTime.minute.toString();
-      _time = timeFormat.format(widget.alarmSettings.dateTime);
+        hour: widget.alarmSettings!.dateTime.hour,
+        minute: widget.alarmSettings!.dateTime.minute,
+      );
+      _hour = widget.alarmSettings!.dateTime.hour.toString();
+      _minute = widget.alarmSettings!.dateTime.minute.toString();
+      _time = timeFormat.format(widget.alarmSettings!.dateTime);
+
+      dateTime = widget.alarmSettings!.dateTime;
+      loopAudio = widget.alarmSettings!.loopAudio;
+      vibrate = widget.alarmSettings!.vibrate;
+      alarmSoundPath = widget.alarmSettings!.assetAudioPath;
+      alarmSoundVolume = widget.alarmSettings!.volumeSettings.volume!;
+      _alarmControllerTitle.text =
+          widget.alarmSettings!.notificationSettings.title;
+      _alarmControllerDescription.text =
+          widget.alarmSettings!.notificationSettings.body;
     }
 
-    dateTime = widget.alarmSettings.dateTime;
-    loopAudio = widget.alarmSettings.loopAudio;
-    vibrate = widget.alarmSettings.vibrate;
-    volume = widget.alarmSettings.volume!;
-    _alarmControllerTitle.text =
-        widget.alarmSettings.notificationSettings.title;
-    _alarmControllerDescription.text =
-        widget.alarmSettings.notificationSettings.body;
-
     super.initState();
-  }
-
-  loadAlarmSoundPath() async {
-    alarmSoundPath = await readAlarmSoundPath();
   }
 
   Future<void> _selectTime(BuildContext context) async {
     switch (TimeFormat().getTimeFormat.pattern) {
       case 'h:mm a':
         final TimeOfDay? picked = await showTimePicker(
-            context: context,
-            initialTime: initTime,
-            builder: (context, Widget? child) {
-              return MediaQuery(
-                  data: MediaQuery.of(context)
-                      .copyWith(alwaysUse24HourFormat: false),
-                  child: child!);
-            });
+          context: context,
+          initialTime: initTime,
+          builder: (context, Widget? child) {
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(alwaysUse24HourFormat: false),
+              child: child!,
+            );
+          },
+        );
         if (picked != null) {
           setState(() {
             selectedTime = picked;
@@ -124,14 +149,17 @@ class _ADialogState extends State<ADialog> {
         break;
       case 'HH:mm:ss':
         final TimeOfDay? picked = await showTimePicker(
-            context: context,
-            initialTime: initTime,
-            builder: (context, Widget? child) {
-              return MediaQuery(
-                  data: MediaQuery.of(context)
-                      .copyWith(alwaysUse24HourFormat: true),
-                  child: child!);
-            });
+          context: context,
+          initialTime: initTime,
+          builder: (context, Widget? child) {
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(alwaysUse24HourFormat: true),
+              child: child!,
+            );
+          },
+        );
         if (picked != null) {
           setState(() {
             selectedTime = picked;
@@ -159,379 +187,433 @@ class _ADialogState extends State<ADialog> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-            backgroundColor: Colors.black12,
-            body: Align(
-                alignment: const Alignment(0, -0.9),
-                child: Container(
-                    height: size.width * 1.218,
-                    width: size.width * 0.9,
-                    decoration: BoxDecoration(
-                        image: const DecorationImage(
-                            colorFilter: ColorFilter.mode(
-                                Colors.red, BlendMode.modulate),
-                            image:
-                                AssetImage('assets/images/bg_pattern_one.jpg'),
-                            fit: BoxFit.cover),
-                        border: Border.all(color: Colors.white, width: 1),
-                        borderRadius: BorderRadius.circular(10),
-                        shape: BoxShape.rectangle),
-                    child: Padding(
-                        padding: EdgeInsets.all(size.width * 0.028),
-                        child: SizedBox(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                              Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: size.width * 0.028),
-                                  child: GestureDetector(
-                                      onTap: () {
-                                        _selectTime(context);
-                                      },
-                                      child: Container(
-                                          height: size.width * 0.12,
-                                          width: size.width * 0.3,
-                                          decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 1),
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Center(
-                                              child: Text(_time,
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: size.width *
-                                                          0.06)))))),
-                              Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: size.width * 0.028),
-                                  child: SizedBox(
-                                      height: size.width * 0.14,
-                                      child: TextField(
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                          obscureText: false,
-                                          decoration: InputDecoration(
-                                              contentPadding: EdgeInsets.symmetric(
-                                                  vertical: size.width * 0.036,
-                                                  horizontal:
-                                                      size.width * 0.03),
-                                              focusedBorder: const OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.white,
-                                                      width: 2)),
-                                              enabledBorder:
-                                                  const OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.white54,
-                                                          width: 1)),
-                                              filled: false,
-                                              labelText: 'Title'.tr,
-                                              labelStyle: const TextStyle(
-                                                  color: Colors.white54,
-                                                  fontWeight: FontWeight.w300),
-                                              floatingLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w300)),
-                                          controller: _alarmControllerTitle))),
-                              Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: size.width * 0.028),
-                                  child: SizedBox(
-                                      height: size.width * 0.21,
-                                      child: TextField(
-                                          textAlignVertical:
-                                              TextAlignVertical.top,
-                                          keyboardType: TextInputType.multiline,
-                                          minLines: null,
-                                          maxLines: null,
-                                          expands: true,
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                          obscureText: false,
-                                          decoration: InputDecoration(
-                                              contentPadding: EdgeInsets.symmetric(
-                                                  vertical: size.width * 0.036,
-                                                  horizontal:
-                                                      size.width * 0.03),
-                                              focusedBorder: const OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.white,
-                                                      width: 2)),
-                                              enabledBorder: const OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.white54,
-                                                      width: 1)),
-                                              filled: false,
-                                              labelText: 'Description'.tr,
-                                              labelStyle: const TextStyle(
-                                                  color: Colors.white54,
-                                                  fontWeight: FontWeight.w300),
-                                              floatingLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w300)),
-                                          controller: _alarmControllerDescription))),
-                              SizedBox(
-                                  height: size.width * 0.12,
-                                  child: SwitchListTile(
-                                      inactiveThumbColor: Colors.indigo[400],
-                                      activeColor: Colors.white,
-                                      title: Text('Loop alarm audio'.tr,
-                                          style: getTextStyle(size)),
-                                      value: loopAudio,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          loopAudio = value!;
-                                        });
-                                      })),
-                              SizedBox(
-                                  height: size.width * 0.12,
-                                  child: SwitchListTile(
-                                      inactiveThumbColor: Colors.indigo[400],
-                                      activeColor: Colors.white,
-                                      title: Text('Vibrate'.tr,
-                                          style: getTextStyle(size)),
-                                      value: vibrate,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          vibrate = value!;
-                                        });
-                                      })),
-                              SizedBox(
-                                  height: size.width * 0.1,
-                                  width: size.width * 0.1,
-                                  child: RawMaterialButton(
-                                      onPressed: () async {
-                                        const params = OpenFileDialogParams(
-                                          dialogType:
-                                              OpenFileDialogType.document,
-                                          sourceType: SourceType.camera,
-                                        );
-                                        alarmSoundPath =
-                                            (await FlutterFileDialog.pickFile(
-                                                params: params));
-                                        if (alarmSoundPath != null) {
-                                          String ext =
-                                              alarmSoundPath!.split('.').last;
-                                          if (ext == 'mp3' ||
-                                              ext == 'wav' ||
-                                              ext == 'ogg') {
-                                            saveAlarmSoundPath(alarmSoundPath!);
-                                            alarmSoundPathChanged = true;
-                                          } else {
-                                            if (!context.mounted) return;
-                                            showAudioFileFormatDialog(context,
-                                                widget.mainColor, size);
-                                            loadAlarmSoundPath();
-                                          }
-                                        } else {
-                                          loadAlarmSoundPath();
-                                        }
-                                      },
-                                      onLongPress: () {
-                                        alarmSoundPath =
-                                            'assets/audio/ringtone.mp3';
-                                        deleteAlarmSoundPath();
-                                        alarmSoundPathChanged = true;
-                                      },
-                                      child: SvgPicture.asset(
-                                          'assets/vector/music_icon.svg',
-                                          height: size.width * 0.1,
-                                          width: size.width * 0.1))),
-                              SizedBox(
-                                  height: size.width * 0.134,
-                                  child: Slider(
-                                      activeColor: Colors.indigo[400],
-                                      min: 0.0,
-                                      max: 1.0,
-                                      value: volume,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          volume = value;
-                                        });
-                                      })),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Padding(
-                                        padding: EdgeInsets.only(
-                                            top: size.width * 0.028,
-                                            right: size.width * 0.028),
-                                        child: SizedBox(
-                                            height: size.width * 0.1,
-                                            width: size.width * 0.3,
-                                            child: ElevatedButton(
-                                                onPressed: () {
-                                                  if (widget.flagCreateChange) {
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
-                                                  } else {
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop([false]);
-                                                  }
-                                                },
-                                                style: MayaStyle()
-                                                    .transparentButtonStyle(
-                                                        Colors.red[400]),
-                                                child: Text('Cancel'.tr)))),
-                                    Padding(
-                                        padding: EdgeInsets.only(
-                                            top: size.width * 0.028),
-                                        child: SizedBox(
-                                            height: size.width * 0.1,
-                                            width: size.width * 0.3,
-                                            child: ElevatedButton(
-                                                onPressed: () async {
-                                                  if (widget.flagCreateChange) {
-                                                    dateTime = dateTime.add(
-                                                        Duration(
-                                                            hours: int.parse(
-                                                                _hour),
-                                                            minutes: int.parse(
-                                                                _minute)));
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
-                                                    Provider.of<DayItems>(context, listen: false).add(
-                                                        widget.yearIndex,
-                                                        widget.dayIndex,
-                                                        MayaItems(
-                                                                mainColor: widget
-                                                                    .mainColor,
-                                                                yearIndex: widget
-                                                                    .yearIndex,
-                                                                dayIndex: widget
-                                                                    .dayIndex,
-                                                                newListItem:
-                                                                    true,
-                                                                index: 0)
-                                                            .alarm(
-                                                                AlarmSettings(
-                                                                    id: int.parse(
-                                                                        '${(widget.yearIndex - 5129).toString()}${widget.dayIndex.toString().padLeft(3, '0')}${_hour.padLeft(2, '0')}${_minute.padLeft(2, '0')}'),
-                                                                    dateTime:
-                                                                        dateTime,
-                                                                    assetAudioPath:
-                                                                        alarmSoundPath!,
-                                                                    loopAudio:
-                                                                        loopAudio,
-                                                                    vibrate:
-                                                                        vibrate,
-                                                                    volume:
-                                                                        volume,
-                                                                    fadeDuration:
-                                                                        0.5,
-                                                                    notificationSettings: NotificationSettings(
-                                                                        title: _alarmControllerTitle
-                                                                            .text,
-                                                                        body: _alarmControllerDescription
-                                                                            .text),
-                                                                    warningNotificationOnKill:
-                                                                        true),
-                                                                true));
-                                                  } else {
-                                                    DateFormat dateTimeFormat =
-                                                        DateFormat(
-                                                            "dd.MM.yyyy HH:mm");
-                                                    DateFormat dateFormat =
-                                                        DateFormat(
-                                                            "dd.MM.yyyy");
-                                                    String strDate = dateFormat
-                                                        .format(dateTime);
-                                                    dateTime = dateTimeFormat.parse(
-                                                        '$strDate $_hour:$_minute');
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop([
-                                                      true,
-                                                      AlarmSettings(
-                                                          id: int.parse(
-                                                              '${(widget.yearIndex - 5129).toString()}${widget.dayIndex.toString().padLeft(3, '0')}${_hour.padLeft(2, '0')}${_minute.padLeft(2, '0')}'),
-                                                          dateTime: dateTime,
-                                                          assetAudioPath:
-                                                              alarmSoundPathChanged
-                                                                  ? alarmSoundPath!
-                                                                  : await File(widget
-                                                                              .alarmSettings
-                                                                              .assetAudioPath)
-                                                                          .exists()
-                                                                      ? widget
-                                                                          .alarmSettings
-                                                                          .assetAudioPath
-                                                                      : 'assets/audio/ringtone.mp3',
-                                                          loopAudio: loopAudio,
-                                                          vibrate: vibrate,
-                                                          volume: volume,
-                                                          fadeDuration: 0.5,
-                                                          notificationSettings:
-                                                              NotificationSettings(
-                                                                  title:
-                                                                      _alarmControllerTitle
-                                                                          .text,
-                                                                  body:
-                                                                      _alarmControllerDescription
-                                                                          .text),
-                                                          warningNotificationOnKill:
-                                                              true)
-                                                    ]);
-                                                  }
-                                                },
-                                                style: MayaStyle()
-                                                    .transparentButtonStyle(
-                                                        Colors.red[400]),
-                                                child: Text('Save'.tr))))
-                                  ])
-                            ])))))));
-  }
-}
-
-class MayaButtonStyle {}
-
-saveAlarmSoundPath(String alarmSoundPath) async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'alarmSoundPath';
-  prefs.setString(key, alarmSoundPath);
-}
-
-Future<String> readAlarmSoundPath() async {
-  final prefs = await SharedPreferences.getInstance();
-  const key = 'alarmSoundPath';
-  String alarmSoundPath = prefs.getString(key) ?? 'assets/audio/ringtone.mp3';
-  if (await File(alarmSoundPath).exists()) {
-    return alarmSoundPath;
-  } else {
-    return 'assets/audio/ringtone.mp3';
-  }
-}
-
-deleteAlarmSoundPath() async {
-  final prefs = await SharedPreferences.getInstance();
-  prefs.remove('alarmSoundPath');
-}
-
-showAudioFileFormatDialog(BuildContext context, Color mainColor, Size size) {
-  Size size = GetTextSize().getTextSize(
-      'Only mp3, ogg or wav files are allowed!'.tr, MayaStyle.popUpDialogBody);
-  showDialog<void>(
-      context: context,
-      //barrierDismissible: true,
-      builder: (BuildContext context) {
-        return Center(
-            child: Container(
-                padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                decoration: MayaStyle().popUpDialogDecoration(mainColor),
-                height: 93,
-                width: size.width + 52,
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: Colors.black12,
+        body: Align(
+          alignment: const Alignment(0, -0.9),
+          child: Container(
+            height: size.width * 1.1,
+            width: size.width * 0.9,
+            decoration: BoxDecoration(
+              image: const DecorationImage(
+                colorFilter: ColorFilter.mode(Colors.red, BlendMode.modulate),
+                image: AssetImage('assets/images/bg_pattern_one.jpg'),
+                fit: BoxFit.cover,
+              ),
+              border: Border.all(color: Colors.white, width: 1),
+              borderRadius: BorderRadius.circular(10),
+              shape: BoxShape.rectangle,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(size.width * 0.028),
+              child: SizedBox(
                 child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('Invalid File Format!'.tr,
-                          style: MayaStyle.popUpDialogTitle),
-                      Text('Only mp3, ogg or wav files are allowed!'.tr,
-                          style: MayaStyle.popUpDialogBody)
-                    ])));
-      });
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: size.width * 0.028),
+                      child: GestureDetector(
+                        onTap: () {
+                          _selectTime(context);
+                        },
+                        child: Container(
+                          height: size.width * 0.12,
+                          width: size.width * 0.3,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.white, width: 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              _time,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: size.width * 0.06,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: size.width * 0.028),
+                      child: SizedBox(
+                        height: size.width * 0.14,
+                        child: TextField(
+                          style: const TextStyle(color: Colors.white),
+                          obscureText: false,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: size.width * 0.036,
+                              horizontal: size.width * 0.03,
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white54,
+                                width: 1,
+                              ),
+                            ),
+                            filled: false,
+                            labelText: 'Title'.tr,
+                            labelStyle: const TextStyle(
+                              color: Colors.white54,
+                              fontWeight: FontWeight.w300,
+                            ),
+                            floatingLabelStyle: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          controller: _alarmControllerTitle,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: size.width * 0.028),
+                      child: SizedBox(
+                        height: size.width * 0.21,
+                        child: TextField(
+                          textAlignVertical: TextAlignVertical.top,
+                          keyboardType: TextInputType.multiline,
+                          minLines: null,
+                          maxLines: null,
+                          expands: true,
+                          style: const TextStyle(color: Colors.white),
+                          obscureText: false,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: size.width * 0.036,
+                              horizontal: size.width * 0.03,
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white54,
+                                width: 1,
+                              ),
+                            ),
+                            filled: false,
+                            labelText: 'Description'.tr,
+                            labelStyle: const TextStyle(
+                              color: Colors.white54,
+                              fontWeight: FontWeight.w300,
+                            ),
+                            floatingLabelStyle: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          controller: _alarmControllerDescription,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: size.width * 0.12,
+                      child: SwitchListTile(
+                        inactiveThumbColor: Colors.indigo[400],
+                        activeThumbColor: Colors.white,
+                        title: Text(
+                          'Loop alarm audio'.tr,
+                          style: getTextStyle(size),
+                        ),
+                        value: loopAudio,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            loopAudio = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: size.width * 0.12,
+                      child: SwitchListTile(
+                        inactiveThumbColor: Colors.indigo[400],
+                        activeThumbColor: Colors.white,
+                        title: Text('Vibrate'.tr, style: getTextStyle(size)),
+                        value: vibrate,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            vibrate = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: size.width * 0.116,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          alarmSoundVolume < 0.7
+                              ? SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Icon(
+                                    Icons.volume_down,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                )
+                              : SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 2),
+                                    child: Icon(
+                                      Icons.volume_up,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
+                                ),
+                          Expanded(
+                            child: Slider(
+                              activeColor: Colors.indigo[400],
+                              min: 0.0,
+                              max: 1.0,
+                              value: alarmSoundVolume,
+                              onChanged: (value) {
+                                setState(() {
+                                  alarmSoundVolume = value;
+                                });
+                              },
+                            ),
+                          ),
+                          Text(
+                            '${(alarmSoundVolume * 100).toInt()} %',
+                            style: getTextStyle(size),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                            top: size.width * 0.028,
+                            right: size.width * 0.028,
+                          ),
+                          child: SizedBox(
+                            height: size.width * 0.1,
+                            width: size.width * 0.3,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).pop();
+                              },
+                              style: MayaStyle().transparentButtonStyle(
+                                Colors.red[400],
+                              ),
+                              child: Text('Cancel'.tr),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: size.width * 0.028),
+                          child: SizedBox(
+                            height: size.width * 0.1,
+                            width: size.width * 0.3,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final MayaData data = MayaData();
+
+                                data.mayaData[widget.yearIndex] ??=
+                                    <int, Day>{};
+
+                                final Day dayData;
+                                if (data.mayaData[widget.yearIndex]![widget
+                                        .dayIndex] ==
+                                    null) {
+                                  data.mayaData[widget.yearIndex]![widget
+                                          .dayIndex] =
+                                      Day();
+                                  dayData =
+                                      data.mayaData[widget.yearIndex]![widget
+                                          .dayIndex]!;
+                                  DatabaseHandlerArrangements()
+                                      .insertArrangement(
+                                        widget.yearIndex,
+                                        widget.dayIndex,
+                                        '',
+                                      );
+                                } else {
+                                  dayData =
+                                      data.mayaData[widget.yearIndex]![widget
+                                          .dayIndex]!;
+                                }
+
+                                final DateFormat dateTimeFormat = DateFormat(
+                                  "dd.MM.yyyy HH:mm",
+                                );
+                                final DateFormat dateFormat = DateFormat(
+                                  "dd.MM.yyyy",
+                                );
+                                final String strDate = dateFormat.format(
+                                  dateTime,
+                                );
+                                dateTime = dateTimeFormat.parse(
+                                  '$strDate $_hour:$_minute',
+                                );
+
+                                final Random random = Random();
+                                final int id = random.nextInt(99999999);
+
+                                final AlarmSettings
+                                alarmSettings = AlarmSettings(
+                                  id: id,
+                                  payload:
+                                      '${widget.yearIndex.toString()}'
+                                      '${widget.dayIndex.toString().padLeft(3, '0')}'
+                                      '${_hour.padLeft(2, '0')}'
+                                      '${_minute.padLeft(2, '0')}',
+                                  dateTime: dateTime,
+                                  assetAudioPath: alarmSoundPath,
+                                  loopAudio: loopAudio,
+                                  vibrate: vibrate,
+                                  volumeSettings: VolumeSettings.fade(
+                                    volume: alarmSoundVolume,
+                                    fadeDuration: Duration(milliseconds: 500),
+                                  ),
+                                  notificationSettings: NotificationSettings(
+                                    title: _alarmControllerTitle.text,
+                                    body: _alarmControllerDescription.text,
+                                    stopButton: 'Stop',
+                                    icon: 'ic_stat_sign',
+                                    iconColor: Color(0xff000000),
+                                  ),
+                                  warningNotificationOnKill: true,
+                                );
+                                if (widget.create) {
+                                  final String uuid = Uuid().v1();
+                                  final int eIndex = dayData.alarmList.length;
+
+                                  dayData.arrangement.add(
+                                    Location('alarm', eIndex),
+                                  );
+
+                                  List<Map<String, dynamic>> arrangementMaps =
+                                      dayData.arrangement
+                                          .map(
+                                            (arrangement) =>
+                                                arrangement.toJson(),
+                                          )
+                                          .toList();
+
+                                  DatabaseHandlerArrangements()
+                                      .updateArrangement(
+                                        widget.yearIndex,
+                                        widget.dayIndex,
+                                        jsonEncode(arrangementMaps),
+                                      );
+
+                                  Provider.of<MayaData>(
+                                    context,
+                                    listen: false,
+                                  ).addAlarm(
+                                    widget.yearIndex,
+                                    widget.dayIndex,
+                                    uuid,
+                                    alarmSettings,
+                                  );
+
+                                  setAlarm(
+                                    dayData.alarmList.last.alarmSettings,
+                                  );
+
+                                  DatabaseHandlerAlarms().insertAlarm(
+                                    widget.yearIndex,
+                                    widget.dayIndex,
+                                    eIndex,
+                                    uuid,
+                                    alarmSettings,
+                                    true,
+                                  );
+
+                                  Navigator.of(
+                                    context,
+                                    rootNavigator: true,
+                                  ).pop();
+                                } else {
+                                  stopAlarm(
+                                    dayData
+                                        .alarmList[widget.elementIndex!]
+                                        .alarmSettings
+                                        .id,
+                                  );
+
+                                  Provider.of<MayaData>(
+                                    context,
+                                    listen: false,
+                                  ).updateAlarm(
+                                    widget.yearIndex,
+                                    widget.dayIndex,
+                                    widget.elementIndex!,
+                                    alarmSettings,
+                                  );
+
+                                  Provider.of<MayaData>(
+                                    context,
+                                    listen: false,
+                                  ).setIsActive(
+                                    widget.yearIndex,
+                                    widget.dayIndex,
+                                    widget.elementIndex!,
+                                    true,
+                                  );
+
+                                  DatabaseHandlerAlarms().updateAlarmSettings(
+                                    widget.yearIndex,
+                                    widget.dayIndex,
+                                    widget.elementIndex!,
+                                    alarmSettings,
+                                  );
+
+                                  DatabaseHandlerAlarms().updateAlarmIsActive(
+                                    widget.yearIndex,
+                                    widget.dayIndex,
+                                    widget.elementIndex!,
+                                    true,
+                                  );
+
+                                  setAlarm(alarmSettings);
+
+                                  Navigator.of(
+                                    context,
+                                    rootNavigator: true,
+                                  ).pop();
+                                }
+                              },
+                              style: MayaStyle().transparentButtonStyle(
+                                Colors.red[400],
+                              ),
+                              child: Text('Save'.tr),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

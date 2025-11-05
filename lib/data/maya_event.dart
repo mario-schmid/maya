@@ -1,10 +1,9 @@
 class Event {
-  List<String>? event = List.generate(4, (index) => '');
+  String uuid;
+  String begin;
+  String end;
+  String title;
+  String description;
 
-  // 0 -> begin
-  // 1 -> end
-  // 2 -> title
-  // 3 -> description
-
-  Event(this.event);
+  Event(this.uuid, this.begin, this.end, this.title, this.description);
 }

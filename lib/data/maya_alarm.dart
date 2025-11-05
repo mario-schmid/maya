@@ -1,9 +1,9 @@
 import 'package:alarm/alarm.dart';
 
 class MayaAlarm {
-  AlarmSettings? alarmSettings;
-
+  String uuid;
+  AlarmSettings alarmSettings;
   bool isActive;
 
-  MayaAlarm(this.alarmSettings, this.isActive);
+  MayaAlarm(this.uuid, this.alarmSettings, this.isActive);
 }
