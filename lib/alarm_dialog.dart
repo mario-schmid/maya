@@ -168,15 +168,23 @@ class _ADialogState extends State<ADialog> {
                     height: size.width * 1.218,
                     width: size.width * 0.9,
                     decoration: BoxDecoration(
-                        image: const DecorationImage(
-                            colorFilter: ColorFilter.mode(
-                                Colors.red, BlendMode.modulate),
-                            image:
-                                AssetImage('assets/images/bg_pattern_one.jpg'),
-                            fit: BoxFit.cover),
-                        border: Border.all(color: Colors.white, width: 1),
-                        borderRadius: BorderRadius.circular(10),
-                        shape: BoxShape.rectangle),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            widget.mainColor.withOpacity(0.9),
+                            widget.mainColor.withOpacity(0.7),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(28),
+                        shape: BoxShape.rectangle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          ),
+                        ]),
                     child: Padding(
                         padding: EdgeInsets.all(size.width * 0.028),
                         child: SizedBox(

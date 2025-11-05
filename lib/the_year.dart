@@ -103,16 +103,29 @@ class _TheYearState extends State<TheYear> {
         widget.beginLongCount[3] * 20 +
         widget.beginLongCount[4];
 
+    // Modern Material Design 3 style with elevated cards
     tableBoxDecoration = BoxDecoration(
-        color: widget.mainColor.withOpacity(0.5),
-        border: Border.all(color: Colors.white, width: 1),
-        borderRadius: BorderRadius.circular(10),
-        shape: BoxShape.rectangle);
+        color: widget.mainColor.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12),
+        shape: BoxShape.rectangle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ]);
 
     addIconDecoration = BoxDecoration(
-        color: widget.mainColor.withOpacity(0.5),
-        border: Border.all(color: Colors.white, width: 1),
-        shape: BoxShape.circle);
+        color: widget.mainColor.withOpacity(0.7),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ]);
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => executeAfterWholeBuildProcess(context));

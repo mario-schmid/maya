@@ -40,6 +40,7 @@ import '../helper/locale_string.dart';
 import '../helper/maya_images.dart';
 import '../helper/maya_lists.dart';
 import '../helper/maya_style.dart';
+import '../helper/maya_theme.dart';
 import '../maya_items.dart';
 import '../methods/get_delta_year.dart';
 import '../methods/get_kin_number.dart';
@@ -252,7 +253,9 @@ class MayaApp extends StatelessWidget {
             translations: LocaleString(),
             locale: const Locale('en', 'GB'),
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(fontFamily: 'Roboto'),
+            theme: MayaTheme.lightTheme,
+            darkTheme: MayaTheme.darkTheme,
+            themeMode: ThemeMode.system,
             home: FlutterSplashScreen.fadeIn(
                 //duration: Duration(milliseconds: 1320),
                 //animationDuration: Duration(milliseconds: 1320),
