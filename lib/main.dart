@@ -215,8 +215,7 @@ Future<void> main() async {
   /* ------------------------------------------------------------------------ */
   final binding = WidgetsFlutterBinding.ensureInitialized();
 
-  bool boolUpdateYear = await updateYear();
-  boolUpdateYear ? SharedPrefs.removeKey('adjustDatabase') : null;
+  SharedPrefs.removeKey('adjustDatabase');
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
@@ -233,14 +232,25 @@ Future<void> main() async {
   });
 
   await maya_alarm.Alarm.init();
-  runApp(MayaApp(packageInfo: packageInfo, mainColor: mainColor, backgroundImage: backgroundImage));
+  runApp(
+    MayaApp(
+      packageInfo: packageInfo,
+      mainColor: mainColor,
+      backgroundImage: backgroundImage,
+    ),
+  );
 }
 
 class MayaApp extends StatelessWidget {
   final PackageInfo packageInfo;
   final Color mainColor;
   final ImageProvider backgroundImage;
-  const MayaApp({super.key, required this.packageInfo, required this.mainColor, required this.backgroundImage});
+  const MayaApp({
+    super.key,
+    required this.packageInfo,
+    required this.mainColor,
+    required this.backgroundImage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +261,11 @@ class MayaApp extends StatelessWidget {
         locale: const Locale('en', 'GB'),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(fontFamily: 'Roboto'),
-        home: Home(packageInfo: packageInfo, mainColor: mainColor, backgroundImage: backgroundImage),
+        home: Home(
+          packageInfo: packageInfo,
+          mainColor: mainColor,
+          backgroundImage: backgroundImage,
+        ),
       ),
     );
   }
@@ -261,7 +275,12 @@ class Home extends StatefulWidget {
   final PackageInfo packageInfo;
   final Color mainColor;
   final ImageProvider backgroundImage;
-  const Home({super.key, required this.packageInfo, required this.mainColor, required this.backgroundImage});
+  const Home({
+    super.key,
+    required this.packageInfo,
+    required this.mainColor,
+    required this.backgroundImage,
+  });
 
   @override
   State<Home> createState() => _HomeState();
@@ -275,17 +294,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late ImageProvider backgroundImage;
 
   final DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
-  final DateFormat dateTimeformatSeasons = DateFormat("yyyy-MM-ddTHH:mm:00.000Z");
+  final DateFormat dateTimeformatSeasons = DateFormat(
+    "yyyy-MM-ddTHH:mm:00.000Z",
+  );
 
   late String bgFilePath;
 
   DateTime now = DateTime.now();
 
-  final Future<List<Map<String, dynamic>>> _eventList = DatabaseHandlerEvents().retrieveEvents();
-  final Future<List<Map<String, dynamic>>> _noteList = DatabaseHandlerNotes().retrieveNotes();
-  final Future<List<Map<String, dynamic>>> _taskList = DatabaseHandlerTasks().retrieveTasks();
-  final Future<List<Map<String, dynamic>>> _alarmList = DatabaseHandlerAlarms().retrieveAlarms();
-  final Future<List<Map<String, dynamic>>> _arrangementList = DatabaseHandlerArrangements().retrieveArrangements();
+  final Future<List<Map<String, dynamic>>> _eventList = DatabaseHandlerEvents()
+      .retrieveEvents();
+  final Future<List<Map<String, dynamic>>> _noteList = DatabaseHandlerNotes()
+      .retrieveNotes();
+  final Future<List<Map<String, dynamic>>> _taskList = DatabaseHandlerTasks()
+      .retrieveTasks();
+  final Future<List<Map<String, dynamic>>> _alarmList = DatabaseHandlerAlarms()
+      .retrieveAlarms();
+  final Future<List<Map<String, dynamic>>> _arrangementList =
+      DatabaseHandlerArrangements().retrieveArrangements();
 
   List<Map<String, dynamic>> eventList = [];
   List<Map<String, dynamic>> noteList = [];
@@ -300,7 +326,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   double angleSeason = 0.0;
 
-  SvgPicture iconSeason = SvgPicture.asset('assets/vector/transparent_icon.svg');
+  SvgPicture iconSeason = SvgPicture.asset(
+    'assets/vector/transparent_icon.svg',
+  );
 
   double finalAngle = 0.0;
   double oldAngle = 0.0;
@@ -407,7 +435,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     startDate = DateTime.parse('2013-02-21 00:00:00');
     now.timeZoneOffset > startDate.timeZoneOffset
         ? startDate = startDate
-              .add(Duration(hours: -1)) // if the damn "daylight saving time" is set, subtract 1 hour.
+              .add(
+                Duration(hours: -1),
+              ) // if the damn "daylight saving time" is set, subtract 1 hour.
         : null;
 
     loadLanguage();
@@ -432,31 +462,61 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* loadData                                                                 */
   /*                                                                          */
   void loadData() async {
-    final [eventList, noteList, taskList, alarmList, arrangementList] = await Future.wait([_eventList, _noteList, _taskList, _alarmList, _arrangementList]);
+    final [
+      eventList,
+      noteList,
+      taskList,
+      alarmList,
+      arrangementList,
+    ] = await Future.wait([
+      _eventList,
+      _noteList,
+      _taskList,
+      _alarmList,
+      _arrangementList,
+    ]);
 
     final data = MayaData();
 
     for (var event in eventList) {
       data.mayaData[event['yearIndex']] ??= <int, Day>{};
-      final dayData = data.mayaData[event['yearIndex']]![event['dayIndex']] ??= Day();
+      final dayData = data.mayaData[event['yearIndex']]![event['dayIndex']] ??=
+          Day();
 
-      dayData.eventList.add(Event(event['uuid'], event['begin'], event['end'], event['title'], event['description']));
+      dayData.eventList.add(
+        Event(
+          event['uuid'],
+          event['begin'],
+          event['end'],
+          event['title'],
+          event['description'],
+        ),
+      );
     }
     for (var note in noteList) {
       data.mayaData[note['yearIndex']] ??= <int, Day>{};
-      final dayData = data.mayaData[note['yearIndex']]![note['dayIndex']] ??= Day();
+      final dayData = data.mayaData[note['yearIndex']]![note['dayIndex']] ??=
+          Day();
 
       dayData.noteList.add(Note(note['uuid'], note['entry']));
     }
     for (var task in taskList) {
       data.mayaData[task['yearIndex']] ??= <int, Day>{};
-      final dayData = data.mayaData[task['yearIndex']]![task['dayIndex']] ??= Day();
+      final dayData = data.mayaData[task['yearIndex']]![task['dayIndex']] ??=
+          Day();
 
-      dayData.taskList.add(Task(task['uuid'], task['description'], task['isChecked'] == 0 ? false : true));
+      dayData.taskList.add(
+        Task(
+          task['uuid'],
+          task['description'],
+          task['isChecked'] == 0 ? false : true,
+        ),
+      );
     }
     for (var alarm in alarmList) {
       data.mayaData[alarm['yearIndex']] ??= <int, Day>{};
-      final dayData = data.mayaData[alarm['yearIndex']]![alarm['dayIndex']] ??= Day();
+      final dayData = data.mayaData[alarm['yearIndex']]![alarm['dayIndex']] ??=
+          Day();
 
       dayData.alarmList.add(
         MayaAlarm(
@@ -468,7 +528,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             assetAudioPath: alarm['assetAudioPath'],
             loopAudio: alarm['loopAudio'] == 0 ? false : true,
             vibrate: alarm['vibrate'] == 0 ? false : true,
-            volumeSettings: maya_alarm.VolumeSettings.fade(volume: alarm['volume'], fadeDuration: Duration(milliseconds: 500)),
+            volumeSettings: maya_alarm.VolumeSettings.fade(
+              volume: alarm['volume'],
+              fadeDuration: Duration(milliseconds: 500),
+            ),
             notificationSettings: maya_alarm.NotificationSettings(
               title: alarm['notificationTitle'],
               body: alarm['notificationBody'],
@@ -476,7 +539,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               icon: 'ic_stat_sign',
               iconColor: Color(0xff000000),
             ),
-            warningNotificationOnKill: alarm['warningNotificationOnKill'] == 0 ? false : true,
+            warningNotificationOnKill: alarm['warningNotificationOnKill'] == 0
+                ? false
+                : true,
           ),
           alarm['isActive'] == 0 ? false : true,
         ),
@@ -484,7 +549,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     }
     for (var arrangement in arrangementList) {
       data.mayaData[arrangement['yearIndex']] ??= <int, Day>{};
-      final dayData = data.mayaData[arrangement['yearIndex']]![arrangement['dayIndex']] ??= Day();
+      final dayData =
+          data.mayaData[arrangement['yearIndex']]![arrangement['dayIndex']] ??=
+              Day();
 
       final List<dynamic> decodedJson = json.decode(arrangement['arrangement']);
 
@@ -547,7 +614,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* loadTimeFormat                                                           */
   /*                                                                          */
   void loadTimeFormat() async {
-    TimeFormat().setTimeFormat = DateFormat((await SharedPrefs.readTimeFormat()));
+    TimeFormat().setTimeFormat = DateFormat(
+      (await SharedPrefs.readTimeFormat()),
+    );
     switch (TimeFormat().getTimeFormat.pattern) {
       case 'h:mm a':
         isSelected = [true, false];
@@ -578,15 +647,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* navigateToRingScreen                                                     */
   /*                                                                          */
-  Future<void> navigateToRingScreen(maya_alarm.AlarmSettings alarmSettings) async {
+  Future<void> navigateToRingScreen(
+    maya_alarm.AlarmSettings alarmSettings,
+  ) async {
     String alarmSnoozeIndex = await SharedPrefs.readAlarmSnoozeIndex();
 
     if (!mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            AlarmRingScreen(mainColor: mainColor, backgroundImage: backgroundImage, alarmSnoozeIndex: alarmSnoozeIndex, alarmSettings: alarmSettings),
+        builder: (context) => AlarmRingScreen(
+          mainColor: mainColor,
+          backgroundImage: backgroundImage,
+          alarmSnoozeIndex: alarmSnoozeIndex,
+          alarmSettings: alarmSettings,
+        ),
       ),
     );
   }
@@ -618,7 +693,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       sNahual = nahual;
       nAngle = 0;
 
-      strTextToneNahual = '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
+      strTextToneNahual =
+          '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
 
       sBaktun = baktun;
       sKatun = katun;
@@ -679,16 +755,27 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* tunContainer                                                             */
   /*                                                                          */
-  Container tunContainer(Size sizeSandstones, Size sizeNumbers, double celery, int value) {
+  Container tunContainer(
+    Size sizeSandstones,
+    Size sizeNumbers,
+    double celery,
+    int value,
+  ) {
     return Container(
       height: sizeSandstones.height,
       width: sizeSandstones.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(0.02 * celery)),
-        image: const DecorationImage(image: AssetImage('assets/images/sandstone_tun.jpg'), fit: BoxFit.cover),
+        image: const DecorationImage(
+          image: AssetImage('assets/images/sandstone_tun.jpg'),
+          fit: BoxFit.cover,
+        ),
       ),
       child: Center(
-        child: SizedBox(width: sizeNumbers.width, child: MayaImage.imageToneWhiteFlatBottom[value]),
+        child: SizedBox(
+          width: sizeNumbers.width,
+          child: MayaImage.imageToneWhiteFlatBottom[value],
+        ),
       ),
     );
   }
@@ -723,34 +810,34 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final double flagHeight = 0.07 * celery;
     final double flagWidth = 0.108 * celery;
 
-    final BoxConstraints toggleButtonsConstraints = BoxConstraints(minHeight: 0.1 * celery, minWidth: 0.3 * celery);
+    final BoxConstraints toggleButtonsConstraints = BoxConstraints(
+      minHeight: 0.1 * celery,
+      minWidth: 0.3 * celery,
+    );
     final double toggleButtonsBorderWidth = 0.002 * celery;
-    final BorderRadius toggleButtonsBorderRadius = BorderRadius.all(Radius.circular(0.01 * celery));
+    final BorderRadius toggleButtonsBorderRadius = BorderRadius.all(
+      Radius.circular(0.01 * celery),
+    );
     final double toggleButtonsFontSize = 0.04 * celery;
 
     final double settingButtonsHeight = 0.1 * celery;
     final double settingButtonsWidth = 0.2 * celery;
     final double settingIconSize = 0.08 * celery;
 
-    final double space = 1.86 * celery;
+    final double space = 1.93 * celery;
 
     final EdgeInsets paddingSocialButtons = EdgeInsets.all(0.01 * celery);
-    final double sizeSocialButtons = 0.14 * celery;
+    final double sizeSocialButtons = 0.13 * celery;
     final double borderWidthSocialButtons = 0.003 * celery;
     final EdgeInsets paddingIconSocialButtons = EdgeInsets.all(0.017 * celery);
 
-    final double heightButtonGitLab = 0.08 * celery;
-    final double widthButtonGitLab = 0.22 * celery;
-    final double borderWidthButtonGitLab = 0.002 * celery;
-    final double borderRadiusButtonGitLab = 0.01 * celery;
     final double sizeGitLabIcon = 0.06 * celery;
-    final double fontSizeGitLab = 0.034 * celery;
 
-    final double heightButtonPrivacyPolicy = 0.08 * celery;
-    final double widthButtonPrivacyPolicy = 0.26 * celery;
-    final double borderWidthButtonPrivacyPolicy = 0.002 * celery;
-    final double borderRadiusButtonPrivacyPolicy = 0.01 * celery;
-    final double fontSizePrivacyPolicy = 0.034 * celery;
+    final double heightButtonsBottom = 0.08 * celery;
+    final double widthButtonsBottom = 0.25 * celery;
+    final double borderWidthButtonsBottom = 0.002 * celery;
+    final double borderRadiusButtonsBottom = 0.01 * celery;
+    final double fontSizeButtonsBottom = 0.034 * celery;
 
     final double fontSizeVersion = 0.036 * celery;
 
@@ -766,10 +853,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             SizedBox(
               child: Padding(
                 padding: paddingSign,
-                child: Image(image: const AssetImage("assets/images/icons/sign.png"), height: sizeSign, width: sizeSign),
+                child: Image(
+                  image: const AssetImage("assets/images/icons/sign.png"),
+                  height: sizeSign,
+                  width: sizeSign,
+                ),
               ),
             ),
-            Divider(color: Colors.white, height: 0, thickness: dividerTickness, indent: 0, endIndent: 0),
+            Divider(
+              color: Colors.white,
+              height: 0,
+              thickness: dividerTickness,
+              indent: 0,
+              endIndent: 0,
+            ),
             SizedBox(height: size02),
             SizedBox(
               height: size12,
@@ -778,9 +875,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 side: const BorderSide(color: Colors.white),
                 title: Text(
                   'English'.tr,
-                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSizeLanguage,
+                  ),
                 ),
-                secondary: Flag.fromCode(FlagsCode.GB, height: flagHeight, width: flagWidth),
+                secondary: Flag.fromCode(
+                  FlagsCode.GB,
+                  height: flagHeight,
+                  width: flagWidth,
+                ),
                 value: isCheckedEnglish,
                 onChanged: (newValue) {
                   setState(() {
@@ -801,9 +905,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 side: const BorderSide(color: Colors.white),
                 title: Text(
                   'German'.tr,
-                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSizeLanguage,
+                  ),
                 ),
-                secondary: Flag.fromCode(FlagsCode.DE, height: flagHeight, width: flagWidth),
+                secondary: Flag.fromCode(
+                  FlagsCode.DE,
+                  height: flagHeight,
+                  width: flagWidth,
+                ),
                 value: isCheckedGerman,
                 onChanged: (newValue) {
                   setState(() {
@@ -824,9 +935,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 side: const BorderSide(color: Colors.white),
                 title: Text(
                   'French'.tr,
-                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSizeLanguage,
+                  ),
                 ),
-                secondary: Flag.fromCode(FlagsCode.FR, height: flagHeight, width: flagWidth),
+                secondary: Flag.fromCode(
+                  FlagsCode.FR,
+                  height: flagHeight,
+                  width: flagWidth,
+                ),
                 value: isCheckedFrance,
                 onChanged: (newValue) {
                   setState(() {
@@ -847,9 +965,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 side: const BorderSide(color: Colors.white),
                 title: Text(
                   'Spain'.tr,
-                  style: TextStyle(color: Colors.white, fontSize: fontSizeLanguage),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSizeLanguage,
+                  ),
                 ),
-                secondary: Flag.fromCode(FlagsCode.ES, height: flagHeight, width: flagWidth),
+                secondary: Flag.fromCode(
+                  FlagsCode.ES,
+                  height: flagHeight,
+                  width: flagWidth,
+                ),
                 value: isCheckedSpain,
                 onChanged: (newValue) {
                   setState(() {
@@ -891,11 +1016,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 children: <Widget>[
                   Text(
                     '12 ${'Hours'.tr}',
-                    style: TextStyle(color: Colors.white, fontSize: toggleButtonsFontSize),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: toggleButtonsFontSize,
+                    ),
                   ),
                   Text(
                     '24 ${'Hours'.tr}',
-                    style: TextStyle(color: Colors.white, fontSize: toggleButtonsFontSize),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: toggleButtonsFontSize,
+                    ),
                   ),
                 ],
               ),
@@ -921,8 +1052,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       mainColor = const Color(0xff8800ff);
                       SharedPrefs.deleteMainColor();
                     },
-                    style: MayaStyle().settingsButtonStyleCarrot(size, mainColor, celery),
-                    child: SvgPicture.asset("assets/vector/rby_icon.svg", height: settingIconSize, width: settingIconSize),
+                    style: MayaStyle().settingsButtonStyleCarrot(
+                      size,
+                      mainColor,
+                      celery,
+                    ),
+                    child: SvgPicture.asset(
+                      "assets/vector/rby_icon.svg",
+                      height: settingIconSize,
+                      width: settingIconSize,
+                    ),
                   ),
                 ),
                 SizedBox(width: size06),
@@ -931,7 +1070,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   width: settingButtonsWidth,
                   child: ElevatedButton(
                     onPressed: () async {
-                      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['jpg', 'png']);
+                      FilePickerResult? result = await FilePicker.platform
+                          .pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['jpg', 'png'],
+                          );
                       if (result != null) {
                         bgFilePath = result.files.first.path!;
                         SharedPrefs.saveBgFilePath(bgFilePath);
@@ -939,11 +1082,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       }
                     },
                     onLongPress: () async {
-                      backgroundImage = const AssetImage('assets/images/leaves.jpg');
+                      backgroundImage = const AssetImage(
+                        'assets/images/leaves.jpg',
+                      );
                       SharedPrefs.deleteBgImagePath();
                     },
-                    style: MayaStyle().settingsButtonStyleCarrot(size, mainColor, celery),
-                    child: SvgPicture.asset("assets/vector/image_icon.svg", height: settingIconSize, width: settingIconSize),
+                    style: MayaStyle().settingsButtonStyleCarrot(
+                      size,
+                      mainColor,
+                      celery,
+                    ),
+                    child: SvgPicture.asset(
+                      "assets/vector/image_icon.svg",
+                      height: settingIconSize,
+                      width: settingIconSize,
+                    ),
                   ),
                 ),
               ],
@@ -957,10 +1110,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   width: settingButtonsWidth,
                   child: ElevatedButton(
                     onPressed: () async {
-                      final String customAlarmSoundPath = (await SharedPrefs.readCustomAlarmSoundPath());
-                      final String alarmSoundIndex = (await SharedPrefs.readAlarmSoundIndex());
-                      final String globalAlarmSoundVolume = (await SharedPrefs.readGlobalAlarmSoundVolume());
-                      final String alarmSnoozeIndex = (await SharedPrefs.readAlarmSnoozeIndex());
+                      final String customAlarmSoundPath =
+                          (await SharedPrefs.readCustomAlarmSoundPath());
+                      final String alarmSoundIndex =
+                          (await SharedPrefs.readAlarmSoundIndex());
+                      final String globalAlarmSoundVolume =
+                          (await SharedPrefs.readGlobalAlarmSoundVolume());
+                      final String alarmSnoozeIndex =
+                          (await SharedPrefs.readAlarmSnoozeIndex());
 
                       if (!context.mounted) return;
                       Navigator.push(
@@ -978,13 +1135,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         ),
                       );
                     },
-                    style: MayaStyle().settingsButtonStyleCarrot(size, mainColor, celery),
-                    child: SvgPicture.asset("assets/vector/alarm_clock_icon.svg", height: settingIconSize, width: settingIconSize),
+                    style: MayaStyle().settingsButtonStyleCarrot(
+                      size,
+                      mainColor,
+                      celery,
+                    ),
+                    child: SvgPicture.asset(
+                      "assets/vector/alarm_clock_icon.svg",
+                      height: settingIconSize,
+                      width: settingIconSize,
+                    ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: size.height - statusBarHeight - navigationBarHeight - space),
+            SizedBox(
+              height:
+                  size.height - statusBarHeight - navigationBarHeight - space,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -996,7 +1164,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
@@ -1015,7 +1186,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
@@ -1034,12 +1208,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
                       onPressed: () {
-                        _launchUrl('https://matrix.to/#/@morgenfrost:matrix.org');
+                        _launchUrl(
+                          'https://matrix.to/#/@morgenfrost:matrix.org',
+                        );
                       },
                       icon: Image.asset('assets/images/icons/matrix.png'),
                     ),
@@ -1053,7 +1232,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
@@ -1077,12 +1259,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
                       onPressed: () {
-                        _launchUrl('https://www.paypal.com/donate/?hosted_button_id=L4F6W8ATK42K2');
+                        _launchUrl(
+                          'https://www.paypal.com/donate/?hosted_button_id=L4F6W8ATK42K2',
+                        );
                       },
                       icon: Image.asset('assets/images/icons/paypal.png'),
                     ),
@@ -1096,14 +1283,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
                       onPressed: () {
                         _launchUrl('https://buymeacoffee.com/morgenfrost');
                       },
-                      icon: Image.asset('assets/images/icons/buy-me-a-coffee.png'),
+                      icon: Image.asset(
+                        'assets/images/icons/buy-me-a-coffee.png',
+                      ),
                     ),
                   ),
                 ),
@@ -1115,7 +1307,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
@@ -1134,7 +1329,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mainColor.withValues(alpha: 0.5),
-                      border: Border.all(color: Colors.white, width: borderWidthSocialButtons),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: borderWidthSocialButtons,
+                      ),
                     ),
                     child: IconButton(
                       padding: paddingIconSocialButtons,
@@ -1147,23 +1345,117 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            SizedBox(height: size05),
+            SizedBox(height: size03),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  height: heightButtonGitLab,
-                  width: widthButtonGitLab,
+                  height: heightButtonsBottom,
+                  width: widthButtonsBottom,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      showBackupOptions(context, mainColor);
+                    },
+                    style: ButtonStyle(
+                      padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                      foregroundColor: const WidgetStatePropertyAll(
+                        Colors.white,
+                      ),
+                      backgroundColor: WidgetStateProperty.all(
+                        mainColor.withValues(alpha: 0.5),
+                      ),
+                      shadowColor: WidgetStateProperty.all(Colors.transparent),
+                      side: WidgetStateProperty.all(
+                        BorderSide(
+                          color: Colors.white,
+                          width: borderWidthButtonsBottom,
+                        ),
+                      ),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            borderRadiusButtonsBottom,
+                          ),
+                        ),
+                      ),
+                      overlayColor: WidgetStateProperty.all(mainColor),
+                    ),
+                    child: Text(
+                      'Backup',
+                      style: TextStyle(fontSize: fontSizeButtonsBottom),
+                    ),
+                  ),
+                ),
+                SizedBox(width: size03),
+                SizedBox(
+                  height: heightButtonsBottom,
+                  width: widthButtonsBottom,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                      foregroundColor: const WidgetStatePropertyAll(
+                        Colors.white,
+                      ),
+                      backgroundColor: WidgetStateProperty.all(
+                        mainColor.withValues(alpha: 0.5),
+                      ),
+                      shadowColor: WidgetStateProperty.all(Colors.transparent),
+                      side: WidgetStateProperty.all(
+                        BorderSide(
+                          color: Colors.white,
+                          width: borderWidthButtonsBottom,
+                        ),
+                      ),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            borderRadiusButtonsBottom,
+                          ),
+                        ),
+                      ),
+                      overlayColor: WidgetStateProperty.all(mainColor),
+                    ),
+                    onPressed: () async {
+                      restoreDatabases(context);
+                    },
+                    child: Text(
+                      'Restore',
+                      style: TextStyle(fontSize: fontSizeButtonsBottom),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: size03),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: heightButtonsBottom,
+                  width: widthButtonsBottom,
                   child: ElevatedButton(
                     onPressed: _launchGitLab,
                     style: ButtonStyle(
                       padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                      foregroundColor: const WidgetStatePropertyAll(Colors.white),
-                      backgroundColor: WidgetStateProperty.all(mainColor.withValues(alpha: 0.5)),
+                      foregroundColor: const WidgetStatePropertyAll(
+                        Colors.white,
+                      ),
+                      backgroundColor: WidgetStateProperty.all(
+                        mainColor.withValues(alpha: 0.5),
+                      ),
                       shadowColor: WidgetStateProperty.all(Colors.transparent),
-                      side: WidgetStateProperty.all(BorderSide(color: Colors.white, width: borderWidthButtonGitLab)),
+                      side: WidgetStateProperty.all(
+                        BorderSide(
+                          color: Colors.white,
+                          width: borderWidthButtonsBottom,
+                        ),
+                      ),
                       shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadiusButtonGitLab)),
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            borderRadiusButtonsBottom,
+                          ),
+                        ),
                       ),
                       overlayColor: WidgetStateProperty.all(mainColor),
                     ),
@@ -1171,31 +1463,54 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SvgPicture.asset("assets/vector/gitlab.svg", height: sizeGitLabIcon, width: sizeGitLabIcon),
-                        SizedBox(width: size01),
-                        Text('GitLab', style: TextStyle(fontSize: fontSizeGitLab)),
+                        SvgPicture.asset(
+                          "assets/vector/gitlab.svg",
+                          height: sizeGitLabIcon,
+                          width: sizeGitLabIcon,
+                        ),
+                        SizedBox(width: size02),
+                        Text(
+                          'GitLab',
+                          style: TextStyle(fontSize: fontSizeButtonsBottom),
+                        ),
                       ],
                     ),
                   ),
                 ),
                 SizedBox(width: size03),
                 SizedBox(
-                  height: heightButtonPrivacyPolicy,
-                  width: widthButtonPrivacyPolicy,
+                  height: heightButtonsBottom,
+                  width: widthButtonsBottom,
                   child: ElevatedButton(
                     style: ButtonStyle(
                       padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                      foregroundColor: const WidgetStatePropertyAll(Colors.white),
-                      backgroundColor: WidgetStateProperty.all(mainColor.withValues(alpha: 0.5)),
+                      foregroundColor: const WidgetStatePropertyAll(
+                        Colors.white,
+                      ),
+                      backgroundColor: WidgetStateProperty.all(
+                        mainColor.withValues(alpha: 0.5),
+                      ),
                       shadowColor: WidgetStateProperty.all(Colors.transparent),
-                      side: WidgetStateProperty.all(BorderSide(color: Colors.white, width: borderWidthButtonPrivacyPolicy)),
+                      side: WidgetStateProperty.all(
+                        BorderSide(
+                          color: Colors.white,
+                          width: borderWidthButtonsBottom,
+                        ),
+                      ),
                       shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadiusButtonPrivacyPolicy)),
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            borderRadiusButtonsBottom,
+                          ),
+                        ),
                       ),
                       overlayColor: WidgetStateProperty.all(mainColor),
                     ),
                     onPressed: _launchPrivacyPolicy,
-                    child: Text('Privacy Policy', style: TextStyle(fontSize: fontSizePrivacyPolicy)),
+                    child: Text(
+                      'Privacy Policy',
+                      style: TextStyle(fontSize: fontSizeButtonsBottom),
+                    ),
                   ),
                 ),
               ],
@@ -1204,12 +1519,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             InkWell(
               child: Text(
                 'v${packageInfo.version}',
-                style: TextStyle(color: Colors.white, fontSize: fontSizeVersion),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: fontSizeVersion,
+                ),
               ),
               onTap: () async {
                 await showDialog(
                   context: context,
-                  builder: (BuildContext context) => Center(child: ReleaseNoteDialog().alertDialog(size, mainColor, packageInfo.version)),
+                  builder: (BuildContext context) => Center(
+                    child: ReleaseNoteDialog().alertDialog(
+                      size,
+                      mainColor,
+                      packageInfo.version,
+                    ),
+                  ),
                 );
               },
             ),
@@ -1233,91 +1557,216 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final double statusBarHeight = MediaQuery.of(context).viewPadding.top;
     final double navigationBarHeight = MediaQuery.of(context).padding.bottom;
 
-    final double minAspectRatio = 18 / 38;
-    final double celery = size.width / size.height <= minAspectRatio ? size.width : size.height * minAspectRatio;
+    final double maxAspectRatio = 18 / 38;
+    final double celery = size.width / size.height <= maxAspectRatio
+        ? size.width
+        : size.height * maxAspectRatio;
     //
     final Size sizeSettings = Size(0.046 * celery, 0.3 * celery);
-    final Position posSettings = Position(statusBarHeight + 0.07 * celery, size.width - sizeSettings.width);
+    final Position posSettings = Position(
+      statusBarHeight + 0.07 * celery,
+      size.width - sizeSettings.width,
+    );
     final double borderWidthSettings = 0.002 * celery;
     final double borderRadiusSettings = 0.046 * celery;
     //
     final Size sizeBoxTime = Size(0.52 * celery, 0.1 * celery);
-    final Position posBoxTime = Position(size.height / 2 - 0.84 * celery, size.width - sizeBoxTime.width - 0.4 * celery);
+    final Position posBoxTime = Position(
+      size.height / 2 - 0.84 * celery,
+      size.width - sizeBoxTime.width - 0.4 * celery,
+    );
     //
-    final TextStyle textStyleTime = TextStyle(color: Colors.white, fontSize: 0.06 * celery, fontWeight: FontWeight.normal);
+    final TextStyle textStyleTime = TextStyle(
+      color: Colors.white,
+      fontSize: 0.06 * celery,
+      fontWeight: FontWeight.normal,
+    );
     //
-    final Size sizeSandstoneFormTop = Size(0.776591667 * celery, 0.417247222 * celery);
-    final Position posSandstoneFormTop = Position(size.height / 2 - 0.793058333 * celery, size.width - 0.949322222 * celery);
+    final Size sizeSandstoneFormTop = Size(
+      0.776591667 * celery,
+      0.417247222 * celery,
+    );
+    final Position posSandstoneFormTop = Position(
+      size.height / 2 - 0.793058333 * celery,
+      size.width - 0.949322222 * celery,
+    );
     //
-    final Size sizeShapeRightTop = Size(0.403827667 * celery, 0.317301957 * celery);
-    final Position posShapeRightTop = Position(size.height / 2 - 0.748390489 * celery, size.width - 0.602768191 * celery);
+    final Size sizeShapeRightTop = Size(
+      0.403827667 * celery,
+      0.317301957 * celery,
+    );
+    final Position posShapeRightTop = Position(
+      size.height / 2 - 0.748390489 * celery,
+      size.width - 0.602768191 * celery,
+    );
     //
-    final Size sizeSandstoneFormBottom = Size(0.776591667 * celery, 0.417247222 * celery);
-    final Position posSandstoneFormBottom = Position(size.height / 2 + 0.375811111 * celery, size.width - 0.949322222 * celery);
+    final Size sizeSandstoneFormBottom = Size(
+      0.776591667 * celery,
+      0.417247222 * celery,
+    );
+    final Position posSandstoneFormBottom = Position(
+      size.height / 2 + 0.375811111 * celery,
+      size.width - 0.949322222 * celery,
+    );
     //
-    final Size sizeShapeRightBottom = Size(0.403827667 * celery, 0.317301957 * celery);
-    final Position posShapeRightBottom = Position(size.height / 2 + 0.431143267 * celery, size.width - 0.602768191 * celery);
+    final Size sizeShapeRightBottom = Size(
+      0.403827667 * celery,
+      0.317301957 * celery,
+    );
+    final Position posShapeRightBottom = Position(
+      size.height / 2 + 0.431143267 * celery,
+      size.width - 0.602768191 * celery,
+    );
     //
-    final Size sizeWheelNahuales = Size(1.092592593 * celery, 1.092592593 * celery);
-    final Position posWheelNahuales = Position((size.height - sizeWheelNahuales.height) / 2, size.width - sizeWheelNahuales.width - 0.113888889 * celery);
+    final Size sizeWheelNahuales = Size(
+      1.092592593 * celery,
+      1.092592593 * celery,
+    );
+    final Position posWheelNahuales = Position(
+      (size.height - sizeWheelNahuales.height) / 2,
+      size.width - sizeWheelNahuales.width - 0.113888889 * celery,
+    );
     //
     final Size sizeSignNahual = Size(0.128 * celery, 0.117333333 * celery);
     final Offset offsetSignNahual = Offset(-0.435995852 * celery, 0);
     //
-    final Size sizeWheelHaab = Size(18.503703704 * celery, 18.503703704 * celery);
-    final Position posWheelHaab = Position((size.height - sizeWheelHaab.height) / 2, size.width - 0.155555556 * celery);
+    final Size sizeWheelHaab = Size(
+      18.503703704 * celery,
+      18.503703704 * celery,
+    );
+    final Position posWheelHaab = Position(
+      (size.height - sizeWheelHaab.height) / 2,
+      size.width - 0.155555556 * celery,
+    );
     //
-    final Size sizeSectionFieldWinal = Size(9.251851852 * celery, 3.169558333 * celery);
+    final Size sizeSectionFieldWinal = Size(
+      9.251851852 * celery,
+      3.169558333 * celery,
+    );
     final Position posSectionFieldWinal = Position(7.667072685 * celery, 0);
-    final Size sizeSectionWinal = Size(0.375630556 * celery, 3.169558333 * celery);
+    final Size sizeSectionWinal = Size(
+      0.375630556 * celery,
+      3.169558333 * celery,
+    );
     final Offset offsetSectionFieldWinal = Offset(4.625925926 * celery, 0);
     //
     final Size sizeImageToneWhiteFlatCenter = Size(0.086111111 * celery, 0);
-    final Position posImageToneWhiteFlatCenter = Position(1.557425 * celery, 0.009702778 * celery);
-    final Offset offsetImageToneWhiteFlatCenter = Offset(9.199093519 * celery, 0);
+    final Position posImageToneWhiteFlatCenter = Position(
+      1.557425 * celery,
+      0.009702778 * celery,
+    );
+    final Offset offsetImageToneWhiteFlatCenter = Offset(
+      9.199093519 * celery,
+      0,
+    );
     //
     final Size sizeBoxTextWinal = Size(0.166666667 * celery, 0.05 * celery);
-    final Position posBoxTextWinal = Position(1.501447222 * celery, 0.099958333 * celery);
+    final Position posBoxTextWinal = Position(
+      1.501447222 * celery,
+      0.099958333 * celery,
+    );
     final Offset offsetBoxTextWinal = Offset(9.126893519 * celery, 0);
     //
-    final Size sizeSectionFieldWinalWayeb = Size(9.251851852 * celery, 0.796069444 * celery);
-    final Position posSectionFieldWinalWayeb = Position(8.853816667 * celery, 0);
-    final Size sizeSectionWinalWayeb = Size(0.260044444 * celery, 0.796069444 * celery);
+    final Size sizeSectionFieldWinalWayeb = Size(
+      9.251851852 * celery,
+      0.796069444 * celery,
+    );
+    final Position posSectionFieldWinalWayeb = Position(
+      8.853816667 * celery,
+      0,
+    );
+    final Size sizeSectionWinalWayeb = Size(
+      0.260044444 * celery,
+      0.796069444 * celery,
+    );
     final Offset offsetSectionFieldWinalWayeb = Offset(4.625925926 * celery, 0);
     //
-    final Size sizeImageToneWhiteFlatCenterWayeb = Size(0.086111111 * celery, 0);
-    final Position posImageToneWhiteFlatCenterWayeb = Position(0.370680556 * celery, 0.009702778 * celery);
-    final Offset offsetImageToneWhiteFlatCenterWayeb = Offset(9.199093519 * celery, 0);
+    final Size sizeImageToneWhiteFlatCenterWayeb = Size(
+      0.086111111 * celery,
+      0,
+    );
+    final Position posImageToneWhiteFlatCenterWayeb = Position(
+      0.370680556 * celery,
+      0.009702778 * celery,
+    );
+    final Offset offsetImageToneWhiteFlatCenterWayeb = Offset(
+      9.199093519 * celery,
+      0,
+    );
     //
-    final Size sizeBoxTextWinalWayeb = Size(0.166666667 * celery, 0.05 * celery);
-    final Position posBoxTextWinalWayeb = Position(0.314702778 * celery, 0.099958333 * celery);
+    final Size sizeBoxTextWinalWayeb = Size(
+      0.166666667 * celery,
+      0.05 * celery,
+    );
+    final Position posBoxTextWinalWayeb = Position(
+      0.314702778 * celery,
+      0.099958333 * celery,
+    );
     final Offset offsetBoxTextWinalWayeb = Offset(9.126893519 * celery, 0);
     //
-    final TextStyle textStyleStrWinal = TextStyle(color: Colors.white, fontSize: 0.044444444 * celery);
+    final TextStyle textStyleStrWinal = TextStyle(
+      color: Colors.white,
+      fontSize: 0.044444444 * celery,
+    );
     //
     final Size sizeFrame = Size(0.099958333 * celery, 0.099958333 * celery);
-    final Position posFrame = Position(sizeWheelHaab.height / 2 - 0.049980556 * celery, 0.002777778 * celery);
+    // FIXME: calculate with celery (border width, border radius).
+    // final double borderWidthFrame = ...
+    // final double borderRadiusFrame = ...
+    final Position posFrame = Position(
+      sizeWheelHaab.height / 2 - 0.049980556 * celery,
+      0.002777778 * celery,
+    );
     final Offset offsetFrame = Offset(9.199093519 * celery, 0);
     //
-    final Size sizeSandstoneMoon = Size(0.398594444 * celery, 0.629252778 * celery);
-    final Position posSandstoneMoon = Position((size.height - 0.629252778 * celery) / 2, size.width - 0.977588889 * celery);
+    final Size sizeSandstoneMoon = Size(
+      0.398594444 * celery,
+      0.629252778 * celery,
+    );
+    final Position posSandstoneMoon = Position(
+      (size.height - 0.629252778 * celery) / 2,
+      size.width - 0.977588889 * celery,
+    );
     //
-    final Size sizeButtonReset = Size(0.274891667 * celery, 0.581611111 * celery);
-    final Position posButtonReset = Position((size.height - 0.581611111 * celery) / 2, size.width - 0.954027778 * celery);
+    final Size sizeButtonReset = Size(
+      0.274891667 * celery,
+      0.581611111 * celery,
+    );
+    final Position posButtonReset = Position(
+      (size.height - 0.581611111 * celery) / 2,
+      size.width - 0.954027778 * celery,
+    );
     //
-    final Size sizeWheelTones = Size(0.496296296 * celery, 0.496296296 * celery);
-    final Position posWheelTones = Position((size.height - sizeWheelTones.height) / 2, size.width - sizeWheelTones.width - 0.277777778 * celery);
+    final Size sizeWheelTones = Size(
+      0.496296296 * celery,
+      0.496296296 * celery,
+    );
+    final Position posWheelTones = Position(
+      (size.height - sizeWheelTones.height) / 2,
+      size.width - sizeWheelTones.width - 0.277777778 * celery,
+    );
     //
     final Size sizeSignTone = Size(0.048 * celery, 0.1 * celery);
     final Offset offsetSignTone = Offset(-0.201733333 * celery, 0);
     //
-    final Size sizeBoxSeasons = Size(0.496296296 * celery, 0.496296296 * celery);
-    final Position posBoxSeasons = Position((size.height - sizeBoxSeasons.height) / 2, size.width - sizeBoxSeasons.width - 0.277777778 * celery);
+    final Size sizeBoxSeasons = Size(
+      0.496296296 * celery,
+      0.496296296 * celery,
+    );
+    final Position posBoxSeasons = Position(
+      (size.height - sizeBoxSeasons.height) / 2,
+      size.width - sizeBoxSeasons.width - 0.277777778 * celery,
+    );
     //
     final double sizeMoon = 0.231965889 * celery;
-    final Position posMoon = Position((size.height - sizeMoon) / 2, size.width - sizeMoon - 0.409942981 * celery);
+    final Position posMoon = Position(
+      (size.height - sizeMoon) / 2,
+      size.width - sizeMoon - 0.409942981 * celery,
+    );
     //
-    final EdgeInsets paddingBoxSolsticesEquinoxes = EdgeInsets.all(0.072222222 * celery);
+    final EdgeInsets paddingBoxSolsticesEquinoxes = EdgeInsets.all(
+      0.072222222 * celery,
+    );
     final double mainAxisSpacingBoxSolsticesEquinoxes = 0.066666667 * celery;
     final double crossAxisSpacingBoxSolsticesEquinoxes = 0.066666667 * celery;
     //
@@ -1325,19 +1774,46 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final EdgeInsets paddingCircleSeason = EdgeInsets.all(0.077 * celery);
     final Offset offsetCircleSeason = Offset(0, 0.1396 * celery);
     //
-    final Size sizeButtonRelationship = Size(0.214533333 * celery, 0.102897222 * celery);
-    final Position posButtonRelationship = Position(size.height / 2 - 0.659097222 * celery, size.width - 0.926025 * celery);
+    final Size sizeButtonRelationship = Size(
+      0.214533333 * celery,
+      0.102897222 * celery,
+    );
+    final Position posButtonRelationship = Position(
+      size.height / 2 - 0.659097222 * celery,
+      size.width - 0.926025 * celery,
+    );
     //
-    final Size sizeButtonTheYear = Size(0.207738889 * celery, 0.192205556 * celery);
-    final Position posButtonTheYear = Position(size.height / 2 - 0.692102778 * celery, size.width - 0.441625 * celery);
+    final Size sizeButtonTheYear = Size(
+      0.207738889 * celery,
+      0.192205556 * celery,
+    );
+    final Position posButtonTheYear = Position(
+      size.height / 2 - 0.692102778 * celery,
+      size.width - 0.441625 * celery,
+    );
     //
-    final Size sizeButtonDateCalculator = Size(0.214533333 * celery, 0.102897222 * celery);
-    final Position posButtonDateCalculator = Position(size.height / 2 + 0.556369444 * celery, size.width - 0.926025 * celery);
+    final Size sizeButtonDateCalculator = Size(
+      0.214533333 * celery,
+      0.102897222 * celery,
+    );
+    final Position posButtonDateCalculator = Position(
+      size.height / 2 + 0.556369444 * celery,
+      size.width - 0.926025 * celery,
+    );
     //
-    final Size sizeButtonCholqij = Size(0.207738889 * celery, 0.192205556 * celery);
-    final Position posButtonCholqij = Position(size.height / 2 + 0.500066667 * celery, size.width - 0.441625 * celery);
+    final Size sizeButtonCholqij = Size(
+      0.207738889 * celery,
+      0.192205556 * celery,
+    );
+    final Position posButtonCholqij = Position(
+      size.height / 2 + 0.500066667 * celery,
+      size.width - 0.441625 * celery,
+    );
     //5
-    final Size sizeBoxTextToneNahual = Size(0.269727778 * celery, 0.269727778 * celery);
+    final Size sizeBoxTextToneNahual = Size(
+      0.269727778 * celery,
+      0.269727778 * celery,
+    );
     final Position posBoxTextToneNahual = Position(
       (size.height - sizeBoxTextToneNahual.height) / 2,
       size.width - sizeBoxTextToneNahual.width - 0.391062037 * celery,
@@ -1352,13 +1828,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         ..color = Color.lerp(mainColor, Colors.black, 0.3)!,
     );
     //
-    final TextStyle textStyleToneNahualText = TextStyle(color: Colors.grey[350], fontSize: 0.044 * celery, height: 0.0028 * celery);
+    final TextStyle textStyleToneNahualText = TextStyle(
+      color: Colors.grey[350],
+      fontSize: 0.044 * celery,
+      height: 0.0028 * celery,
+    );
     //
-    final Size sizeBoxLongCount = Size(0.738888889 * celery, 0.138888889 * celery);
-    final Position posBoxLongCount = Position(size.height - 0.152777778 * celery, size.width - 0.927777778 * celery);
-    final Size sizeSandstones = Size(0.138888889 * celery, 0.138888889 * celery);
+    final Size sizeBoxLongCount = Size(
+      0.738888889 * celery,
+      0.138888889 * celery,
+    );
+    final Position posBoxLongCount = Position(
+      size.height - 0.152777778 * celery,
+      size.width - 0.927777778 * celery,
+    );
+    final Size sizeSandstones = Size(
+      0.138888889 * celery,
+      0.138888889 * celery,
+    );
     final Size sizeNumbers = Size(0.111111111 * celery, 0);
-    final EdgeInsets paddingSandstones = EdgeInsets.only(right: 0.011111111 * celery);
+    final EdgeInsets paddingSandstones = EdgeInsets.only(
+      right: 0.011111111 * celery,
+    );
     //
     if (finalAngle == 0.0) {
       now = DateTime.now();
@@ -1406,12 +1897,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
       currTrecenaMask = MayaImage.trecenaMask[trecenaColor];
 
-      angleTime = (now.hour * 3600 + now.minute * 60 + now.second) / 864000 * pi;
+      angleTime =
+          (now.hour * 3600 + now.minute * 60 + now.second) / 864000 * pi;
 
-      strTextToneNahual = '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
+      strTextToneNahual =
+          '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
     }
     if (seasons.isNotEmpty) {
-      DateTime nowSeasons = now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+      DateTime nowSeasons = now.add(
+        Duration(minutes: (finalAngle * 14400 / pi).toInt()),
+      );
       int index = nowSeasons.year - 2001;
 
       List<String> strDateTimeSeasons = [
@@ -1439,16 +1934,30 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         nowSeasons.difference(dateTimeSolsticesEquinoxes[4]),
       ];
 
-      List<int> diffSeasons = [durations[0].inMinutes, durations[1].inMinutes, durations[2].inMinutes, durations[3].inMinutes];
+      List<int> diffSeasons = [
+        durations[0].inMinutes,
+        durations[1].inMinutes,
+        durations[2].inMinutes,
+        durations[3].inMinutes,
+      ];
 
-      List<int> diffSeasonsAbs = [durations[0].inMinutes.abs(), durations[1].inMinutes.abs(), durations[2].inMinutes.abs(), durations[3].inMinutes.abs()];
+      List<int> diffSeasonsAbs = [
+        durations[0].inMinutes.abs(),
+        durations[1].inMinutes.abs(),
+        durations[2].inMinutes.abs(),
+        durations[3].inMinutes.abs(),
+      ];
 
       int minimum = diffSeasonsAbs.reduce(min);
 
-      int indexMinimum = diffSeasonsAbs.indexWhere((element) => element == minimum);
+      int indexMinimum = diffSeasonsAbs.indexWhere(
+        (element) => element == minimum,
+      );
 
       if (diffSeasons[indexMinimum] < 0) {
-        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1].difference(dateTimeSolsticesEquinoxes[indexMinimum]).inMinutes;
+        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
+            .difference(dateTimeSolsticesEquinoxes[indexMinimum])
+            .inMinutes;
 
         double angle = (90 / seasonTime) * -diffSeasons[indexMinimum];
 
@@ -1478,7 +1987,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             iconSeason = SvgPicture.asset('assets/vector/winter_icon_dark.svg');
         }
       } else {
-        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1].difference(dateTimeSolsticesEquinoxes[indexMinimum + 2]).inMinutes;
+        int seasonTime = dateTimeSolsticesEquinoxes[indexMinimum + 1]
+            .difference(dateTimeSolsticesEquinoxes[indexMinimum + 2])
+            .inMinutes;
 
         double angle = (90 / seasonTime) * -diffSeasons[indexMinimum];
 
@@ -1510,9 +2021,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }
     }
 
-    strTextToneNahual = '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
+    strTextToneNahual =
+        '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
 
-    DateTime dateTimeMoon = now.add(Duration(minutes: (finalAngle * 14400 / pi).toInt()));
+    DateTime dateTimeMoon = now.add(
+      Duration(minutes: (finalAngle * 14400 / pi).toInt()),
+    );
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light),
@@ -1536,16 +2050,29 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   width: sizeBoxTime.width,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.all(Radius.elliptical(sizeBoxTime.width, sizeBoxTime.height)),
-                    image: const DecorationImage(image: AssetImage('assets/images/sandstone_time.jpg'), fit: BoxFit.cover),
+                    borderRadius: BorderRadius.all(
+                      Radius.elliptical(sizeBoxTime.width, sizeBoxTime.height),
+                    ),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/sandstone_time.jpg'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: Text(currTime, textAlign: TextAlign.center, style: textStyleTime),
+                  child: Text(
+                    currTime,
+                    textAlign: TextAlign.center,
+                    style: textStyleTime,
+                  ),
                 ),
               ),
               Positioned(
                 top: posSandstoneFormTop.top,
                 left: posSandstoneFormTop.left,
-                child: Image.asset('assets/images/sandstoneForm_top.png', height: sizeSandstoneFormTop.height, width: sizeSandstoneFormTop.width),
+                child: Image.asset(
+                  'assets/images/sandstoneForm_top.png',
+                  height: sizeSandstoneFormTop.height,
+                  width: sizeSandstoneFormTop.width,
+                ),
               ),
               Positioned(
                 top: posShapeRightTop.top,
@@ -1561,7 +2088,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               Positioned(
                 top: posSandstoneFormBottom.top,
                 left: posSandstoneFormBottom.left,
-                child: Image.asset('assets/images/sandstoneForm_bottom.png', height: sizeSandstoneFormBottom.height, width: sizeSandstoneFormBottom.width),
+                child: Image.asset(
+                  'assets/images/sandstoneForm_bottom.png',
+                  height: sizeSandstoneFormBottom.height,
+                  width: sizeSandstoneFormBottom.width,
+                ),
               ),
               Positioned(
                 top: posShapeRightBottom.top,
@@ -1578,7 +2109,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 top: posWheelHaab.top,
                 left: posWheelHaab.left,
                 child: Transform.rotate(
-                  angle: offsetGearHaab - 4 * (angleTime + finalAngle) / 73 + pi / 365, // [celery] calculation correct
+                  angle:
+                      offsetGearHaab -
+                      4 * (angleTime + finalAngle) / 73 +
+                      pi / 365, // [celery] calculation correct
                   child: SizedBox(
                     height: sizeWheelHaab.height,
                     width: sizeWheelHaab.width,
@@ -1589,7 +2123,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             top: posSectionFieldWinal.top,
                             left: posSectionFieldWinal.left,
                             child: Transform.rotate(
-                              angle: 4 * pi * (2 * i + 1) / 73, // [celery] calculation correct
+                              angle:
+                                  4 *
+                                  pi *
+                                  (2 * i + 1) /
+                                  73, // [celery] calculation correct
                               origin: offsetSectionFieldWinal,
                               child: SizedBox(
                                 height: sizeSectionFieldWinal.height,
@@ -1610,9 +2148,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         top: posImageToneWhiteFlatCenter.top,
                                         left: posImageToneWhiteFlatCenter.left,
                                         child: Transform.rotate(
-                                          angle: 2 * pi * (j - 10) / 365, // [celery] calculation correct
-                                          origin: offsetImageToneWhiteFlatCenter,
-                                          child: SizedBox(width: sizeImageToneWhiteFlatCenter.width, child: MayaImage.imageToneWhiteFlatCenter[j]),
+                                          angle:
+                                              2 *
+                                              pi *
+                                              (j - 10) /
+                                              365, // [celery] calculation correct
+                                          origin:
+                                              offsetImageToneWhiteFlatCenter,
+                                          child: SizedBox(
+                                            width: sizeImageToneWhiteFlatCenter
+                                                .width,
+                                            child: MayaImage
+                                                .imageToneWhiteFlatCenter[j],
+                                          ),
                                         ),
                                       ),
                                     for (int j = 0; j < 20; j++)
@@ -1620,14 +2168,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         top: posBoxTextWinal.top,
                                         left: posBoxTextWinal.left,
                                         child: Transform.rotate(
-                                          angle: 2 * pi * (j - 10) / 365, // [celery] calculation correct
+                                          angle:
+                                              2 *
+                                              pi *
+                                              (j - 10) /
+                                              365, // [celery] calculation correct
                                           origin: offsetBoxTextWinal,
                                           child: RotatedBox(
                                             quarterTurns: -1,
                                             child: SizedBox(
                                               height: sizeBoxTextWinal.height,
                                               width: sizeBoxTextWinal.width,
-                                              child: Center(child: Text(MayaList.strWinal[i], style: textStyleStrWinal)),
+                                              child: Center(
+                                                child: Text(
+                                                  MayaList.strWinal[i],
+                                                  style: textStyleStrWinal,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -1641,7 +2198,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           top: posSectionFieldWinalWayeb.top,
                           left: posSectionFieldWinalWayeb.left,
                           child: Transform.rotate(
-                            angle: 145 * pi / 73, // [celery] calculation correct
+                            angle:
+                                145 * pi / 73, // [celery] calculation correct
                             origin: offsetSectionFieldWinalWayeb,
                             child: SizedBox(
                               height: sizeSectionFieldWinalWayeb.height,
@@ -1660,20 +2218,39 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   for (int i = 0; i < 5; i++)
                                     Positioned(
                                       top: posImageToneWhiteFlatCenterWayeb.top,
-                                      left: posImageToneWhiteFlatCenterWayeb.left,
+                                      left:
+                                          posImageToneWhiteFlatCenterWayeb.left,
                                       child: Transform.rotate(
-                                        angle: pi * (2 * i - 5) / 365, // [celery] calculation correct
-                                        origin: offsetImageToneWhiteFlatCenterWayeb,
-                                        child: SizedBox(width: sizeImageToneWhiteFlatCenterWayeb.width, child: MayaImage.imageToneWhiteFlatCenter[i]),
+                                        angle:
+                                            pi *
+                                            (2 * i - 5) /
+                                            365, // [celery] calculation correct
+                                        origin:
+                                            offsetImageToneWhiteFlatCenterWayeb,
+                                        child: SizedBox(
+                                          width:
+                                              sizeImageToneWhiteFlatCenterWayeb
+                                                  .width,
+                                          child: MayaImage
+                                              .imageToneWhiteFlatCenter[i],
+                                        ),
                                       ),
                                     ),
                                   Positioned(
                                     top: posImageToneWhiteFlatCenterWayeb.top,
                                     left: posImageToneWhiteFlatCenterWayeb.left,
                                     child: Transform.rotate(
-                                      angle: pi / 73, // [celery] calculation correct
-                                      origin: offsetImageToneWhiteFlatCenterWayeb,
-                                      child: SizedBox(width: sizeImageToneWhiteFlatCenterWayeb.width, child: MayaImage.imageToneWhiteFlatCenter[0]),
+                                      angle:
+                                          pi /
+                                          73, // [celery] calculation correct
+                                      origin:
+                                          offsetImageToneWhiteFlatCenterWayeb,
+                                      child: SizedBox(
+                                        width: sizeImageToneWhiteFlatCenterWayeb
+                                            .width,
+                                        child: MayaImage
+                                            .imageToneWhiteFlatCenter[0],
+                                      ),
                                     ),
                                   ),
                                   for (int i = 0; i < 5; i++)
@@ -1681,14 +2258,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                       top: posBoxTextWinalWayeb.top,
                                       left: posBoxTextWinalWayeb.left,
                                       child: Transform.rotate(
-                                        angle: pi * (2 * i - 5) / 365, // [celery] calculation correct
+                                        angle:
+                                            pi *
+                                            (2 * i - 5) /
+                                            365, // [celery] calculation correct
                                         origin: offsetBoxTextWinalWayeb,
                                         child: RotatedBox(
                                           quarterTurns: -1,
                                           child: SizedBox(
-                                            height: sizeBoxTextWinalWayeb.height,
+                                            height:
+                                                sizeBoxTextWinalWayeb.height,
                                             width: sizeBoxTextWinalWayeb.width,
-                                            child: Center(child: Text(MayaList.strWinal[18], style: textStyleStrWinal)),
+                                            child: Center(
+                                              child: Text(
+                                                MayaList.strWinal[18],
+                                                style: textStyleStrWinal,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -1697,14 +2283,21 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     top: posBoxTextWinalWayeb.top,
                                     left: posBoxTextWinalWayeb.left,
                                     child: Transform.rotate(
-                                      angle: pi / 73, // [celery] calculation correct
+                                      angle:
+                                          pi /
+                                          73, // [celery] calculation correct
                                       origin: offsetBoxTextWinalWayeb,
                                       child: RotatedBox(
                                         quarterTurns: -1,
                                         child: SizedBox(
                                           height: sizeBoxTextWinalWayeb.height,
                                           width: sizeBoxTextWinalWayeb.width,
-                                          child: Center(child: Text(MayaList.strWinal[0], style: textStyleStrWinal)),
+                                          child: Center(
+                                            child: Text(
+                                              MayaList.strWinal[0],
+                                              style: textStyleStrWinal,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -1723,7 +2316,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 top: posWheelHaab.top,
                 left: posWheelHaab.left,
                 child: Transform.rotate(
-                  angle: offsetGearHaab - 4 * (angleTime + finalAngle) / 73 + pi / 365, // [celery] calculation correct
+                  angle:
+                      offsetGearHaab -
+                      4 * (angleTime + finalAngle) / 73 +
+                      pi / 365, // [celery] calculation correct
                   child: SizedBox(
                     height: sizeWheelHaab.height,
                     width: sizeWheelHaab.width,
@@ -1737,14 +2333,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   top: posFrame.top,
                                   left: posFrame.left,
                                   child: Transform.rotate(
-                                    angle: 360 / 365 * ((xDayTotal + i) % 365) / 180 * pi,
+                                    angle:
+                                        360 /
+                                        365 *
+                                        ((xDayTotal + i) % 365) /
+                                        180 *
+                                        pi,
                                     origin: offsetFrame,
                                     child: Container(
                                       height: sizeFrame.height,
                                       width: sizeFrame.width,
                                       decoration: BoxDecoration(
-                                        color: const Color.fromARGB(32, 255, 255, 255),
-                                        border: Border.all(color: Colors.white, width: 1),
+                                        color: const Color.fromARGB(
+                                          32,
+                                          255,
+                                          255,
+                                          255,
+                                        ),
+                                        // FIXME: calculate with celery (border width, border radius).
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 1,
+                                        ),
                                         borderRadius: BorderRadius.circular(5),
                                         shape: BoxShape.rectangle,
                                       ),
@@ -1761,7 +2371,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               Positioned(
                 top: posSandstoneMoon.top,
                 left: posSandstoneMoon.left,
-                child: Image.asset("assets/images/sandstoneMoon.png", height: sizeSandstoneMoon.height, width: sizeSandstoneMoon.width),
+                child: Image.asset(
+                  "assets/images/sandstoneMoon.png",
+                  height: sizeSandstoneMoon.height,
+                  width: sizeSandstoneMoon.width,
+                ),
               ),
               Positioned(
                 top: posWheelNahuales.top,
@@ -1781,8 +2395,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 top: posWheelNahuales.top,
                 left: posWheelNahuales.left,
                 child: Transform.rotate(
-                  angle: (trecenaOffsetAngle + dTrecenaAngle + angleTime + finalAngle),
-                  child: SizedBox(height: sizeWheelNahuales.height, width: sizeWheelNahuales.width, child: currTrecenaMask),
+                  angle:
+                      (trecenaOffsetAngle +
+                      dTrecenaAngle +
+                      angleTime +
+                      finalAngle),
+                  child: SizedBox(
+                    height: sizeWheelNahuales.height,
+                    width: sizeWheelNahuales.width,
+                    child: currTrecenaMask,
+                  ),
                 ),
               ),
               Positioned(
@@ -1793,19 +2415,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   width: sizeWheelNahuales.width,
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      Offset centerOfGestureDetector = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
+                      Offset centerOfGestureDetector = Offset(
+                        constraints.maxWidth / 2,
+                        constraints.maxHeight / 2,
+                      );
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
                         onPanStart: (details) {
-                          final touchPositionFromCenter = details.localPosition - centerOfGestureDetector;
-                          upsetAngle = oldAngle - touchPositionFromCenter.direction;
+                          final touchPositionFromCenter =
+                              details.localPosition - centerOfGestureDetector;
+                          upsetAngle =
+                              oldAngle - touchPositionFromCenter.direction;
                         },
                         onPanUpdate: (details) {
-                          final touchPositionFromCenter = details.localPosition - centerOfGestureDetector;
+                          final touchPositionFromCenter =
+                              details.localPosition - centerOfGestureDetector;
                           setState(() {
                             prevAngle = finalAngle;
 
-                            finalAngle = touchPositionFromCenter.direction + upsetAngle;
+                            finalAngle =
+                                touchPositionFromCenter.direction + upsetAngle;
 
                             finalAngle = (finalAngle + 2 * pi) % (2 * pi);
 
@@ -1821,21 +2450,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
                             finalAngle = finalAngle + mAngle;
 
-                            double angle = offsetGearHaab - (angleTime + finalAngle) * 20 / 365;
+                            double angle =
+                                offsetGearHaab -
+                                (angleTime + finalAngle) * 20 / 365;
 
                             // get chosenDayTotal, chosenDay
-                            int chosenDayTotal = (-angle * 180 / pi * 365 / 360).floor();
+                            int chosenDayTotal = (-angle * 180 / pi * 365 / 360)
+                                .floor();
                             chosenDay = chosenDayTotal % 365;
 
                             // get chosenYear, chosenHaabYear
-                            chosenYear = currYear + (-angle * 180 / pi / 360).floor();
+                            chosenYear =
+                                currYear + (-angle * 180 / pi / 360).floor();
 
                             if (chosenDayTotal % 10 == 0) {
                               xDayTotal = chosenDayTotal;
                             }
 
                             // increase Tone Name, Nahual Name and the Long Count
-                            if ((angleTime + finalAngle) * 180 / pi > 18 * nAngle + 18) {
+                            if ((angleTime + finalAngle) * 180 / pi >
+                                18 * nAngle + 18) {
                               sTone++;
                               sNahual++;
                               nAngle++;
@@ -1847,7 +2481,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 sNahual = 0;
                               }
 
-                              strTextToneNahual = '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
+                              strTextToneNahual =
+                                  '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
 
                               sKin++;
                               if (sKin > 19) {
@@ -1869,7 +2504,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             }
 
                             // decrease Tone Name, Nahual Name and the Long Count
-                            if ((angleTime + finalAngle) * 180 / pi < 18 * nAngle) {
+                            if ((angleTime + finalAngle) * 180 / pi <
+                                18 * nAngle) {
                               sTone--;
                               sNahual--;
                               nAngle--;
@@ -1881,7 +2517,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 sNahual = 19;
                               }
 
-                              strTextToneNahual = '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
+                              strTextToneNahual =
+                                  '${MayaList.strTone[sTone]}\n${MayaList.strNahual[sNahual]}';
 
                               sKin--;
                               if (sKin < 0) {
@@ -1903,28 +2540,34 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             }
 
                             // change Trecena
-                            if ((finalAngle + angleTime) * 180 / pi > 234 * iTrecena - diffAngle * 18) {
+                            if ((finalAngle + angleTime) * 180 / pi >
+                                234 * iTrecena - diffAngle * 18) {
                               nTrecenaColor++;
                               if (nTrecenaColor > 3) {
                                 nTrecenaColor = 0;
                               }
                               if (nTrecenaColor == 0) {
                                 nTrecenaAngle++;
-                                dTrecenaAngle = 144.0 * nTrecenaAngle / 180 * pi;
+                                dTrecenaAngle =
+                                    144.0 * nTrecenaAngle / 180 * pi;
                               }
-                              currTrecenaMask = MayaImage.trecenaMask[nTrecenaColor];
+                              currTrecenaMask =
+                                  MayaImage.trecenaMask[nTrecenaColor];
                               iTrecena++;
                             }
-                            if ((finalAngle + angleTime) * 180 / pi < 234 * iTrecena - 234 - diffAngle * 18) {
+                            if ((finalAngle + angleTime) * 180 / pi <
+                                234 * iTrecena - 234 - diffAngle * 18) {
                               nTrecenaColor--;
                               if (nTrecenaColor < 0) {
                                 nTrecenaColor = 3;
                               }
                               if (nTrecenaColor == 3) {
                                 nTrecenaAngle--;
-                                dTrecenaAngle = 144.0 * nTrecenaAngle / 180 * pi;
+                                dTrecenaAngle =
+                                    144.0 * nTrecenaAngle / 180 * pi;
                               }
-                              currTrecenaMask = MayaImage.trecenaMask[nTrecenaColor];
+                              currTrecenaMask =
+                                  MayaImage.trecenaMask[nTrecenaColor];
                               iTrecena--;
                             }
                           });
@@ -1941,8 +2584,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                   alignment: const Alignment(0.904, 0),
                                   child: Transform.rotate(
                                     origin: offsetSignNahual,
-                                    angle: pi * (-2 * i - 1) / 20, // [celery] calculation correct
-                                    child: SizedBox(height: sizeSignNahual.height, width: sizeSignNahual.width, child: MayaImage.signNahual[i]),
+                                    angle:
+                                        pi *
+                                        (-2 * i - 1) /
+                                        20, // [celery] calculation correct
+                                    child: SizedBox(
+                                      height: sizeSignNahual.height,
+                                      width: sizeSignNahual.width,
+                                      child: MayaImage.signNahual[i],
+                                    ),
                                   ),
                                 ),
                             ],
@@ -1979,7 +2629,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     width: sizeWheelTones.width,
                     child: Stack(
                       children: [
-                        Image.asset('assets/images/gearTones.png', color: mainColor, colorBlendMode: BlendMode.modulate),
+                        Image.asset(
+                          'assets/images/gearTones.png',
+                          color: mainColor,
+                          colorBlendMode: BlendMode.modulate,
+                        ),
                         Stack(
                           children: [
                             for (int i = 0; i < 13; i++)
@@ -1993,7 +2647,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                           pi *
                                           i -
                                       1 / 13 * pi,
-                                  child: SizedBox(height: sizeSignTone.height, width: sizeSignTone.width, child: MayaImage.imageToneWhiteVertical[i]),
+                                  child: SizedBox(
+                                    height: sizeSignTone.height,
+                                    width: sizeSignTone.width,
+                                    child: MayaImage.imageToneWhiteVertical[i],
+                                  ),
                                 ),
                               ),
                           ],
@@ -2041,7 +2699,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Transform.rotate(
                     angle: angleSeason / 180 * pi,
                     origin: offsetCircleSeason,
-                    child: SizedBox(height: sizeCircleSeason, width: sizeCircleSeason, child: iconSeason),
+                    child: SizedBox(
+                      height: sizeCircleSeason,
+                      width: sizeCircleSeason,
+                      child: iconSeason,
+                    ),
                   ),
                 ),
               ),
@@ -2078,7 +2740,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Relationship(backgroundImage: backgroundImage, mainColor: mainColor),
+                        builder: (context) => Relationship(
+                          backgroundImage: backgroundImage,
+                          mainColor: mainColor,
+                        ),
                       ),
                     );
                   },
@@ -2092,7 +2757,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       PageRouteBuilder(
                         opaque: false,
                         pageBuilder: (BuildContext context, _, _) =>
-                            RandomCharacter(backgroundImage: backgroundImage, tone: toneNahual[0], nahual: toneNahual[1]),
+                            RandomCharacter(
+                              backgroundImage: backgroundImage,
+                              tone: toneNahual[0],
+                              nahual: toneNahual[1],
+                            ),
                       ),
                     );
                   },
@@ -2110,17 +2779,39 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 left: posButtonTheYear.left,
                 child: GestureDetector(
                   onTap: () {
-                    int beginTone = (startTone + 365 * (chosenYear - 5141)) % 13;
-                    int beginNahual = (startNahual + 365 * (chosenYear - 5141)) % 20;
-                    int beginKinIndex = (startKinIndex + 365 * (chosenYear - 5141)) % 260;
+                    int beginTone =
+                        (startTone + 365 * (chosenYear - 5141)) % 13;
+                    int beginNahual =
+                        (startNahual + 365 * (chosenYear - 5141)) % 20;
+                    int beginKinIndex =
+                        (startKinIndex + 365 * (chosenYear - 5141)) % 260;
 
-                    int cBaktun = 13 + (365 * (chosenYear - 5141) + dDays) ~/ 144000 % 14;
-                    int cKatun = (365 * (chosenYear - 5141) + dDays) ~/ 7200 % 20;
-                    int cTun = (365 * (chosenYear - 5141) + dDays - cKatun * 7200) ~/ 360 % 20;
-                    int cWinal = (365 * (chosenYear - 5141) + dDays - cKatun * 7200 - cTun * 360) ~/ 20 % 18;
-                    int cKin = (365 * (chosenYear - 5141) + dDays - cKatun * 7200 - cTun * 360 - cWinal * 20) % 20;
+                    int cBaktun =
+                        13 + (365 * (chosenYear - 5141) + dDays) ~/ 144000 % 14;
+                    int cKatun =
+                        (365 * (chosenYear - 5141) + dDays) ~/ 7200 % 20;
+                    int cTun =
+                        (365 * (chosenYear - 5141) + dDays - cKatun * 7200) ~/
+                        360 %
+                        20;
+                    int cWinal =
+                        (365 * (chosenYear - 5141) +
+                            dDays -
+                            cKatun * 7200 -
+                            cTun * 360) ~/
+                        20 %
+                        18;
+                    int cKin =
+                        (365 * (chosenYear - 5141) +
+                            dDays -
+                            cKatun * 7200 -
+                            cTun * 360 -
+                            cWinal * 20) %
+                        20;
 
-                    DateTime chosenBeginGregorianDate = startDate.add(Duration(days: 365 * (chosenYear - 5141)));
+                    DateTime chosenBeginGregorianDate = startDate.add(
+                      Duration(days: 365 * (chosenYear - 5141)),
+                    );
 
                     Navigator.push(
                       context,
@@ -2154,7 +2845,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DateCalculator(backgroundImage: backgroundImage, mainColor: mainColor),
+                        builder: (context) => DateCalculator(
+                          backgroundImage: backgroundImage,
+                          mainColor: mainColor,
+                        ),
                       ),
                     );
                   },
@@ -2172,28 +2866,57 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 left: posButtonCholqij.left,
                 child: GestureDetector(
                   onTap: () {
-                    int sTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
-                    int sNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+                    int sTone = getTone(
+                      ((offsetGearTones + (angleTime + finalAngle) / 13 * 20) *
+                              180 /
+                              pi) %
+                          360,
+                    ); // [celery] calculation correct
+                    int sNahual = getNahual(
+                      ((offsetGearNahuales + angleTime + finalAngle) *
+                              180 /
+                              pi) %
+                          360,
+                    ); // [celery] calculation correct
                     int cKinIndex = getKinNumber(sTone, sNahual);
 
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Cholqij(backgroundImage: backgroundImage, mainColor: mainColor, cKinIndex: cKinIndex),
+                        builder: (context) => Cholqij(
+                          backgroundImage: backgroundImage,
+                          mainColor: mainColor,
+                          cKinIndex: cKinIndex,
+                        ),
                       ),
                     );
                   },
                   onLongPress: () {
-                    int chosenTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
+                    int chosenTone = getTone(
+                      ((offsetGearTones + (angleTime + finalAngle) / 13 * 20) *
+                              180 /
+                              pi) %
+                          360,
+                    ); // [celery] calculation correct
 
-                    int chosenNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+                    int chosenNahual = getNahual(
+                      ((offsetGearNahuales + angleTime + finalAngle) *
+                              180 /
+                              pi) %
+                          360,
+                    ); // [celery] calculation correct
 
                     Navigator.push(
                       context,
                       PageRouteBuilder(
                         opaque: false,
                         pageBuilder: (BuildContext context, _, _) =>
-                            CharacterChoice(backgroundImage: backgroundImage, mainColor: mainColor, chosenTone: chosenTone, chosenNahual: chosenNahual),
+                            CharacterChoice(
+                              backgroundImage: backgroundImage,
+                              mainColor: mainColor,
+                              chosenTone: chosenTone,
+                              chosenNahual: chosenNahual,
+                            ),
                       ),
                     );
                   },
@@ -2213,16 +2936,37 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: Center(
                     child: GestureDetector(
                       onTap: () {
-                        int beginTone = (startTone + 365 * (chosenYear - 5141)) % 13;
-                        int beginNahual = (startNahual + 365 * (chosenYear - 5141)) % 20;
+                        int beginTone =
+                            (startTone + 365 * (chosenYear - 5141)) % 13;
+                        int beginNahual =
+                            (startNahual + 365 * (chosenYear - 5141)) % 20;
 
-                        int chosenTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
+                        int chosenTone = getTone(
+                          ((offsetGearTones +
+                                      (angleTime + finalAngle) / 13 * 20) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
 
-                        int chosenNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+                        int chosenNahual = getNahual(
+                          ((offsetGearNahuales + angleTime + finalAngle) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
 
-                        int dYear = getDeltaYear((-offsetGearHaab * 9 / pi + ((angleTime + finalAngle) * 180 / pi) / 365) * 20); // [celery] calculation correct
+                        int dYear = getDeltaYear(
+                          (-offsetGearHaab * 9 / pi +
+                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
+                              20,
+                        ); // [celery] calculation correct
 
-                        DateTime chosenGregorianDate = startDate.add(Duration(days: 365 * (currYear - 5141 + dYear) + chosenDay));
+                        DateTime chosenGregorianDate = startDate.add(
+                          Duration(
+                            days: 365 * (currYear - 5141 + dYear) + chosenDay,
+                          ),
+                        );
 
                         Navigator.push(
                           context,
@@ -2236,47 +2980,89 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                               chosenNahual: chosenNahual,
                               beginTone: beginTone,
                               beginNahual: beginNahual,
-                              chosenLongCount: [sBaktun, sKatun, sTun, sWinal, sKin],
+                              chosenLongCount: [
+                                sBaktun,
+                                sKatun,
+                                sTun,
+                                sWinal,
+                                sKin,
+                              ],
                               chosenGregorianDate: chosenGregorianDate,
                             ),
                           ),
                         );
                       },
                       onLongPress: () {
-                        int beginTone = (startTone + 365 * (chosenYear - 5141)) % 13;
-                        int beginNahual = (startNahual + 365 * (chosenYear - 5141)) % 20;
+                        int beginTone =
+                            (startTone + 365 * (chosenYear - 5141)) % 13;
+                        int beginNahual =
+                            (startNahual + 365 * (chosenYear - 5141)) % 20;
 
-                        int chosenTone = getTone(((offsetGearTones + (angleTime + finalAngle) / 13 * 20) * 180 / pi) % 360); // [celery] calculation correct
+                        int chosenTone = getTone(
+                          ((offsetGearTones +
+                                      (angleTime + finalAngle) / 13 * 20) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
 
-                        int chosenNahual = getNahual(((offsetGearNahuales + angleTime + finalAngle) * 180 / pi) % 360); // [celery] calculation correct
+                        int chosenNahual = getNahual(
+                          ((offsetGearNahuales + angleTime + finalAngle) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
 
-                        int dYear = getDeltaYear((-offsetGearHaab * 9 / pi + ((angleTime + finalAngle) * 180 / pi) / 365) * 20); // [celery] calculation correct
+                        int dYear = getDeltaYear(
+                          (-offsetGearHaab * 9 / pi +
+                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
+                              20,
+                        ); // [celery] calculation correct
 
-                        DateTime chosenGregorianDate = startDate.add(Duration(days: 365 * (currYear - 5141 + dYear) + chosenDay));
+                        DateTime chosenGregorianDate = startDate.add(
+                          Duration(
+                            days: 365 * (currYear - 5141 + dYear) + chosenDay,
+                          ),
+                        );
 
                         Navigator.push(
                           context,
                           PageRouteBuilder(
                             opaque: false,
-                            pageBuilder: (BuildContext context, _, _) => DateSelection(
-                              backgroundImage: backgroundImage,
-                              mainColor: mainColor,
-                              chosenYear: chosenYear,
-                              chosenDay: chosenDay,
-                              chosenTone: chosenTone,
-                              chosenNahual: chosenNahual,
-                              beginTone: beginTone,
-                              beginNahual: beginNahual,
-                              chosenLongCount: [sBaktun, sKatun, sTun, sWinal, sKin],
-                              chosenGregorianDate: chosenGregorianDate,
-                            ),
+                            pageBuilder: (BuildContext context, _, _) =>
+                                DateSelection(
+                                  backgroundImage: backgroundImage,
+                                  mainColor: mainColor,
+                                  chosenYear: chosenYear,
+                                  chosenDay: chosenDay,
+                                  chosenTone: chosenTone,
+                                  chosenNahual: chosenNahual,
+                                  beginTone: beginTone,
+                                  beginNahual: beginNahual,
+                                  chosenLongCount: [
+                                    sBaktun,
+                                    sKatun,
+                                    sTun,
+                                    sWinal,
+                                    sKin,
+                                  ],
+                                  chosenGregorianDate: chosenGregorianDate,
+                                ),
                           ),
                         );
                       },
                       child: Stack(
                         children: [
-                          Text(strTextToneNahual, textAlign: TextAlign.center, style: textStyleToneNahualStroke),
-                          Text(strTextToneNahual, textAlign: TextAlign.center, style: textStyleToneNahualText),
+                          Text(
+                            strTextToneNahual,
+                            textAlign: TextAlign.center,
+                            style: textStyleToneNahualStroke,
+                          ),
+                          Text(
+                            strTextToneNahual,
+                            textAlign: TextAlign.center,
+                            style: textStyleToneNahualText,
+                          ),
                         ],
                       ),
                     ),
@@ -2293,11 +3079,48 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       width: sizeBoxLongCount.width,
                       child: Row(
                         children: [
-                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sBaktun)),
-                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sKatun)),
-                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sTun)),
-                          Padding(padding: paddingSandstones, child: tunContainer(sizeSandstones, sizeNumbers, celery, sWinal)),
-                          tunContainer(sizeSandstones, sizeNumbers, celery, sKin),
+                          Padding(
+                            padding: paddingSandstones,
+                            child: tunContainer(
+                              sizeSandstones,
+                              sizeNumbers,
+                              celery,
+                              sBaktun,
+                            ),
+                          ),
+                          Padding(
+                            padding: paddingSandstones,
+                            child: tunContainer(
+                              sizeSandstones,
+                              sizeNumbers,
+                              celery,
+                              sKatun,
+                            ),
+                          ),
+                          Padding(
+                            padding: paddingSandstones,
+                            child: tunContainer(
+                              sizeSandstones,
+                              sizeNumbers,
+                              celery,
+                              sTun,
+                            ),
+                          ),
+                          Padding(
+                            padding: paddingSandstones,
+                            child: tunContainer(
+                              sizeSandstones,
+                              sizeNumbers,
+                              celery,
+                              sWinal,
+                            ),
+                          ),
+                          tunContainer(
+                            sizeSandstones,
+                            sizeNumbers,
+                            celery,
+                            sKin,
+                          ),
                         ],
                       ),
                     ),
@@ -2315,9 +3138,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                           width: sizeSettings.width,
                           decoration: BoxDecoration(
                             color: mainColor.withValues(alpha: 0.5),
-                            border: Border.all(width: borderWidthSettings, color: Colors.white),
-                            // TODO: calcuate border radius based on display size!
-                            borderRadius: BorderRadius.only(topLeft: Radius.circular(borderRadiusSettings), bottomLeft: Radius.circular(borderRadiusSettings)),
+                            border: Border.all(
+                              width: borderWidthSettings,
+                              color: Colors.white,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(borderRadiusSettings),
+                              bottomLeft: Radius.circular(borderRadiusSettings),
+                            ),
                           ),
                         ),
                       ),
@@ -2335,6 +3163,40 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* Build - END                                                              */
   /* ------------------------------------------------------------------------ */
+
+  void showBackupOptions(BuildContext context, Color mainColor) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.download, color: Colors.white),
+                title: const Text('Save to Downloads (Local)'),
+                tileColor: mainColor,
+                textColor: Colors.white,
+                onTap: () async {
+                  Navigator.pop(context);
+                  await saveBackupToDownloads();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share, color: Colors.white),
+                title: const Text('Share / Cloud Backup'),
+                tileColor: mainColor,
+                textColor: Colors.white,
+                onTap: () async {
+                  Navigator.pop(context);
+                  await backupDatabases(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 Future<void> checkAndroidScheduleExactAlarmPermission() async {
@@ -2343,7 +3205,9 @@ Future<void> checkAndroidScheduleExactAlarmPermission() async {
   if (status.isDenied) {
     debugPrint('Requesting schedule exact alarm permission...');
     final res = await Permission.scheduleExactAlarm.request();
-    debugPrint('Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.');
+    debugPrint(
+      'Schedule exact alarm permission ${res.isGranted ? '' : 'not'} granted.',
+    );
   }
 }
 
@@ -2352,7 +3216,9 @@ Future<void> checkAndroidNotificationPermission() async {
   if (status.isDenied) {
     debugPrint('Requesting notification permission...');
     final res = await Permission.notification.request();
-    debugPrint('Notification permission ${res.isGranted ? '' : 'not '}granted.');
+    debugPrint(
+      'Notification permission ${res.isGranted ? '' : 'not '}granted.',
+    );
   }
 }
 
@@ -2364,7 +3230,9 @@ Future<void> _launchUrl(String urlString) async {
 }
 
 Future<void> _launchPrivacyPolicy() async {
-  final Uri urlPrivacyPolicy = Uri.parse('https://sites.google.com/view/privacy-policy-of-maya');
+  final Uri urlPrivacyPolicy = Uri.parse(
+    'https://sites.google.com/view/privacy-policy-of-maya',
+  );
   if (!await launchUrl(urlPrivacyPolicy)) {
     throw Exception('Could not launch $urlPrivacyPolicy');
   }
@@ -2374,26 +3242,5 @@ Future<void> _launchGitLab() async {
   final Uri urlGitLab = Uri.parse('https://gitlab.com/morgenfrost/maya');
   if (!await launchUrl(urlGitLab)) {
     throw Exception('Could not launch $urlGitLab');
-  }
-}
-
-// NOTE: this code is for database adjustments
-Future<bool> updateYear() async {
-  bool adjustDatabase = await SharedPrefs.readAdjustDatabase() == 'true' ? true : false;
-  if (adjustDatabase) {
-    bool flagEvents = await DatabaseHandlerEvents().updateYear();
-    bool flagNotes = await DatabaseHandlerNotes().updateYear();
-    bool flagTasks = await DatabaseHandlerTasks().updateYear();
-    bool flagAlarms = await DatabaseHandlerAlarms().updateYear();
-    bool flagArrangement = await DatabaseHandlerArrangements().updateYear();
-    if (flagEvents || flagNotes || flagTasks || flagAlarms || flagArrangement) {
-      SharedPrefs.saveAdjustDatabase(false.toString());
-      return true;
-    } else {
-      SharedPrefs.saveAdjustDatabase(false.toString());
-      return false;
-    }
-  } else {
-    return false;
   }
 }

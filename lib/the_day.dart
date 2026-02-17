@@ -64,7 +64,9 @@ class _TheDayState extends State<TheDay> {
   late int kin;
 
   late int cYear;
-  int dYear = 0;
+  late int cDay;
+  int dYears = 0;
+  int dDays = 0;
   final int itemCountHalf = 20;
   late final PageController _pageController;
 
@@ -82,6 +84,7 @@ class _TheDayState extends State<TheDay> {
         widget.chosenLongCount[4];
 
     cYear = widget.chosenYear;
+    cDay = widget.chosenDay;
     _pageController = PageController(initialPage: itemCountHalf);
 
     boxDecoration = BoxDecoration(
@@ -137,7 +140,8 @@ class _TheDayState extends State<TheDay> {
                             value -
                             20) ~/
                         365;
-                    dYear = cYear - widget.chosenYear;
+                    dYears = cYear - widget.chosenYear;
+                    cDay = (widget.chosenDay + value - 20) % 365;
                   });
                 },
                 controller: _pageController,
@@ -147,7 +151,7 @@ class _TheDayState extends State<TheDay> {
                   final haabDate = getHaabDate(
                     (widget.chosenDay + position - itemCountHalf) % 365,
                   );
-                  final dDays = position - itemCountHalf;
+                  dDays = position - itemCountHalf;
 
                   baktun = (longCount + dDays) ~/ 144000 % 14;
                   katun = (longCount - baktun * 144000 + dDays) ~/ 7200 % 20;
@@ -279,13 +283,13 @@ class _TheDayState extends State<TheDay> {
                                                     MayaImage
                                                         .imageToneWhiteCurved[(widget
                                                                 .beginTone +
-                                                            dYear * 365) %
+                                                            dYears * 365) %
                                                         13],
                                               ),
                                               const SizedBox(height: 2),
                                               MayaImage.signNahual[(widget
                                                           .beginNahual +
-                                                      dYear * 365) %
+                                                      dYears * 365) %
                                                   20],
                                             ],
                                           ),
@@ -349,26 +353,22 @@ class _TheDayState extends State<TheDay> {
                                               onTap: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (BuildContext context) {
-                                                    return selectionDialog(
-                                                      context,
-                                                      widget.mainColor,
-                                                      widget.chosenYear +
-                                                          (position -
-                                                                  itemCountHalf) ~/
-                                                              365,
-                                                      (widget.chosenDay +
-                                                              position -
-                                                              itemCountHalf) %
-                                                          365,
-                                                      widget.chosenGregorianDate
-                                                          .add(
-                                                            Duration(
-                                                              days: dDays,
-                                                            ),
-                                                          ),
-                                                    );
-                                                  },
+                                                  builder:
+                                                      (BuildContext context) {
+                                                        return selectionDialog(
+                                                          context,
+                                                          widget.mainColor,
+                                                          cYear,
+                                                          cDay,
+                                                          widget
+                                                              .chosenGregorianDate
+                                                              .add(
+                                                                Duration(
+                                                                  days: dDays,
+                                                                ),
+                                                              ),
+                                                        );
+                                                      },
                                                 );
                                               },
                                               child: Icon(
@@ -400,7 +400,7 @@ class _TheDayState extends State<TheDay> {
                                       widget.chosenDay +
                                       dDays) ~/
                                   365;
-                              final int cDay = (widget.chosenDay + dDays) % 365;
+                              cDay = (widget.chosenDay + dDays) % 365;
                               if (data.mayaData.containsKey(cYear)) {
                                 if (data.mayaData[cYear]!.containsKey(cDay)) {
                                   return SizedBox(

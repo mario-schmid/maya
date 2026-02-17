@@ -149,4 +149,9 @@ class MayaData extends ChangeNotifier {
     _mayaData[yearIndex]![dayIndex]!.alarmList[elementIndex].isActive = value!;
     notifyListeners();
   }
+
+  void clearAllData() {
+    _mayaData.clear();
+    notifyListeners();
+  }
 }

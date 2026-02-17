@@ -1,12 +1,31 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:alarm/alarm.dart';
+import 'package:archive/archive.dart';
+import 'package:external_path/external_path.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
+import '../providers/mayadata.dart';
+
 class DatabaseHandlerEvents {
+  static Database? _db;
+
+  Future<Database> get database async {
+    if (_db != null && _db!.isOpen) return _db!;
+
+    _db = await initializeDB();
+    return _db!;
+  }
+
   Future<Database> initializeDB() async {
     String path = await getDatabasesPath();
     return openDatabase(
@@ -131,35 +150,31 @@ class DatabaseHandlerEvents {
     );
   }
 
-  // NOTE: this code is for database adjustments
-  Future<bool> updateYear() async {
-    final Database db = await initializeDB();
-    final List<Map<String, dynamic>> eventResult = await db.query(
-      'events',
-      orderBy: 'yearIndex ASC, dayIndex ASC, elementIndex ASC',
-    );
-
-    if (eventResult.isNotEmpty) {
-      for (var event in eventResult) {
-        await db.update('events', {
-          'yearIndex': 12 + event['yearIndex'],
-        }, where: 'yearIndex = ${event['yearIndex']}');
-      }
-      return true;
-    } else {
-      return false;
+  Future<void> closeDatabase() async {
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
     }
   }
 }
 
 class DatabaseHandlerNotes {
+  static Database? _db;
+
+  Future<Database> get database async {
+    if (_db != null && _db!.isOpen) return _db!;
+
+    _db = await initializeDB();
+    return _db!;
+  }
+
   Future<Database> initializeDB() async {
     String path = await getDatabasesPath();
     return openDatabase(
       join(path, 'notes.db'),
       onCreate: (database, version) async {
         await database.execute(
-          "CREATE TABLE notes(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, entry TEXT NOT NULL)",
+          "CREATE TABLE notes(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, entry TEXT NOT NULL)",
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -167,7 +182,7 @@ class DatabaseHandlerNotes {
         if (oldVersion < 2) {
           await database.transaction((txn) async {
             await txn.execute(
-              """CREATE TABLE notes_new(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, entry TEXT NOT NULL)""",
+              """CREATE TABLE notes_new(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, entry TEXT NOT NULL)""",
             );
 
             List<Map<String, dynamic>> oldItems = await txn.query('notes');
@@ -261,35 +276,31 @@ class DatabaseHandlerNotes {
     );
   }
 
-  // NOTE: this code is for database adjustments
-  Future<bool> updateYear() async {
-    final Database db = await initializeDB();
-    final List<Map<String, dynamic>> noteResult = await db.query(
-      'notes',
-      orderBy: 'yearIndex ASC, dayIndex ASC, elementIndex ASC',
-    );
-
-    if (noteResult.isNotEmpty) {
-      for (var note in noteResult) {
-        await db.update('notes', {
-          'yearIndex': 12 + note['yearIndex'],
-        }, where: 'yearIndex = ${note['yearIndex']}');
-      }
-      return true;
-    } else {
-      return false;
+  Future<void> closeDatabase() async {
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
     }
   }
 }
 
 class DatabaseHandlerTasks {
+  static Database? _db;
+
+  Future<Database> get database async {
+    if (_db != null && _db!.isOpen) return _db!;
+
+    _db = await initializeDB();
+    return _db!;
+  }
+
   Future<Database> initializeDB() async {
     String path = await getDatabasesPath();
     return openDatabase(
       join(path, 'tasks.db'),
       onCreate: (database, version) async {
         await database.execute(
-          "CREATE TABLE tasks(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, description TEXT NOT NULL, isChecked INTEGER NOT NULL)",
+          "CREATE TABLE tasks(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, description TEXT NOT NULL, isChecked INTEGER NOT NULL)",
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -297,7 +308,7 @@ class DatabaseHandlerTasks {
         if (oldVersion < 2) {
           await database.transaction((txn) async {
             await txn.execute(
-              """CREATE TABLE tasks_new(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, description TEXT NOT NULL, isChecked INTAGER NOT NULL)""",
+              """CREATE TABLE tasks_new(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, description TEXT NOT NULL, isChecked INTEGER NOT NULL)""",
             );
 
             List<Map<String, dynamic>> oldItems = await txn.query('tasks');
@@ -410,35 +421,31 @@ class DatabaseHandlerTasks {
     );
   }
 
-  // NOTE: this code is for database adjustments
-  Future<bool> updateYear() async {
-    final Database db = await initializeDB();
-    final List<Map<String, dynamic>> taskResult = await db.query(
-      'tasks',
-      orderBy: 'yearIndex ASC, dayIndex ASC, elementIndex ASC',
-    );
-
-    if (taskResult.isNotEmpty) {
-      for (var task in taskResult) {
-        await db.update('tasks', {
-          'yearIndex': 12 + task['yearIndex'],
-        }, where: 'yearIndex = ${task['yearIndex']}');
-      }
-      return true;
-    } else {
-      return false;
+  Future<void> closeDatabase() async {
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
     }
   }
 }
 
 class DatabaseHandlerAlarms {
+  static Database? _db;
+
+  Future<Database> get database async {
+    if (_db != null && _db!.isOpen) return _db!;
+
+    _db = await initializeDB();
+    return _db!;
+  }
+
   Future<Database> initializeDB() async {
     String path = await getDatabasesPath();
     return openDatabase(
       join(path, 'alarms.db'),
       onCreate: (database, version) async {
         await database.execute(
-          "CREATE TABLE alarms(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTAGER NOT NULL, uuid TEXT PRIMARY KEY, id INTAGER NOT NULL, payload TEXT NOT NULL, dateTime TEXT NOT NULL, assetAudioPath TEXT NOT NULL, loopAudio INTAGER NOT NULL, vibrate INTAGER NOT NULL, volume STRING NOT NULL, notificationTitle TEXT NOT NULL, notificationBody TEXT NOT NULL, warningNotificationOnKill INTAGER NOT NULL, isActive INTAGER NOT NULL)",
+          "CREATE TABLE alarms(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, id INTEGER NOT NULL, payload TEXT NOT NULL, dateTime TEXT NOT NULL, assetAudioPath TEXT NOT NULL, loopAudio INTEGER NOT NULL, vibrate INTEGER NOT NULL, volume STRING NOT NULL, notificationTitle TEXT NOT NULL, notificationBody TEXT NOT NULL, warningNotificationOnKill INTEGER NOT NULL, isActive INTEGER NOT NULL)",
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -446,7 +453,7 @@ class DatabaseHandlerAlarms {
         if (oldVersion < 2) {
           await database.transaction((txn) async {
             await txn.execute(
-              """CREATE TABLE alarms_new(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, elementIndex INTAGER NOT NULL, uuid TEXT PRIMARY KEY, id INTAGER NOT NULL, payload TEXT NOT NULL, dateTime TEXT NOT NULL, assetAudioPath TEXT NOT NULL, loopAudio INTAGER NOT NULL, vibrate INTAGER NOT NULL, volume STRING NOT NULL, notificationTitle TEXT NOT NULL, notificationBody TEXT NOT NULL, warningNotificationOnKill INTAGER NOT NULL, isActive INTAGER NOT NULL)""",
+              """CREATE TABLE alarms_new(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, elementIndex INTEGER NOT NULL, uuid TEXT PRIMARY KEY, id INTEGER NOT NULL, payload TEXT NOT NULL, dateTime TEXT NOT NULL, assetAudioPath TEXT NOT NULL, loopAudio INTEGER NOT NULL, vibrate INTEGER NOT NULL, volume STRING NOT NULL, notificationTitle TEXT NOT NULL, notificationBody TEXT NOT NULL, warningNotificationOnKill INTEGER NOT NULL, isActive INTEGER NOT NULL)""",
             );
 
             List<Map<String, dynamic>> oldItems = await txn.query('alarms');
@@ -618,35 +625,31 @@ class DatabaseHandlerAlarms {
     );
   }
 
-  // NOTE: this code is for database adjustments
-  Future<bool> updateYear() async {
-    final Database db = await initializeDB();
-    final List<Map<String, dynamic>> alarmResult = await db.query(
-      'alarms',
-      orderBy: 'yearIndex ASC, dayIndex ASC, elementIndex ASC',
-    );
-
-    if (alarmResult.isNotEmpty) {
-      for (var alarm in alarmResult) {
-        await db.update('alarms', {
-          'yearIndex': 12 + alarm['yearIndex'],
-        }, where: 'yearIndex = ${alarm['yearIndex']}');
-      }
-      return true;
-    } else {
-      return false;
+  Future<void> closeDatabase() async {
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
     }
   }
 }
 
 class DatabaseHandlerArrangements {
+  static Database? _db;
+
+  Future<Database> get database async {
+    if (_db != null && _db!.isOpen) return _db!;
+
+    _db = await initializeDB();
+    return _db!;
+  }
+
   Future<Database> initializeDB() async {
     String path = await getDatabasesPath();
     return openDatabase(
       join(path, 'arrangements.db'),
       onCreate: (database, version) async {
         await database.execute(
-          "CREATE TABLE arrangements(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, arrangement TEXT NOT NULL)",
+          "CREATE TABLE arrangements(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, arrangement TEXT NOT NULL)",
         );
       },
       onUpgrade: (database, oldVersion, newVersion) async {
@@ -654,7 +657,7 @@ class DatabaseHandlerArrangements {
         if (oldVersion < 2) {
           await database.transaction((txn) async {
             await txn.execute(
-              """CREATE TABLE arrangements_new(yearIndex INTAGER NOT NULL, dayIndex INTAGER NOT NULL, arrangement TEXT NOT NULL)""",
+              """CREATE TABLE arrangements_new(yearIndex INTEGER NOT NULL, dayIndex INTEGER NOT NULL, arrangement TEXT NOT NULL)""",
             );
 
             List<Map<String, dynamic>> oldItems = await txn.query(
@@ -760,23 +763,174 @@ class DatabaseHandlerArrangements {
     );
   }
 
-  // NOTE: this code is for database adjustments
-  Future<bool> updateYear() async {
-    final Database db = await initializeDB();
-    final List<Map<String, dynamic>> arrangementResult = await db.query(
-      'arrangements',
-      orderBy: 'yearIndex ASC, dayIndex ASC',
-    );
-
-    if (arrangementResult.isNotEmpty) {
-      for (var arrangement in arrangementResult) {
-        await db.update('arrangements', {
-          'yearIndex': 12 + arrangement['yearIndex'],
-        }, where: 'yearIndex = ${arrangement['yearIndex']}');
-      }
-      return true;
-    } else {
-      return false;
+  Future<void> closeDatabase() async {
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
     }
   }
+}
+
+final List<String> _dbNames = [
+  "events.db",
+  "notes.db",
+  "tasks.db",
+  "alarms.db",
+  "arrangements.db",
+];
+
+Future<void> saveBackupToDownloads() async {
+  try {
+    final String dbFolder = await getDatabasesPath();
+    final archive = Archive();
+
+    for (String name in _dbNames) {
+      final File dbFile = File(join(dbFolder, name));
+      if (await dbFile.exists()) {
+        final bytes = await dbFile.readAsBytes();
+        archive.addFile(ArchiveFile(name, bytes.length, bytes));
+      }
+    }
+
+    final zipEncoder = ZipEncoder();
+    final List<int> zipData = zipEncoder.encode(archive);
+
+    final String downloadsPath =
+        await ExternalPath.getExternalStoragePublicDirectory(
+          ExternalPath.DIRECTORY_DOWNLOAD,
+        );
+
+    final String timestamp = DateFormat(
+      'yyyyMMdd_HHmmss',
+    ).format(DateTime.now());
+    final File zipFile = File(
+      join(downloadsPath, 'Maya_Backup_$timestamp.zip'),
+    );
+
+    await zipFile.writeAsBytes(zipData);
+    debugPrint("Backup ZIP gespeichert: ${zipFile.path}");
+  } catch (e) {
+    debugPrint("ZIP Backup fehlgeschlagen: $e");
+  }
+}
+
+Future<void> backupDatabases(BuildContext context) async {
+  try {
+    final String dbFolder = await getDatabasesPath();
+    final tempDir = await getTemporaryDirectory();
+    final archive = Archive();
+
+    for (String name in _dbNames) {
+      final File dbFile = File(join(dbFolder, name));
+      if (await dbFile.exists()) {
+        final bytes = await dbFile.readAsBytes();
+        archive.addFile(ArchiveFile(name, bytes.length, bytes));
+      }
+    }
+
+    final zipFile = File(join(tempDir.path, 'Maya_Backup.zip'));
+    await zipFile.writeAsBytes(ZipEncoder().encode(archive));
+
+    if (!context.mounted) return;
+    final box = context.findRenderObject() as RenderBox?;
+
+    await SharePlus.instance.share(
+      ShareParams(
+        text: 'Maya Database Backup',
+        subject: 'Maya Backup ZIP',
+        files: [XFile(zipFile.path)],
+        sharePositionOrigin: box != null
+            ? box.localToGlobal(Offset.zero) & box.size
+            : null,
+      ),
+    );
+  } catch (e) {
+    debugPrint("Backup Share Error: $e");
+  }
+}
+
+Future<void> restoreDatabases(BuildContext context) async {
+  FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['zip'],
+  );
+
+  if (result != null && result.files.single.path != null) {
+    if (context.mounted) {
+      await _processRestore(File(result.files.single.path!), context);
+    }
+  }
+}
+
+Future<void> _processRestore(File zipFile, BuildContext context) async {
+  try {
+    final bytes = await zipFile.readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
+    final String dbFolder = await getDatabasesPath();
+
+    // 1. Verbindungen schließen
+    await DatabaseHandlerEvents().closeDatabase();
+    await DatabaseHandlerNotes().closeDatabase();
+    await DatabaseHandlerTasks().closeDatabase();
+    await DatabaseHandlerAlarms().closeDatabase();
+    await DatabaseHandlerArrangements().closeDatabase();
+
+    // 2. Dateien extrahieren
+    for (final file in archive) {
+      if (file.isFile && _dbNames.contains(file.name)) {
+        final String destinationPath = join(dbFolder, file.name);
+
+        // Journal-Dateien löschen
+        await _deleteJournalFiles(file.name);
+
+        final File dbFile = File(destinationPath);
+        final content = file.content;
+        await dbFile.writeAsBytes(content);
+
+        debugPrint("Restored: ${file.name}");
+      }
+    }
+
+    if (context.mounted) {
+      _showSuccessAndRestart(context);
+    }
+  } catch (e) {
+    debugPrint("Restore Error: $e");
+  }
+}
+
+Future<void> _deleteJournalFiles(String dbName) async {
+  final dbFolder = await getDatabasesPath();
+  final List<String> extensions = ["-wal", "-shm", "-journal"];
+
+  for (var ext in extensions) {
+    final file = File(join(dbFolder, "$dbName$ext"));
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+}
+
+void _showSuccessAndRestart(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      title: const Text("Restore Complete"),
+      content: const Text(
+        "Data has been restored. The app will now refresh to apply changes.",
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Provider.of<MayaData>(context, listen: false).clearAllData();
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/', (route) => false);
+          },
+          child: const Text("OK"),
+        ),
+      ],
+    ),
+  );
 }

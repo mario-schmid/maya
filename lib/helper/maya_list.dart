@@ -56,8 +56,8 @@ class MayaList {
     "Cej", // Keh, Ceh, Sej, (Cej)
     "Mak", // Mac (Mak)
     "Kankin", // K'ank'in (Kankin, Kanq'ij)
-    "Muan", // Muwan
-    "Pax", //
+    "Muwan", // Muan (Muwan)
+    "Pax", // (Pax)
     "Kayab", // K'ay'ab, K'ayab'
     "Kumku", // K'umku', Kumk'u, Cumku, C'umku', Cumk'u
     "Wayeb", // Wayeb'

@@ -6,7 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SharedPrefs {
   static void removeKey(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
+    if (prefs.containsKey(key)) {
+      prefs.remove(key);
+    }
   }
 
   static Future<bool> versionChanged(String currentVersion) async {
@@ -151,17 +153,10 @@ class SharedPrefs {
     return prefs.getString(key) ?? '1';
   }
 
-  // NOTE: this code is for database adjustments
-  static Future<String> readAdjustDatabase() async {
+  // TODO: remove at 01.06.1026
+  static void deleteAdjustDatabase() async {
     final prefs = await SharedPreferences.getInstance();
     const key = 'databaseAdjustment';
-    return prefs.getString(key) ?? 'true';
-  }
-
-  // NOTE: this code is for database adjustments
-  static void saveAdjustDatabase(String adjustDatabase) async {
-    final prefs = await SharedPreferences.getInstance();
-    const key = 'databaseAdjustment';
-    prefs.setString(key, adjustDatabase);
+    prefs.containsKey(key) ? prefs.remove('databaseAdjustment') : null;
   }
 }

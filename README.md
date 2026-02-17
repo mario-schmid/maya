@@ -1,5 +1,7 @@
 <div align="center">
-    <img src=".gitassets/images/presentation.jpg" width="92%">
+  <a href="https://youtu.be/YSHrUxRS5rg">
+    <img src="https://img.youtube.com/vi/YSHrUxRS5rg/maxresdefault.jpg" alt="Watch the video" style="width:90%;">
+  </a>
 </div>
 <div align="center">
     <img src=".gitassets/images/colorfull-green.jpg" width="30%">
@@ -34,7 +36,18 @@
 </div>
 <br />
 <div align="center">
-    <a href="https://files.morgenfrost.com/maya_v1.3.1.apk">
-        <img src=".gitassets/images/download-apk.png" width="60%">
-    </a>
+  <table border="0">
+    <tr>
+      <td>
+        <a href="https://files.morgenfrost.com/maya_v1.3.1.apk">
+            <img src=".gitassets/images/download-apk.png" width="100%">
+        </a>
+      </td>
+      <td>
+        <a href="https://play.google.com/store/apps/details?id=com.software.maya">
+            <img src=".gitassets/images/get_it_on_google-play-store.png" width="100%">
+        </a>
+      </td>
+    </tr>
+  </table>
 </div>
