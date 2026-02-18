@@ -849,7 +849,7 @@ Future<void> backupDatabases(BuildContext context) async {
   }
 }
 
-Future<void> restoreDatabases(BuildContext context) async {
+Future<void> restoreDatabases(BuildContext context, Color mainColor) async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.custom,
     allowedExtensions: ['zip'],
@@ -857,12 +857,20 @@ Future<void> restoreDatabases(BuildContext context) async {
 
   if (result != null && result.files.single.path != null) {
     if (context.mounted) {
-      await _processRestore(File(result.files.single.path!), context);
+      await _processRestore(
+        context,
+        mainColor,
+        File(result.files.single.path!),
+      );
     }
   }
 }
 
-Future<void> _processRestore(File zipFile, BuildContext context) async {
+Future<void> _processRestore(
+  BuildContext context,
+  Color mainColor,
+  File zipFile,
+) async {
   try {
     final bytes = await zipFile.readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
@@ -892,7 +900,7 @@ Future<void> _processRestore(File zipFile, BuildContext context) async {
     }
 
     if (context.mounted) {
-      _showSuccessAndRestart(context);
+      _showSuccessAndRestart(context, mainColor);
     }
   } catch (e) {
     debugPrint("Restore Error: $e");
@@ -911,14 +919,19 @@ Future<void> _deleteJournalFiles(String dbName) async {
   }
 }
 
-void _showSuccessAndRestart(BuildContext context) {
+void _showSuccessAndRestart(BuildContext context, Color mainColor) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (context) => AlertDialog(
-      title: const Text("Restore Complete"),
+      backgroundColor: mainColor,
+      title: const Text(
+        "Restore Complete",
+        style: TextStyle(color: Colors.white),
+      ),
       content: const Text(
         "Data has been restored. The app will now refresh to apply changes.",
+        style: TextStyle(color: Colors.white),
       ),
       actions: [
         TextButton(
@@ -928,7 +941,7 @@ void _showSuccessAndRestart(BuildContext context) {
               context,
             ).pushNamedAndRemoveUntil('/', (route) => false);
           },
-          child: const Text("OK"),
+          child: const Text("OK", style: TextStyle(color: Colors.white)),
         ),
       ],
     ),

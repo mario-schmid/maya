@@ -726,30 +726,66 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* indicator                                                               */
   /*                                                                          */
-  bool indicator(int i, Map<int, Map<int, Day>> mayaData) {
+  Widget _buildColourLabel(
+    int i,
+    Position posColorLabel,
+    Size sizeColorLabel,
+    Offset offsetColorLabel,
+    Map<int, Map<int, Day>> mayaData,
+  ) {
     final int cYear = (currYear + (xDayTotal + i) / 365).floor();
     final int cDay = (xDayTotal + i) % 365;
-    if (mayaData.containsKey(cYear)) {
-      if (mayaData[cYear]!.containsKey(cDay)) {
-        final Day dayData = mayaData[cYear]![cDay]!;
-        if (dayData.eventList.isNotEmpty ||
-            dayData.noteList.isNotEmpty ||
-            dayData.taskList.any((element) => element.isChecked == false) ||
-            dayData.alarmList.any((element) => element.isActive == true)) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  }
 
+    final dayData = mayaData[cYear]?[cDay];
+    if (dayData == null) return const SizedBox.shrink();
+
+    String fileName = '';
+
+    if (dayData.eventList.isNotEmpty) fileName += 'o';
+    if (dayData.noteList.isNotEmpty) fileName += 'g';
+    if (dayData.taskList.any((e) => !e.isChecked)) fileName += 'b';
+    if (dayData.alarmList.any((e) => e.isActive)) fileName += 'r';
+
+    if (fileName.isEmpty) return const SizedBox.shrink();
+
+    ClipRRect colourLabel = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Stack(
+        children: [
+          SvgPicture.asset('assets/vector/$fileName.svg', fit: BoxFit.cover),
+          Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Center(child: MayaImage.imageToneWhiteFlatCenter[cDay % 20]),
+          ),
+        ],
+      ),
+    );
+
+    return Positioned(
+      top: posColorLabel.top,
+      left: posColorLabel.left,
+      child: Transform.rotate(
+        angle: (360 / 365 * ((xDayTotal + i) % 365)) / 180 * pi,
+        origin: offsetColorLabel,
+        child: Container(
+          height: sizeColorLabel.height,
+          width: sizeColorLabel.width,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg_pattern_three_dark.jpg'),
+              fit: BoxFit.cover,
+            ),
+            border: Border.all(color: Colors.white, width: 1),
+            borderRadius: BorderRadius.circular(8),
+            shape: BoxShape.rectangle,
+          ),
+          child: colourLabel,
+        ),
+      ),
+    );
+  }
   /*                                                                          */
-  /* indicator - END                                                         */
+  /* indicator - END                                                          */
   /* ------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------ */
@@ -1416,7 +1452,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       overlayColor: WidgetStateProperty.all(mainColor),
                     ),
                     onPressed: () async {
-                      restoreDatabases(context);
+                      restoreDatabases(context, mainColor);
                     },
                     child: Text(
                       'Restore',
@@ -1709,15 +1745,18 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       fontSize: 0.044444444 * celery,
     );
     //
-    final Size sizeFrame = Size(0.099958333 * celery, 0.099958333 * celery);
+    final Size sizeColorLabel = Size(
+      0.099958333 * celery,
+      0.099958333 * celery,
+    );
     // FIXME: calculate with celery (border width, border radius).
     // final double borderWidthFrame = ...
     // final double borderRadiusFrame = ...
-    final Position posFrame = Position(
+    final Position posColorLabel = Position(
       sizeWheelHaab.height / 2 - 0.049980556 * celery,
       0.002777778 * celery,
     );
-    final Offset offsetFrame = Offset(9.199093519 * celery, 0);
+    final Offset offsetColorLabel = Offset(9.199093519 * celery, 0);
     //
     final Size sizeSandstoneMoon = Size(
       0.398594444 * celery,
@@ -2328,39 +2367,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         return Stack(
                           children: [
                             for (int i = -20; i < 21; i++)
-                              if (indicator(i, data.mayaData))
-                                Positioned(
-                                  top: posFrame.top,
-                                  left: posFrame.left,
-                                  child: Transform.rotate(
-                                    angle:
-                                        360 /
-                                        365 *
-                                        ((xDayTotal + i) % 365) /
-                                        180 *
-                                        pi,
-                                    origin: offsetFrame,
-                                    child: Container(
-                                      height: sizeFrame.height,
-                                      width: sizeFrame.width,
-                                      decoration: BoxDecoration(
-                                        color: const Color.fromARGB(
-                                          32,
-                                          255,
-                                          255,
-                                          255,
-                                        ),
-                                        // FIXME: calculate with celery (border width, border radius).
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(5),
-                                        shape: BoxShape.rectangle,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              _buildColourLabel(
+                                i,
+                                posColorLabel,
+                                sizeColorLabel,
+                                offsetColorLabel,
+                                data.mayaData,
+                              ),
                           ],
                         );
                       },
@@ -3159,7 +3172,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       ),
     );
   }
-
   /*                                                                          */
   /* Build - END                                                              */
   /* ------------------------------------------------------------------------ */

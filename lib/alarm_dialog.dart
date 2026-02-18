@@ -110,7 +110,7 @@ class _ADialogState extends State<ADialog> {
       dateTime = widget.alarmSettings!.dateTime;
       loopAudio = widget.alarmSettings!.loopAudio;
       vibrate = widget.alarmSettings!.vibrate;
-      alarmSoundPath = widget.alarmSettings!.assetAudioPath;
+      alarmSoundPath = widget.alarmSettings!.assetAudioPath!;
       alarmSoundVolume = widget.alarmSettings!.volumeSettings.volume!;
       _alarmControllerTitle.text =
           widget.alarmSettings!.notificationSettings.title;
