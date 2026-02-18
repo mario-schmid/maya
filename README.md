@@ -39,7 +39,7 @@
   <table border="0">
     <tr>
       <td>
-        <a href="https://files.morgenfrost.com/maya_v1.3.1.apk">
+        <a href="https://files.morgenfrost.com/maya_v1.3.2.apk">
             <img src=".gitassets/images/download-apk.png" width="100%">
         </a>
       </td>
