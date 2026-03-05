@@ -78,9 +78,17 @@ Future<void> main() async {
     'assets/images/leaves.jpg',
     'assets/images/leaves.png',
     //
-    'assets/images/moon_pattern.png',
-    //
+    'assets/images/icons/buy-me-a-coffee.png',
+    'assets/images/icons/kofi.png',
+    'assets/images/icons/liberapay.png',
+    'assets/images/icons/mastodon.png',
+    'assets/images/icons/matrix.png',
+    'assets/images/icons/patreon.png',
+    'assets/images/icons/paypal.png',
+    'assets/images/icons/pixelfed.png',
     'assets/images/icons/sign.png',
+    //
+    'assets/images/moon_pattern.png',
     //
     'assets/images/tones/01_white_curved_bottom.png',
     'assets/images/tones/02_white_curved_bottom.png',
@@ -204,6 +212,7 @@ Future<void> main() async {
     'assets/images/bg_pattern_one.jpg',
     'assets/images/bg_pattern_two.jpg',
     'assets/images/bg_pattern_three.jpg',
+    'assets/images/bg_pattern_three_dark.jpg',
     //
     'assets/images/cholqij_field_red.jpg',
     'assets/images/cholqij_field_white.jpg',
@@ -1593,7 +1602,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final double statusBarHeight = MediaQuery.of(context).viewPadding.top;
     final double navigationBarHeight = MediaQuery.of(context).padding.bottom;
 
-    final double maxAspectRatio = 18 / 38;
+    final double maxAspectRatio = 19 / 38;
     final double celery = size.width / size.height <= maxAspectRatio
         ? size.width
         : size.height * maxAspectRatio;
