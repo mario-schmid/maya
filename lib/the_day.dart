@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../classes/maya_base.dart';
 import '../helper/maya_image.dart';
 import '../listview_builder.dart';
 import '../maya_cross_container.dart';
@@ -16,6 +17,7 @@ import '../selection_dialog.dart';
 class TheDay extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
+  final String themeNahuales;
   final int chosenYear;
   final int chosenDay;
   final int chosenTone;
@@ -28,6 +30,7 @@ class TheDay extends StatefulWidget {
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
     required this.chosenYear,
     required this.chosenDay,
     required this.chosenTone,
@@ -195,6 +198,7 @@ class _TheDayState extends State<TheDay> {
                                           size,
                                           widget.backgroundImage,
                                           widget.mainColor,
+                                          widget.themeNahuales,
                                           (widget.chosenTone + dDays) % 13,
                                           (widget.chosenNahual + dDays) % 20,
                                         ),
@@ -227,11 +231,10 @@ class _TheDayState extends State<TheDay> {
                                       SizedBox(
                                         height: 93.333,
                                         width: 100,
-                                        child:
-                                            MayaImage.signNahual[(widget
-                                                        .chosenNahual +
-                                                    dDays) %
-                                                20],
+                                        child: MayaBase.getNahual(
+                                          widget.themeNahuales,
+                                          (widget.chosenNahual + dDays) % 20,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -248,14 +251,13 @@ class _TheDayState extends State<TheDay> {
                                         SizedBox(
                                           height: 58,
                                           width: 58,
-                                          child:
-                                              MayaImage
-                                                  .signNahual[(((chosenKinIndex +
-                                                              dDays) ~/
-                                                          13) %
-                                                      20) *
-                                                  13 %
-                                                  20],
+                                          child: MayaBase.getNahual(
+                                            widget.themeNahuales,
+                                            (((chosenKinIndex + dDays) ~/ 13) %
+                                                    20) *
+                                                13 %
+                                                20,
+                                          ),
                                         ),
                                         Container(
                                           height: 40,
@@ -287,10 +289,12 @@ class _TheDayState extends State<TheDay> {
                                                         13],
                                               ),
                                               const SizedBox(height: 2),
-                                              MayaImage.signNahual[(widget
-                                                          .beginNahual +
-                                                      dYears * 365) %
-                                                  20],
+                                              MayaBase.getNahual(
+                                                widget.themeNahuales,
+                                                (widget.beginNahual +
+                                                        dYears * 365) %
+                                                    20,
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -353,22 +357,20 @@ class _TheDayState extends State<TheDay> {
                                               onTap: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                        return selectionDialog(
-                                                          context,
-                                                          widget.mainColor,
-                                                          cYear,
-                                                          cDay,
-                                                          widget
-                                                              .chosenGregorianDate
-                                                              .add(
-                                                                Duration(
-                                                                  days: dDays,
-                                                                ),
-                                                              ),
-                                                        );
-                                                      },
+                                                  builder: (BuildContext context) {
+                                                    return selectionDialog(
+                                                      context,
+                                                      widget.mainColor,
+                                                      cYear,
+                                                      cDay,
+                                                      widget.chosenGregorianDate
+                                                          .add(
+                                                            Duration(
+                                                              days: dDays,
+                                                            ),
+                                                          ),
+                                                    );
+                                                  },
                                                 );
                                               },
                                               child: Icon(

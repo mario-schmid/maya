@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../classes/maya_base.dart';
 import '../helper/maya_image.dart';
 
 Container mayaCrossContainer(
   Size size,
   ImageProvider backgroundImage,
   Color mainColor,
+  String themeNahuales,
   int tone,
   int nahual,
 ) {
@@ -72,7 +74,7 @@ Container mayaCrossContainer(
               SizedBox(height: paddingToneNahual),
               SizedBox(
                 height: heightNahual,
-                child: MayaImage.signNahual[nahualesDirections[0]],
+                child: MayaBase.getNahual(themeNahuales, nahualesDirections[0]),
               ),
             ],
           ),
@@ -112,7 +114,10 @@ Container mayaCrossContainer(
                   SizedBox(height: paddingToneNahual),
                   SizedBox(
                     height: heightNahual,
-                    child: MayaImage.signNahual[nahualesDirections[2]],
+                    child: MayaBase.getNahual(
+                      themeNahuales,
+                      nahualesDirections[2],
+                    ),
                   ),
                 ],
               ),
@@ -132,7 +137,7 @@ Container mayaCrossContainer(
                   SizedBox(height: paddingToneNahual),
                   SizedBox(
                     height: heightNahual,
-                    child: MayaImage.signNahual[nahual],
+                    child: MayaBase.getNahual(themeNahuales, nahual),
                   ),
                 ],
               ),
@@ -153,7 +158,10 @@ Container mayaCrossContainer(
                   SizedBox(height: paddingToneNahual),
                   SizedBox(
                     height: heightNahual,
-                    child: MayaImage.signNahual[nahualesDirections[3]],
+                    child: MayaBase.getNahual(
+                      themeNahuales,
+                      nahualesDirections[3],
+                    ),
                   ),
                 ],
               ),
@@ -191,7 +199,7 @@ Container mayaCrossContainer(
               SizedBox(height: paddingToneNahual),
               SizedBox(
                 height: heightNahual,
-                child: MayaImage.signNahual[nahualesDirections[1]],
+                child: MayaBase.getNahual(themeNahuales, nahualesDirections[1]),
               ),
             ],
           ),

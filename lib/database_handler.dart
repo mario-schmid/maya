@@ -800,9 +800,8 @@ Future<void> saveBackupToDownloads() async {
           ExternalPath.DIRECTORY_DOWNLOAD,
         );
 
-    final String timestamp = DateFormat(
-      'yyyyMMdd_HHmmss',
-    ).format(DateTime.now());
+    final String timestamp = DateFormat('yyyyMMdd_HHmmss')
+        .format(DateTime.now());
     final File zipFile = File(
       join(downloadsPath, 'Maya_Backup_$timestamp.zip'),
     );
@@ -850,18 +849,14 @@ Future<void> backupDatabases(BuildContext context) async {
 }
 
 Future<void> restoreDatabases(BuildContext context, Color mainColor) async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
+  PlatformFile? file = await FilePicker.pickFile(
     type: FileType.custom,
     allowedExtensions: ['zip'],
   );
 
-  if (result != null && result.files.single.path != null) {
+  if (file != null) {
     if (context.mounted) {
-      await _processRestore(
-        context,
-        mainColor,
-        File(result.files.single.path!),
-      );
+      await _processRestore(context, mainColor, File(file.uri.toFilePath()));
     }
   }
 }
@@ -937,9 +932,8 @@ void _showSuccessAndRestart(BuildContext context, Color mainColor) {
         TextButton(
           onPressed: () {
             Provider.of<MayaData>(context, listen: false).clearAllData();
-            Navigator.of(
-              context,
-            ).pushNamedAndRemoveUntil('/', (route) => false);
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil('/', (route) => false);
           },
           child: const Text("OK", style: TextStyle(color: Colors.white)),
         ),

@@ -118,10 +118,40 @@ class MayaImage {
     Image.asset('assets/images/nahuales/19_ajpu.png'),
   ];
 
+  static final List<Image> signNahualPlasma = [
+    Image.asset('assets/images/nahuales_plasma/00_imox_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/01_iq_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/02_aqabal_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/03_kat_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/04_kan_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/05_kame_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/06_kej_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/07_qanil_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/08_toj_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/09_tzi_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/10_batz_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/11_e_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/12_aj_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/13_ix_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/14_tzikin_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/15_ajmaq_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/16_noj_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/17_tijax_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/18_kawoq_plasma.png'),
+    Image.asset('assets/images/nahuales_plasma/19_ajpu_plasma.png'),
+  ];
+
   static final List<Image> trecenaMask = [
     Image.asset('assets/images/trecenaRed.png'),
     Image.asset('assets/images/trecenaWhite.png'),
     Image.asset('assets/images/trecenaBlue.png'),
     Image.asset('assets/images/trecenaYellow.png'),
+  ];
+
+  static final List<Image> trecenaMaskPlasma = [
+    Image.asset('assets/images/trecenaRed_plasma.png'),
+    Image.asset('assets/images/trecenaWhite_plasma.png'),
+    Image.asset('assets/images/trecenaBlue_plasma.png'),
+    Image.asset('assets/images/trecenaYellow_plasma.png'),
   ];
 }

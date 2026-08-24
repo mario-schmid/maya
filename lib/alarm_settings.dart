@@ -136,36 +136,44 @@ class _AlarmSetState extends State<AlarmSet> {
                   for (int i = 0; i < 10; i++)
                     GestureDetector(
                       onTap: () async {
+                        if (playerState == PlayerState.playing) {
+                          await player.stop();
+                          return;
+                        }
+
+                        String? pickedPath;
+                        if (alarmSoundIndex == 9) {
+                          PlatformFile? file = await FilePicker.pickFile(
+                            type: FileType.custom,
+                            allowedExtensions: ['mp3', 'wav', 'ogg'],
+                          );
+                          if (file == null) return;
+                          pickedPath = file.uri.toFilePath();
+                        }
+
+                        if (!context.mounted) return;
+
                         setState(() {
                           alarmSoundSelected = true;
                           chosenAlarmSoundIndex = alarmSoundIndex;
-                        });
-                        if (playerState == PlayerState.playing) {
-                          await player.stop();
-                        } else {
-                          if (chosenAlarmSoundIndex != 9) {
-                            await player.setVolume(alarmSoundVolume);
-                            await player.play(
-                              AssetSource(
-                                MayaList
-                                    .listAlarmSoundPath[chosenAlarmSoundIndex],
-                              ),
-                            );
-                            //await player.dispose();
-                          } else {
-                            FilePickerResult? result = await FilePicker.platform
-                                .pickFiles(
-                                  type: FileType.custom,
-                                  allowedExtensions: ['mp3', 'wav', 'ogg'],
-                                );
-                            if (result != null) {
-                              customAlarmSoundPath = result.files.first.path!;
-                              await player.setVolume(alarmSoundVolume);
-                              await player.play(
-                                DeviceFileSource(customAlarmSoundPath),
-                              );
-                            }
+                          if (pickedPath != null) {
+                            customAlarmSoundPath = pickedPath;
                           }
+                        });
+
+                        await player.setVolume(alarmSoundVolume);
+
+                        if (chosenAlarmSoundIndex != 9) {
+                          await player.play(
+                            AssetSource(
+                              MayaList
+                                  .listAlarmSoundPath[chosenAlarmSoundIndex],
+                            ),
+                          );
+                        } else if (customAlarmSoundPath.isNotEmpty) {
+                          await player.play(
+                            DeviceFileSource(customAlarmSoundPath),
+                          );
                         }
                       },
                       child: Container(

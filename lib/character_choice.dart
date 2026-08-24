@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maya/classes/maya_base.dart';
 
 import '../helper/maya_image.dart';
 import '../maya_cross_container.dart';
@@ -6,13 +7,14 @@ import '../maya_cross_container.dart';
 class CharacterChoice extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
-
+  final String themeNahuales;
   final int chosenTone;
   final int chosenNahual;
   const CharacterChoice({
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
     required this.chosenTone,
     required this.chosenNahual,
   });
@@ -60,6 +62,7 @@ class _CharacterChoiceState extends State<CharacterChoice> {
                     size,
                     widget.backgroundImage,
                     widget.mainColor,
+                    widget.themeNahuales,
                     (indexTone + 7) % 13,
                     (indexNahual + 10) % 20,
                   ),
@@ -142,7 +145,10 @@ class _CharacterChoiceState extends State<CharacterChoice> {
                                 width: size.width * 0.22,
                                 child: FittedBox(
                                   fit: BoxFit.cover,
-                                  child: MayaImage.signNahual[(i + 10) % 20],
+                                  child: MayaBase.getNahual(
+                                    widget.themeNahuales,
+                                    (i + 10) % 20,
+                                  ),
                                 ),
                               ),
                             ),

@@ -71,6 +71,18 @@ class SharedPrefs {
     prefs.setString(key, mainColor);
   }
 
+  static Future<String> readThemeNahuales() async {
+    final prefs = await SharedPreferences.getInstance();
+    const key = 'themeNahuales';
+    return prefs.getString(key) ?? 'default';
+  }
+
+  static void saveThemeNahuales(String themeNahuales) async {
+    final prefs = await SharedPreferences.getInstance();
+    const key = 'themeNahuales';
+    prefs.setString(key, themeNahuales);
+  }
+
   static void deleteMainColor() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('mainColor');

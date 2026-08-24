@@ -1,16 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:arrow_path/arrow_path.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:maya/classes/maya_base.dart';
 
 import '../helper/maya_image.dart';
 
 class Relationship extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
+  final String themeNahuales;
   const Relationship({
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
   });
 
   @override
@@ -137,8 +140,10 @@ class _RelationshipState extends State<Relationship> {
                                   child: Center(
                                     child: SizedBox(
                                       width: size.width * 0.2,
-                                      child:
-                                          MayaImage.signNahual[(i + 10) % 20],
+                                      child: MayaBase.getNahual(
+                                        widget.themeNahuales,
+                                        (i + 10) % 20,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -227,8 +232,10 @@ class _RelationshipState extends State<Relationship> {
                                   child: Center(
                                     child: SizedBox(
                                       width: size.width * 0.2,
-                                      child:
-                                          MayaImage.signNahual[(i + 10) % 20],
+                                      child: MayaBase.getNahual(
+                                        widget.themeNahuales,
+                                        (i + 10) % 20,
+                                      ),
                                     ),
                                   ),
                                 ),

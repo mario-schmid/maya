@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:maya/classes/maya_base.dart';
 
-import '../helper/maya_image.dart';
 import '../maya_cross_container.dart';
 
 class Cholqij extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
+  final String themeNahuales;
   final int cKinIndex;
   const Cholqij({
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
     required this.cKinIndex,
   });
 
@@ -90,7 +92,10 @@ class _CholqijState extends State<Cholqij> {
                                     crossAxisCount: 1,
                                   ),
                               itemBuilder: (context, index) {
-                                return MayaImage.signNahual[(index + 10) % 20];
+                                return MayaBase.getNahual(
+                                  widget.themeNahuales,
+                                  (index + 10) % 20,
+                                );
                               },
                             ),
                           ),
@@ -112,6 +117,7 @@ class _CholqijState extends State<Cholqij> {
                                   size,
                                   widget.backgroundImage,
                                   widget.mainColor,
+                                  widget.themeNahuales,
                                   index,
                                 );
                               },
@@ -132,7 +138,10 @@ class _CholqijState extends State<Cholqij> {
                                     crossAxisCount: 1,
                                   ),
                               itemBuilder: (context, index) {
-                                return MayaImage.signNahual[(index + 10) % 20];
+                                return MayaBase.getNahual(
+                                  widget.themeNahuales,
+                                  (index + 10) % 20,
+                                );
                               },
                             ),
                           ),
@@ -178,6 +187,7 @@ GestureDetector kinIndex(
   Size size,
   ImageProvider backgroundImage,
   Color mainColor,
+  String themeNahuales,
   int index,
 ) {
   late AssetImage bgImage;
@@ -242,6 +252,7 @@ GestureDetector kinIndex(
               size,
               backgroundImage,
               mainColor,
+              themeNahuales,
               tone,
               nahual,
             ),

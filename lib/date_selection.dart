@@ -8,6 +8,7 @@ import '../the_day.dart';
 class DateSelection extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
+  final String themeNahuales;
   final int chosenYear;
   final int chosenDay;
   final int chosenTone;
@@ -20,6 +21,7 @@ class DateSelection extends StatefulWidget {
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
     required this.chosenYear,
     required this.chosenDay,
     required this.chosenTone,
@@ -299,6 +301,7 @@ class _DateSelectionState extends State<DateSelection> {
         builder: (context) => TheDay(
           backgroundImage: widget.backgroundImage,
           mainColor: widget.mainColor,
+          themeNahuales: widget.themeNahuales,
           chosenYear: widget.chosenYear + dChosenYear,
           chosenDay: newChosenDay,
           chosenTone:

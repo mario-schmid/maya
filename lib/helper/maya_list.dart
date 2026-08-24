@@ -2,7 +2,7 @@ class MayaList {
   static final List<String> strTone = [
     // own        // alicia     // maya tecum
     "Jun", // Jun        // Jun
-    "Kab'", // Keb'       // Kab'
+    "Keb'", // Keb'       // Kab'
     "Oxib'", // Oxib'      // Oxib'
     "Kajib'", // Kajib'     // Kiejeb'
     "Job'", // Job'       // Job'
@@ -11,8 +11,8 @@ class MayaList {
     "Wajxaqib'", // Wajxaqib'  // Waqxaquib'
     "B'elejeb'", // B'elejeb'  // B'elejeb'
     "Lajuj", // Lajuj      // Lajuj
-    "Junlajuj'", // Ju'lajuj   // Junlajuj
-    "Kablajuj", // Kab'lajuj  // Kab'lajuj / K'ablajuj
+    "Julajuj", // Ju'lajuj   // Junlajuj
+    "Kab'lajuj", // Kab'lajuj  // Kab'lajuj / K'ablajuj
     "Oxlajuj", // Oxlajuj    // Oxlajuj
   ];
 
@@ -27,11 +27,11 @@ class MayaList {
     "Kej", // Kiej       MANIK'
     "Q'anil", // Q'anil     LAMAT
     "Toj", // Toj        MULUK
-    "Tz'i", // Tz'i       OK'
+    "Tz'i'", // Tz'i       OK'
     "B'atz'", // B'atz'     CHUEN
     "E", // E          EB'
     "Aj", // Aj         // Aj         B'EN
-    "I'x", // I'x        // I'x        B'ALAM
+    "Ix", // I'x        // I'x        B'ALAM
     "Tz'ikin", // Tz'ikin    // Tz'ikin    MEN
     "Ajmaq", // Ajmaq      // Ajmaq      KI'B'
     "No'j", // No'j       // N'oj       KAB'AN
@@ -43,24 +43,24 @@ class MayaList {
   static final List<String> strWinal = [
     // (maya tecum)
     "Pop'", //
-    "Wo'", // Uo
-    "Zip'", // Sip'
-    "Zotz'", // Sotz'
-    "Tzek", // Tzec, Tz'ek, Zek, Sek
+    "Wo'", //
+    "Sip", //
+    "Sotz'", //
+    "Tz'ek'", //
     "Xul", //
-    "Yaxkin", // Yaxk'in
+    "Yaxk'in", //
     "Mol", //
-    "Chen", // Ch'en
+    "Ch'en", //
     "Yax", //
-    "Saq", // Zak, Sak, (Saq)
-    "Cej", // Keh, Ceh, Sej, (Cej)
-    "Mak", // Mac (Mak)
-    "Kankin", // K'ank'in (Kankin, Kanq'ij)
-    "Muwan", // Muan (Muwan)
-    "Pax", // (Pax)
-    "Kayab", // K'ay'ab, K'ayab'
-    "Kumku", // K'umku', Kumk'u, Cumku, C'umku', Cumk'u
-    "Wayeb", // Wayeb'
+    "SaK'", //
+    "Cej", //
+    "Mak", //
+    "Kank'in", //
+    "Muwan", //
+    "Pax", //
+    "K'ayab", //
+    "Kumk'u'", //
+    "Wayeb'", //
   ];
 
   static final List<String> listAlarmSoundPath = [

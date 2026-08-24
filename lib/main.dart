@@ -21,6 +21,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../alarm_settings.dart';
 import '../character_choice.dart';
 import '../cholqij.dart';
+import '../classes/maya_base.dart';
 import '../classes/position.dart';
 import '../color_picker.dart';
 import '../data/maya_alarm.dart';
@@ -77,6 +78,8 @@ Future<void> main() async {
     'assets/images/trecenaYellow.png',
     'assets/images/leaves.jpg',
     'assets/images/leaves.png',
+    'assets/images/default.png',
+    'assets/images/plasma.png',
     //
     'assets/images/icons/buy-me-a-coffee.png',
     'assets/images/icons/kofi.png',
@@ -209,6 +212,27 @@ Future<void> main() async {
     'assets/images/nahuales/18_kawoq.png',
     'assets/images/nahuales/19_ajpu.png',
     //
+    'assets/images/nahuales_plasma/00_imox_plasma.png',
+    'assets/images/nahuales_plasma/01_iq_plasma.png',
+    'assets/images/nahuales_plasma/02_aqabal_plasma.png',
+    'assets/images/nahuales_plasma/03_kat_plasma.png',
+    'assets/images/nahuales_plasma/04_kan_plasma.png',
+    'assets/images/nahuales_plasma/05_kame_plasma.png',
+    'assets/images/nahuales_plasma/06_kej_plasma.png',
+    'assets/images/nahuales_plasma/07_qanil_plasma.png',
+    'assets/images/nahuales_plasma/08_toj_plasma.png',
+    'assets/images/nahuales_plasma/09_tzi_plasma.png',
+    'assets/images/nahuales_plasma/10_batz_plasma.png',
+    'assets/images/nahuales_plasma/11_e_plasma.png',
+    'assets/images/nahuales_plasma/12_aj_plasma.png',
+    'assets/images/nahuales_plasma/13_ix_plasma.png',
+    'assets/images/nahuales_plasma/14_tzikin_plasma.png',
+    'assets/images/nahuales_plasma/15_ajmaq_plasma.png',
+    'assets/images/nahuales_plasma/16_noj_plasma.png',
+    'assets/images/nahuales_plasma/17_tijax_plasma.png',
+    'assets/images/nahuales_plasma/18_kawoq_plasma.png',
+    'assets/images/nahuales_plasma/19_ajpu_plasma.png',
+    //
     'assets/images/bg_pattern_one.jpg',
     'assets/images/bg_pattern_two.jpg',
     'assets/images/bg_pattern_three.jpg',
@@ -229,6 +253,7 @@ Future<void> main() async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
   Color mainColor = Color(int.parse(await SharedPrefs.readMainColor()));
+  String themeNahuales = await SharedPrefs.readThemeNahuales();
   ImageProvider backgroundImage = await SharedPrefs.readBgFilePath();
 
   binding.addPostFrameCallback((_) async {
@@ -245,6 +270,7 @@ Future<void> main() async {
     MayaApp(
       packageInfo: packageInfo,
       mainColor: mainColor,
+      themeNahuales: themeNahuales,
       backgroundImage: backgroundImage,
     ),
   );
@@ -253,11 +279,13 @@ Future<void> main() async {
 class MayaApp extends StatelessWidget {
   final PackageInfo packageInfo;
   final Color mainColor;
+  final String themeNahuales;
   final ImageProvider backgroundImage;
   const MayaApp({
     super.key,
     required this.packageInfo,
     required this.mainColor,
+    required this.themeNahuales,
     required this.backgroundImage,
   });
 
@@ -273,6 +301,7 @@ class MayaApp extends StatelessWidget {
         home: Home(
           packageInfo: packageInfo,
           mainColor: mainColor,
+          themeNahuales: themeNahuales,
           backgroundImage: backgroundImage,
         ),
       ),
@@ -283,11 +312,13 @@ class MayaApp extends StatelessWidget {
 class Home extends StatefulWidget {
   final PackageInfo packageInfo;
   final Color mainColor;
+  final String themeNahuales;
   final ImageProvider backgroundImage;
   const Home({
     super.key,
     required this.packageInfo,
     required this.mainColor,
+    required this.themeNahuales,
     required this.backgroundImage,
   });
 
@@ -300,6 +331,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late PackageInfo packageInfo;
 
   late Color mainColor;
+  late String themeNahuales;
   late ImageProvider backgroundImage;
 
   final DateFormat dateTimeformat = DateFormat("dd.MM.yyyy HH:mm");
@@ -309,7 +341,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   late String bgFilePath;
 
-  DateTime now = DateTime.now();
+  DateTime get now => DateTime.now();
 
   final Future<List<Map<String, dynamic>>> _eventList = DatabaseHandlerEvents()
       .retrieveEvents();
@@ -328,9 +360,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   List<Map<String, dynamic>> alarmList = [];
   List<Map<String, dynamic>> arrangementList = [];
 
-  late DateTime startDate;
+  final DateTime startDate = DateTime.parse('2013-02-21 00:00:00');
   String currTime = '';
 
+  int daysGoneBy = 0;
   late double angleTime;
 
   double angleSeason = 0.0;
@@ -401,9 +434,15 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   @override
   void initState() {
+    super.initState();
+
     packageInfo = widget.packageInfo;
     mainColor = widget.mainColor;
+    themeNahuales = widget.themeNahuales;
     backgroundImage = widget.backgroundImage;
+
+    _updateCalendar();
+    _initData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // TODO: save version! delete this line if startup release dialog is enabled.
@@ -421,14 +460,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       }*/
     });
 
-    // Clock
-    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      final DateTime nowClock = DateTime.now();
-      setState(() {
-        currTime = TimeFormat().getTimeFormat.format(nowClock);
-      });
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (finalAngle == 0.0) {
+        _updateCalendar();
+      }
     });
-    // Clock END
 
     if (maya_alarm.Alarm.android) {
       checkAndroidNotificationPermission();
@@ -440,26 +476,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         navigateToRingScreen(alarm);
       }
     });
-
-    startDate = DateTime.parse('2013-02-21 00:00:00');
-    now.timeZoneOffset > startDate.timeZoneOffset
-        ? startDate = startDate
-              .add(
-                Duration(hours: -1),
-              ) // if the damn "daylight saving time" is set, subtract 1 hour.
-        : null;
-
-    loadLanguage();
-    loadTimeFormat();
-    loadSeasonsFromAssets('assets/seasons.json');
-    loadData();
-
-    super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: check if necessary!
     _timer.cancel();
     super.dispose();
   }
@@ -467,10 +487,23 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* initState - END                                                          */
   /* ------------------------------------------------------------------------ */
+  Future<void> _initData() async {
+    await loadLanguage();
+    await loadTimeFormat();
+    await loadSeasonsFromAssets('assets/seasons.json');
+    await loadData();
+
+    if (mounted) {
+      setState(() {
+        // Aktualisiert die UI sofort, sobald alles geladen ist!
+      });
+    }
+  }
+
   /* ------------------------------------------------------------------------ */
   /* loadData                                                                 */
   /*                                                                          */
-  void loadData() async {
+  Future loadData() async {
     final [
       eventList,
       noteList,
@@ -582,7 +615,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   bool isCheckedFrance = false;
   bool isCheckedSpain = false;
 
-  void loadLanguage() async {
+  Future loadLanguage() async {
     String strLanguage = await SharedPrefs.readLanguage();
     List<String> listLanguage = strLanguage.split('_');
 
@@ -622,7 +655,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* loadTimeFormat                                                           */
   /*                                                                          */
-  void loadTimeFormat() async {
+  Future loadTimeFormat() async {
     TimeFormat().setTimeFormat = DateFormat(
       (await SharedPrefs.readTimeFormat()),
     );
@@ -644,7 +677,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /* ------------------------------------------------------------------------ */
   /* loadSeasonsFromAssets                                                    */
   /*                                                                          */
-  void loadSeasonsFromAssets(String filePath) async {
+  Future loadSeasonsFromAssets(String filePath) async {
     String jsonString = await rootBundle.loadString(filePath);
     seasons = jsonDecode(jsonString);
   }
@@ -828,6 +861,66 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   /*                                                                          */
   /* tunContainer - END                                                       */
   /* ------------------------------------------------------------------------ */
+
+  void _updateCalendar() {
+    final startUtc = DateTime.utc(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+    );
+    final nowUtc = DateTime.utc(now.year, now.month, now.day);
+
+    setState(() {
+      daysGoneBy = nowUtc.difference(startUtc).inDays;
+
+      // FIXME: calculate with floor(), because of daysGoneBy could be negative
+      baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
+      katun = (daysGoneBy + dDays) ~/ 7200 % 20;
+      tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
+      winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
+      kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
+
+      sBaktun = baktun;
+      sKatun = katun;
+      sTun = tun;
+      sWinal = winal;
+      sKin = kin;
+
+      currDay = daysGoneBy % 365;
+      chosenDay = currDay;
+      xDayTotal = currDay;
+
+      currYear = 5141 + daysGoneBy ~/ 365;
+      chosenYear = currYear;
+
+      tone = (startTone + daysGoneBy) % 13;
+      sTone = tone;
+      nahual = (startNahual + daysGoneBy) % 20;
+      sNahual = nahual;
+
+      currKinIndex = getKinNumber(tone, nahual);
+      int trecena = currKinIndex ~/ 13;
+
+      trecenaColor = trecena % 4;
+      nTrecenaColor = trecenaColor;
+
+      offsetGearNahuales = 18 * nahual / 180 * pi;
+      offsetGearTones = 360 / 13 * tone / 180 * pi;
+      offsetGearHaab = -360 / 365 * currDay / 180 * pi;
+
+      int initialValueTrecenamask = currKinIndex % 52;
+      diffAngle = initialValueTrecenamask % 13;
+      trecenaOffsetAngle = 18 * initialValueTrecenamask / 180 * pi;
+
+      currTrecenaMask = MayaImage.trecenaMask[trecenaColor];
+
+      angleTime =
+          (now.hour * 3600 + now.minute * 60 + now.second) / 864000 * pi;
+
+      strTextToneNahual =
+          '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
+    });
+  }
 
   /* ------------------------------------------------------------------------ */
   /* Drawer                                                                   */
@@ -1115,21 +1208,27 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   width: settingButtonsWidth,
                   child: ElevatedButton(
                     onPressed: () async {
-                      FilePickerResult? result = await FilePicker.platform
-                          .pickFiles(
-                            type: FileType.custom,
-                            allowedExtensions: ['jpg', 'png'],
-                          );
-                      if (result != null) {
-                        bgFilePath = result.files.first.path!;
+                      PlatformFile? file = await FilePicker.pickFile(
+                        type: FileType.custom,
+                        allowedExtensions: ['jpg', 'png'],
+                      );
+                      if (file != null) {
+                        bgFilePath = file.uri.toFilePath();
                         SharedPrefs.saveBgFilePath(bgFilePath);
-                        backgroundImage = FileImage(File(bgFilePath));
+
+                        if (!mounted) return;
+
+                        setState(() {
+                          backgroundImage = FileImage(File(bgFilePath));
+                        });
                       }
                     },
                     onLongPress: () async {
-                      backgroundImage = const AssetImage(
-                        'assets/images/leaves.jpg',
-                      );
+                      setState(() {
+                        backgroundImage = const AssetImage(
+                          'assets/images/leaves.jpg',
+                        );
+                      });
                       SharedPrefs.deleteBgImagePath();
                     },
                     style: MayaStyle().settingsButtonStyleCarrot(
@@ -1150,6 +1249,36 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                SizedBox(
+                  height: settingButtonsHeight,
+                  width: settingButtonsWidth,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        if (themeNahuales == 'plasma') {
+                          themeNahuales = 'default';
+                          SharedPrefs.saveThemeNahuales('default');
+                        } else {
+                          themeNahuales = 'plasma';
+                          SharedPrefs.saveThemeNahuales('plasma');
+                        }
+                      });
+                    },
+                    style: MayaStyle().settingsButtonStyleCarrot(
+                      size,
+                      mainColor,
+                      celery,
+                    ),
+                    child: Image.asset(
+                      themeNahuales == 'plasma'
+                          ? 'assets/images/default.png'
+                          : 'assets/images/plasma.png',
+                      height: settingIconSize,
+                      width: settingIconSize,
+                    ),
+                  ),
+                ),
+                SizedBox(width: size06),
                 SizedBox(
                   height: settingButtonsHeight,
                   width: settingButtonsWidth,
@@ -1898,59 +2027,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final EdgeInsets paddingSandstones = EdgeInsets.only(
       right: 0.011111111 * celery,
     );
-    //
-    if (finalAngle == 0.0) {
-      now = DateTime.now();
 
-      final int daysGoneBy = (now.difference(startDate)).inDays;
-
-      // FIXME: calculate with floor(), because of daysGoneBy could be negative
-      baktun = 13 + (daysGoneBy + dDays) ~/ 144000 % 14;
-      katun = (daysGoneBy + dDays) ~/ 7200 % 20;
-      tun = (daysGoneBy - katun * 7200 + dDays) ~/ 360 % 20;
-      winal = (daysGoneBy - katun * 7200 - tun * 360 + dDays) ~/ 20 % 18;
-      kin = (daysGoneBy - katun * 7200 - tun * 360 - winal * 20 + dDays) % 20;
-
-      sBaktun = baktun;
-      sKatun = katun;
-      sTun = tun;
-      sWinal = winal;
-      sKin = kin;
-
-      currDay = daysGoneBy % 365;
-      chosenDay = currDay;
-      xDayTotal = currDay;
-
-      currYear = 5141 + daysGoneBy ~/ 365;
-      chosenYear = currYear;
-
-      tone = (startTone + daysGoneBy) % 13;
-      sTone = tone;
-      nahual = (startNahual + daysGoneBy) % 20;
-      sNahual = nahual;
-
-      currKinIndex = getKinNumber(tone, nahual);
-      int trecena = currKinIndex ~/ 13;
-
-      trecenaColor = trecena % 4;
-      nTrecenaColor = trecenaColor;
-
-      offsetGearNahuales = 18 * nahual / 180 * pi;
-      offsetGearTones = 360 / 13 * tone / 180 * pi;
-      offsetGearHaab = -360 / 365 * currDay / 180 * pi;
-
-      int initialValueTrecenamask = currKinIndex % 52;
-      diffAngle = initialValueTrecenamask % 13;
-      trecenaOffsetAngle = 18 * initialValueTrecenamask / 180 * pi;
-
-      currTrecenaMask = MayaImage.trecenaMask[trecenaColor];
-
-      angleTime =
-          (now.hour * 3600 + now.minute * 60 + now.second) / 864000 * pi;
-
-      strTextToneNahual =
-          '${MayaList.strTone[tone]}\n${MayaList.strNahual[nahual]}';
-    }
     if (seasons.isNotEmpty) {
       DateTime nowSeasons = now.add(
         Duration(minutes: (finalAngle * 14400 / pi).toInt()),
@@ -2106,10 +2183,19 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  child: Text(
-                    currTime,
-                    textAlign: TextAlign.center,
-                    style: textStyleTime,
+                  child: StreamBuilder<DateTime>(
+                    stream: Stream.periodic(
+                      const Duration(seconds: 1),
+                      (_) => DateTime.now(),
+                    ),
+                    builder: (context, snapshot) {
+                      final nowClock = snapshot.data ?? DateTime.now();
+                      return Text(
+                        TimeFormat().getTimeFormat.format(nowClock),
+                        textAlign: TextAlign.center,
+                        style: textStyleTime,
+                      );
+                    },
                   ),
                 ),
               ),
@@ -2196,11 +2282,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         top: posImageToneWhiteFlatCenter.top,
                                         left: posImageToneWhiteFlatCenter.left,
                                         child: Transform.rotate(
-                                          angle:
-                                              2 *
-                                              pi *
-                                              (j - 10) /
-                                              365, // [celery] calculation correct
+                                          angle: 2 * pi * (j - 10) / 365, // [celery] calculation correct
                                           origin:
                                               offsetImageToneWhiteFlatCenter,
                                           child: SizedBox(
@@ -2216,11 +2298,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                         top: posBoxTextWinal.top,
                                         left: posBoxTextWinal.left,
                                         child: Transform.rotate(
-                                          angle:
-                                              2 *
-                                              pi *
-                                              (j - 10) /
-                                              365, // [celery] calculation correct
+                                          angle: 2 * pi * (j - 10) / 365, // [celery] calculation correct
                                           origin: offsetBoxTextWinal,
                                           child: RotatedBox(
                                             quarterTurns: -1,
@@ -2573,6 +2651,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 dTrecenaAngle =
                                     144.0 * nTrecenaAngle / 180 * pi;
                               }
+
                               currTrecenaMask =
                                   MayaImage.trecenaMask[nTrecenaColor];
                               iTrecena++;
@@ -2588,6 +2667,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 dTrecenaAngle =
                                     144.0 * nTrecenaAngle / 180 * pi;
                               }
+
                               currTrecenaMask =
                                   MayaImage.trecenaMask[nTrecenaColor];
                               iTrecena--;
@@ -2613,7 +2693,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                     child: SizedBox(
                                       height: sizeSignNahual.height,
                                       width: sizeSignNahual.width,
-                                      child: MayaImage.signNahual[i],
+                                      child: MayaBase.getNahual(
+                                        themeNahuales,
+                                        i,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -2765,6 +2848,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         builder: (context) => Relationship(
                           backgroundImage: backgroundImage,
                           mainColor: mainColor,
+                          themeNahuales: themeNahuales,
                         ),
                       ),
                     );
@@ -2841,6 +2925,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         builder: (context) => TheYear(
                           backgroundImage: backgroundImage,
                           mainColor: mainColor,
+                          themeNahuales: themeNahuales,
                           chosenYear: chosenYear,
                           chosenDay: chosenDay,
                           beginTone: beginTone,
@@ -2870,6 +2955,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         builder: (context) => DateCalculator(
                           backgroundImage: backgroundImage,
                           mainColor: mainColor,
+                          themeNahuales: themeNahuales,
                         ),
                       ),
                     );
@@ -2908,6 +2994,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         builder: (context) => Cholqij(
                           backgroundImage: backgroundImage,
                           mainColor: mainColor,
+                          themeNahuales: themeNahuales,
                           cKinIndex: cKinIndex,
                         ),
                       ),
@@ -2936,6 +3023,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             CharacterChoice(
                               backgroundImage: backgroundImage,
                               mainColor: mainColor,
+                              themeNahuales: themeNahuales,
                               chosenTone: chosenTone,
                               chosenNahual: chosenNahual,
                             ),
@@ -2996,6 +3084,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                             builder: (context) => TheDay(
                               backgroundImage: backgroundImage,
                               mainColor: mainColor,
+                              themeNahuales: themeNahuales,
                               chosenYear: chosenYear,
                               chosenDay: chosenDay,
                               chosenTone: chosenTone,
@@ -3055,6 +3144,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                 DateSelection(
                                   backgroundImage: backgroundImage,
                                   mainColor: mainColor,
+                                  themeNahuales: themeNahuales,
                                   chosenYear: chosenYear,
                                   chosenDay: chosenDay,
                                   chosenTone: chosenTone,

@@ -12,10 +12,12 @@ import '../methods/get_tone_nahual.dart';
 class DateCalculator extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
+  final String themeNahuales;
   const DateCalculator({
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
   });
 
   @override
@@ -309,6 +311,7 @@ class _HomeState extends State<DateCalculator> {
                           size,
                           widget.backgroundImage,
                           widget.mainColor,
+                          widget.themeNahuales,
                           tone,
                           nahual,
                         ),

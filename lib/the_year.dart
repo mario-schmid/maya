@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../classes/maya_base.dart';
 import '../helper/maya_image.dart';
 import '../helper/maya_list.dart';
 import '../listview_builder.dart';
@@ -16,6 +17,7 @@ import '../selection_dialog.dart';
 class TheYear extends StatefulWidget {
   final ImageProvider backgroundImage;
   final Color mainColor;
+  final String themeNahuales;
   final int chosenYear;
   final int chosenDay;
   final int beginKinIndex;
@@ -27,6 +29,7 @@ class TheYear extends StatefulWidget {
     super.key,
     required this.backgroundImage,
     required this.mainColor,
+    required this.themeNahuales,
     required this.chosenYear,
     required this.chosenDay,
     required this.beginKinIndex,
@@ -79,7 +82,7 @@ class _TheYearState extends State<TheYear> {
     initializeDateFormatting();
     String languageCode = Get.locale.toString();
     dateFormat = DateFormat("E dd.MM.yyyy", languageCode);
-    
+
     // TODO: remove by the way
     /*_itemPositionsListener.itemPositions.addListener(() {
       int itemPositionsFirst =
@@ -201,6 +204,7 @@ class _TheYearState extends State<TheYear> {
                         size,
                         widget.backgroundImage,
                         widget.mainColor,
+                        widget.themeNahuales,
                         (widget.beginTone + dayIndex) % 13,
                         (widget.beginNahual + dayIndex) % 20,
                       ),
@@ -217,7 +221,10 @@ class _TheYearState extends State<TheYear> {
                       child: MayaImage.imageToneWhiteVertical[tone],
                     ),
                     const SizedBox(width: 4),
-                    SizedBox(width: 62, child: MayaImage.signNahual[nahual]),
+                    SizedBox(
+                      width: 62,
+                      child: MayaBase.getNahual(widget.themeNahuales, nahual),
+                    ),
                     const SizedBox(width: 4),
                   ],
                 ),

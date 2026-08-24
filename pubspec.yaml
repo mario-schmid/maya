@@ -17,11 +17,11 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.3.2+69
+version: 1.3.3+70
 
 environment:
-  sdk: '3.11.0'
-  flutter: '3.35.7'
+  sdk: '3.13.0'
+  flutter: '3.47.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -33,35 +33,35 @@ dependencies:
   flutter:
     sdk: flutter
 
-  alarm: ^5.2.1
+  alarm: ^5.5.0
   android_gesture_exclusion: ^0.4.0
   archive: ^4.0.9
   arrow_path: ^3.1.0
-  audioplayers: ^6.5.1
-  external_path: ^2.2.0
-  file_picker: ^10.3.3
+  audioplayers: ^6.7.1
+  external_path: ^3.0.0
+  file_picker: ^12.0.0
   flag: ^7.0.1
   flutter_circle_color_picker: ^0.3.0
   flutter_custom_clippers: ^2.1.0
-  flutter_svg: ^2.2.3
+  flutter_svg: ^2.3.0
   get: ^4.7.3
   http: ^1.6.0
   intl: ^0.20.2
   list_wheel_scroll_view_nls: ^0.0.5
   markdown_widget: ^2.3.2+8
   moon_phase_plus: ^1.0.1+6
-  package_info_plus: ^9.0.0
+  package_info_plus: ^10.2.1
   path: ^1.9.0
-  path_provider: ^2.1.5
-  permission_handler: ^12.0.1
+  path_provider: ^2.1.6
+  permission_handler: ^13.0.1
   provider: ^6.1.5+1
   rxdart: ^0.28.0
   scrollable_positioned_list: ^0.3.8
-  share_plus: ^12.0.1
-  shared_preferences: ^2.5.4
-  sqflite: ^2.4.2
+  share_plus: ^13.1.0
+  shared_preferences: ^2.5.5
+  sqflite: ^2.4.3
   url_launcher: ^6.3.1
-  uuid: ^4.4.2
+  uuid: ^4.5.3
   
 dev_dependencies:
   flutter_test:
@@ -94,6 +94,7 @@ flutter:
     - assets/images/
     - assets/images/icons/
     - assets/images/nahuales/
+    - assets/images/nahuales_plasma/
     - assets/images/tones/
     - assets/vector/
     - assets/audio/
