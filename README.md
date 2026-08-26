@@ -4,29 +4,29 @@
   </a>
 </div>
 <div align="center">
-    <img src=".gitassets/images/colorfull-green.jpg" width="30%">
-    <img src=".gitassets/images/colorfull-orange.jpg" width="30%">
-    <img src=".gitassets/images/colorfull-purple.jpg" width="30%">
+    <img src=".gitassets/images/1.jpg" width="30%">
+    <img src=".gitassets/images/2.jpg" width="30%">
+    <img src=".gitassets/images/3.jpg" width="30%">
 </div>
 <div align="center">
-    <img src=".gitassets/images/colorfull-magenta.jpg" width="30%">
-    <img src=".gitassets/images/main.jpg" width="30%">
-    <img src=".gitassets/images/drawer.jpg" width="30%">
+    <img src=".gitassets/images/4.jpg" width="30%">
+    <img src=".gitassets/images/5.jpg" width="30%">
+    <img src=".gitassets/images/6.jpg" width="30%">
 </div>
 <div align="center">
-    <img src=".gitassets/images/day_view.jpg" width="30%">
-    <img src=".gitassets/images/year_view.jpg" width="30%">
-    <img src=".gitassets/images/date_choise.jpg" width="30%">
+    <img src=".gitassets/images/7.jpg" width="30%">
+    <img src=".gitassets/images/8.jpg" width="30%">
+    <img src=".gitassets/images/9.jpg" width="30%">
 </div>
 <div align="center">
-    <img src=".gitassets/images/cholqij.jpg" width="30%">
-    <img src=".gitassets/images/maya_cross.jpg" width="30%">
-    <img src=".gitassets/images/character_choise.jpg" width="30%">  
+    <img src=".gitassets/images/10.jpg" width="30%">
+    <img src=".gitassets/images/11.jpg" width="30%">
+    <img src=".gitassets/images/12.jpg" width="30%">  
 </div>
 <div align="center">
-    <img src=".gitassets/images/relationships.jpg" width="30%">
-    <img src=".gitassets/images/calculator.jpg" width="30%">
-    <img src=".gitassets/images/calculation.jpg" width="30%">
+    <img src=".gitassets/images/13.jpg" width="30%">
+    <img src=".gitassets/images/14.jpg" width="30%">
+    <img src=".gitassets/images/15.jpg" width="30%">
 </div>
 <br />
 <div align="center">
@@ -39,7 +39,7 @@
   <table border="0">
     <tr>
       <td>
-        <a href="https://files.morgenfrost.com/maya_v1.3.2.apk">
+        <a href="https://files.morgenfrost.com/maya_v1.3.4.apk">
             <img src=".gitassets/images/download-apk.png" width="100%">
         </a>
       </td>

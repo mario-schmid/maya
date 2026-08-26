@@ -34,12 +34,10 @@ Container mayaCrossContainer(
     decoration: TextDecoration.none,
   );
 
-  final Size sizeContainer = Size(size.width * 0.25, size.width * 0.25);
+  final Size sizeContainer = Size(size.width * 0.26, size.width * 0.26);
   final double heightTone = size.width * 0.058;
   final double heightNahual = size.width * 0.155;
   final double paddingToneNahual = size.width * 0.01;
-  final double padding = size.width * 0.01;
-  final double sizeTextBox = size.width * 0.0922;
 
   final List<int> tonesDirections = getDirectionTones(tone);
   final List<int> nahualesDirections = getDirectionsNahuales(nahual);
@@ -48,23 +46,19 @@ Container mayaCrossContainer(
     decoration: mainBoxDecoration,
     height: size.width * 0.96,
     width: size.width * 0.96,
+    padding: EdgeInsets.all(size.width * 0.01),
     child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          height: sizeTextBox,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('west'.tr, style: textStyle),
-              Text('Past'.tr, style: textStyle),
-            ],
-          ),
-        ),
+        Text('Past'.tr, style: textStyle),
         Container(
           decoration: boxDecoration,
           height: sizeContainer.height,
           width: sizeContainer.width,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: paddingToneNahual),
               SizedBox(
@@ -79,31 +73,21 @@ Container mayaCrossContainer(
             ],
           ),
         ),
-        SizedBox(height: padding),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: sizeTextBox,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RotatedBox(
-                    quarterTurns: -1,
-                    child: Text('south'.tr, style: textStyle),
-                  ),
-                  RotatedBox(
-                    quarterTurns: -1,
-                    child: Text('masculine'.tr, style: textStyle),
-                  ),
-                ],
-              ),
+            RotatedBox(
+              quarterTurns: -1,
+              child: Text('masculine'.tr, style: textStyle),
             ),
             Container(
               decoration: boxDecoration,
               height: sizeContainer.height,
               width: sizeContainer.width,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: paddingToneNahual),
                   SizedBox(
@@ -122,12 +106,13 @@ Container mayaCrossContainer(
                 ],
               ),
             ),
-            SizedBox(width: padding),
             Container(
               decoration: boxDecoration,
               height: sizeContainer.height,
               width: sizeContainer.width,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: paddingToneNahual),
                   SizedBox(
@@ -142,12 +127,13 @@ Container mayaCrossContainer(
                 ],
               ),
             ),
-            SizedBox(width: padding),
             Container(
               decoration: boxDecoration,
               height: sizeContainer.height,
               width: sizeContainer.width,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: paddingToneNahual),
                   SizedBox(
@@ -166,30 +152,19 @@ Container mayaCrossContainer(
                 ],
               ),
             ),
-            SizedBox(
-              width: sizeTextBox,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RotatedBox(
-                    quarterTurns: 1,
-                    child: Text('feminine'.tr, style: textStyle),
-                  ),
-                  RotatedBox(
-                    quarterTurns: 1,
-                    child: Text('north'.tr, style: textStyle),
-                  ),
-                ],
-              ),
+            RotatedBox(
+              quarterTurns: 1,
+              child: Text('feminine'.tr, style: textStyle),
             ),
           ],
         ),
-        SizedBox(height: padding),
         Container(
           decoration: boxDecoration,
           height: sizeContainer.height,
           width: sizeContainer.width,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: paddingToneNahual),
               SizedBox(
@@ -204,16 +179,7 @@ Container mayaCrossContainer(
             ],
           ),
         ),
-        SizedBox(
-          height: sizeTextBox,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('east'.tr, style: textStyle),
-              Text('Future'.tr, style: textStyle),
-            ],
-          ),
-        ),
+        Text('Future'.tr, style: textStyle),
       ],
     ),
   );

@@ -154,6 +154,7 @@ class _RelationshipState extends State<Relationship> {
                           size,
                           result,
                           finalTone,
+                          widget.themeNahuales,
                           (finalNahual + 10) % 20,
                         ),
                         SizedBox(
@@ -303,7 +304,13 @@ class _RelationshipState extends State<Relationship> {
   }
 }
 
-Widget resultArrow(Size size, bool result, int tone, int nahual) {
+Widget resultArrow(
+  Size size,
+  bool result,
+  int tone,
+  String themeNahuales,
+  int nahual,
+) {
   if (result) {
     return Padding(
       padding: EdgeInsets.only(bottom: size.height * 0.052),
@@ -318,7 +325,7 @@ Widget resultArrow(Size size, bool result, int tone, int nahual) {
               width: size.width * 0.2,
               child: MayaImage.imageToneWhiteCurvedBottom[tone],
             ),
-            MayaImage.signNahual[nahual],
+            MayaBase.getNahual(themeNahuales, nahual),
           ],
         ),
       ),

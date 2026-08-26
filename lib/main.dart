@@ -1179,15 +1179,24 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   child: ElevatedButton(
                     onPressed: () async {
                       Navigator.of(context, rootNavigator: true).pop();
-                      mainColor = await showDialog(
+
+                      final selectedColor = await showDialog<Color>(
                         context: context,
                         builder: (BuildContext context) {
                           return ColorPicker(mainColor: mainColor);
                         },
                       );
+
+                      if (selectedColor != null && mounted) {
+                        setState(() {
+                          mainColor = selectedColor;
+                        });
+                      }
                     },
                     onLongPress: () async {
-                      mainColor = const Color(0xff8800ff);
+                      setState(() {
+                        mainColor = const Color(0xff8800ff);
+                      });
                       SharedPrefs.deleteMainColor();
                     },
                     style: MayaStyle().settingsButtonStyleCarrot(
