@@ -35,6 +35,18 @@ class SharedPrefs {
     prefs.setString(key, currentVersion);
   }
 
+  static Future<String> readHelpIcon() async {
+    final prefs = await SharedPreferences.getInstance();
+    const key = 'helpicon';
+    return prefs.getString(key) ?? 'true';
+  }
+
+  static void saveHelpIcon(String isHelpIcon) async {
+    final prefs = await SharedPreferences.getInstance();
+    const key = 'helpicon';
+    prefs.setString(key, isHelpIcon);
+  }
+
   static Future<String> readLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     const key = 'language';

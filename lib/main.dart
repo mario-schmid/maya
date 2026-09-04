@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:moon_phase_plus/moon_phase_plus.dart';
+import 'package:moon_phase/moon_phase.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -252,6 +252,7 @@ Future<void> main() async {
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
+  bool isHelpIcon = bool.parse(await SharedPrefs.readHelpIcon());
   Color mainColor = Color(int.parse(await SharedPrefs.readMainColor()));
   String themeNahuales = await SharedPrefs.readThemeNahuales();
   ImageProvider backgroundImage = await SharedPrefs.readBgFilePath();
@@ -269,6 +270,7 @@ Future<void> main() async {
   runApp(
     MayaApp(
       packageInfo: packageInfo,
+      isHelpIcon: isHelpIcon,
       mainColor: mainColor,
       themeNahuales: themeNahuales,
       backgroundImage: backgroundImage,
@@ -278,12 +280,14 @@ Future<void> main() async {
 
 class MayaApp extends StatelessWidget {
   final PackageInfo packageInfo;
+  final bool isHelpIcon;
   final Color mainColor;
   final String themeNahuales;
   final ImageProvider backgroundImage;
   const MayaApp({
     super.key,
     required this.packageInfo,
+    required this.isHelpIcon,
     required this.mainColor,
     required this.themeNahuales,
     required this.backgroundImage,
@@ -300,6 +304,7 @@ class MayaApp extends StatelessWidget {
         theme: ThemeData(fontFamily: 'Roboto'),
         home: Home(
           packageInfo: packageInfo,
+          isHelpIcon: isHelpIcon,
           mainColor: mainColor,
           themeNahuales: themeNahuales,
           backgroundImage: backgroundImage,
@@ -311,12 +316,14 @@ class MayaApp extends StatelessWidget {
 
 class Home extends StatefulWidget {
   final PackageInfo packageInfo;
+  final bool isHelpIcon;
   final Color mainColor;
   final String themeNahuales;
   final ImageProvider backgroundImage;
   const Home({
     super.key,
     required this.packageInfo,
+    required this.isHelpIcon,
     required this.mainColor,
     required this.themeNahuales,
     required this.backgroundImage,
@@ -329,7 +336,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with TickerProviderStateMixin {
   late Timer _timer;
   late PackageInfo packageInfo;
-
+  late bool isHelpIcon;
   late Color mainColor;
   late String themeNahuales;
   late ImageProvider backgroundImage;
@@ -437,6 +444,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     super.initState();
 
     packageInfo = widget.packageInfo;
+    isHelpIcon = widget.isHelpIcon;
     mainColor = widget.mainColor;
     themeNahuales = widget.themeNahuales;
     backgroundImage = widget.backgroundImage;
@@ -932,7 +940,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final double drawerWidth = 0.8 * celery;
 
     final EdgeInsets paddingSign = EdgeInsets.all(0.02 * celery);
-    final double sizeSign = 0.3 * celery;
+    final double sizeSign = 0.22 * celery;
 
     final double dividerTickness = 0.003 * celery;
 
@@ -962,7 +970,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final double settingButtonsWidth = 0.2 * celery;
     final double settingIconSize = 0.08 * celery;
 
-    final double space = 1.93 * celery;
+    final double space = 1.95 * celery;
 
     final EdgeInsets paddingSocialButtons = EdgeInsets.all(0.01 * celery);
     final double sizeSocialButtons = 0.13 * celery;
@@ -1126,7 +1134,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 },
               ),
             ),
-            SizedBox(height: size04),
+            SizedBox(height: size03),
             Center(
               child: ToggleButtons(
                 constraints: toggleButtonsConstraints,
@@ -1169,7 +1177,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 ],
               ),
             ),
-            SizedBox(height: size04),
+            SizedBox(height: size03),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1254,7 +1262,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            SizedBox(height: size04),
+            SizedBox(height: size03),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1331,6 +1339,40 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: size03),
+            SizedBox(
+              height: settingButtonsHeight,
+              width: settingButtonsWidth,
+              child: ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    if (isHelpIcon) {
+                      isHelpIcon = false;
+                      SharedPrefs.saveHelpIcon('false');
+                    } else {
+                      isHelpIcon = true;
+                      SharedPrefs.saveHelpIcon('true');
+                    }
+                  });
+                },
+                style: MayaStyle().settingsButtonStyleCarrot(
+                  size,
+                  mainColor,
+                  celery,
+                ),
+                child: isHelpIcon
+                    ? SvgPicture.asset(
+                        "assets/vector/help.svg",
+                        height: settingIconSize,
+                        width: settingIconSize,
+                      )
+                    : SvgPicture.asset(
+                        "assets/vector/help_grey.svg",
+                        height: settingIconSize,
+                        width: settingIconSize,
+                      ),
+              ),
             ),
             SizedBox(
               height:
@@ -1959,6 +2001,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     final double sizeCircleSeason = 0.064 * celery;
     final EdgeInsets paddingCircleSeason = EdgeInsets.all(0.077 * celery);
     final Offset offsetCircleSeason = Offset(0, 0.1396 * celery);
+    //
+    final double sizeHelpIcon = 0.231965889 * celery;
+    final Position posHelpIcon = Position(
+      (size.height - sizeHelpIcon) / 2,
+      size.width - sizeHelpIcon - 0.409942981 * celery,
+    );
     //
     final Size sizeButtonRelationship = Size(
       0.214533333 * celery,
@@ -2822,13 +2870,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                 ),
               ),
               Positioned(
-                top: posMoon.top + sizeMoon / 4,
-                left: posMoon.left + sizeMoon / 4,
-                child: MoonWidget(
+                top: posMoon.top,
+                left: posMoon.left,
+                child: MoonWidget.simple(
                   date: dateTimeMoon,
-                  resolution: sizeMoon,
                   size: sizeMoon,
                   moonColor: Color.fromARGB(255, 215, 215, 215),
+                  pixelSize: 0.5,
                   earthshineColor: Color.lerp(mainColor, Colors.black, 0.32)!,
                 ),
               ),
@@ -2846,6 +2894,165 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   ),
                 ),
               ),
+              Positioned(
+                top: posBoxTextToneNahual.top,
+                left: posBoxTextToneNahual.left,
+                child: SizedBox(
+                  height: sizeBoxTextToneNahual.height,
+                  width: sizeBoxTextToneNahual.width,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        int beginTone =
+                            (startTone + 365 * (chosenYear - 5141)) % 13;
+                        int beginNahual =
+                            (startNahual + 365 * (chosenYear - 5141)) % 20;
+
+                        int chosenTone = getTone(
+                          ((offsetGearTones +
+                                      (angleTime + finalAngle) / 13 * 20) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
+
+                        int chosenNahual = getNahual(
+                          ((offsetGearNahuales + angleTime + finalAngle) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
+
+                        int dYear = getDeltaYear(
+                          (-offsetGearHaab * 9 / pi +
+                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
+                              20,
+                        ); // [celery] calculation correct
+
+                        DateTime chosenGregorianDate = startDate.add(
+                          Duration(
+                            days: 365 * (currYear - 5141 + dYear) + chosenDay,
+                          ),
+                        );
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TheDay(
+                              backgroundImage: backgroundImage,
+                              mainColor: mainColor,
+                              themeNahuales: themeNahuales,
+                              chosenYear: chosenYear,
+                              chosenDay: chosenDay,
+                              chosenTone: chosenTone,
+                              chosenNahual: chosenNahual,
+                              beginTone: beginTone,
+                              beginNahual: beginNahual,
+                              chosenLongCount: [
+                                sBaktun,
+                                sKatun,
+                                sTun,
+                                sWinal,
+                                sKin,
+                              ],
+                              chosenGregorianDate: chosenGregorianDate,
+                            ),
+                          ),
+                        );
+                      },
+                      onLongPress: () {
+                        int beginTone =
+                            (startTone + 365 * (chosenYear - 5141)) % 13;
+                        int beginNahual =
+                            (startNahual + 365 * (chosenYear - 5141)) % 20;
+
+                        int chosenTone = getTone(
+                          ((offsetGearTones +
+                                      (angleTime + finalAngle) / 13 * 20) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
+
+                        int chosenNahual = getNahual(
+                          ((offsetGearNahuales + angleTime + finalAngle) *
+                                  180 /
+                                  pi) %
+                              360,
+                        ); // [celery] calculation correct
+
+                        int dYear = getDeltaYear(
+                          (-offsetGearHaab * 9 / pi +
+                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
+                              20,
+                        ); // [celery] calculation correct
+
+                        DateTime chosenGregorianDate = startDate.add(
+                          Duration(
+                            days: 365 * (currYear - 5141 + dYear) + chosenDay,
+                          ),
+                        );
+
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            opaque: false,
+                            pageBuilder: (BuildContext context, _, _) =>
+                                DateSelection(
+                                  backgroundImage: backgroundImage,
+                                  mainColor: mainColor,
+                                  themeNahuales: themeNahuales,
+                                  chosenYear: chosenYear,
+                                  chosenDay: chosenDay,
+                                  chosenTone: chosenTone,
+                                  chosenNahual: chosenNahual,
+                                  beginTone: beginTone,
+                                  beginNahual: beginNahual,
+                                  chosenLongCount: [
+                                    sBaktun,
+                                    sKatun,
+                                    sTun,
+                                    sWinal,
+                                    sKin,
+                                  ],
+                                  chosenGregorianDate: chosenGregorianDate,
+                                ),
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        children: [
+                          Text(
+                            strTextToneNahual,
+                            textAlign: TextAlign.center,
+                            style: textStyleToneNahualStroke,
+                          ),
+                          Text(
+                            strTextToneNahual,
+                            textAlign: TextAlign.center,
+                            style: textStyleToneNahualText,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (isHelpIcon)
+                Positioned(
+                  top: posHelpIcon.top,
+                  left: posHelpIcon.left,
+                  child: GestureDetector(
+                    onTap: () {
+                      _launchUrl('https://morgenfrost.com/#/maya-help');
+                    },
+                    child: SvgPicture.asset(
+                      'assets/vector/help.svg',
+                      width: sizeHelpIcon,
+                      height: sizeHelpIcon,
+                    ),
+                  ),
+                ),
               Positioned(
                 top: posButtonRelationship.top,
                 left: posButtonRelationship.left,
@@ -3046,150 +3253,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              Positioned(
-                top: posBoxTextToneNahual.top,
-                left: posBoxTextToneNahual.left,
-                child: SizedBox(
-                  height: sizeBoxTextToneNahual.height,
-                  width: sizeBoxTextToneNahual.width,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        int beginTone =
-                            (startTone + 365 * (chosenYear - 5141)) % 13;
-                        int beginNahual =
-                            (startNahual + 365 * (chosenYear - 5141)) % 20;
-
-                        int chosenTone = getTone(
-                          ((offsetGearTones +
-                                      (angleTime + finalAngle) / 13 * 20) *
-                                  180 /
-                                  pi) %
-                              360,
-                        ); // [celery] calculation correct
-
-                        int chosenNahual = getNahual(
-                          ((offsetGearNahuales + angleTime + finalAngle) *
-                                  180 /
-                                  pi) %
-                              360,
-                        ); // [celery] calculation correct
-
-                        int dYear = getDeltaYear(
-                          (-offsetGearHaab * 9 / pi +
-                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
-                              20,
-                        ); // [celery] calculation correct
-
-                        DateTime chosenGregorianDate = startDate.add(
-                          Duration(
-                            days: 365 * (currYear - 5141 + dYear) + chosenDay,
-                          ),
-                        );
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TheDay(
-                              backgroundImage: backgroundImage,
-                              mainColor: mainColor,
-                              themeNahuales: themeNahuales,
-                              chosenYear: chosenYear,
-                              chosenDay: chosenDay,
-                              chosenTone: chosenTone,
-                              chosenNahual: chosenNahual,
-                              beginTone: beginTone,
-                              beginNahual: beginNahual,
-                              chosenLongCount: [
-                                sBaktun,
-                                sKatun,
-                                sTun,
-                                sWinal,
-                                sKin,
-                              ],
-                              chosenGregorianDate: chosenGregorianDate,
-                            ),
-                          ),
-                        );
-                      },
-                      onLongPress: () {
-                        int beginTone =
-                            (startTone + 365 * (chosenYear - 5141)) % 13;
-                        int beginNahual =
-                            (startNahual + 365 * (chosenYear - 5141)) % 20;
-
-                        int chosenTone = getTone(
-                          ((offsetGearTones +
-                                      (angleTime + finalAngle) / 13 * 20) *
-                                  180 /
-                                  pi) %
-                              360,
-                        ); // [celery] calculation correct
-
-                        int chosenNahual = getNahual(
-                          ((offsetGearNahuales + angleTime + finalAngle) *
-                                  180 /
-                                  pi) %
-                              360,
-                        ); // [celery] calculation correct
-
-                        int dYear = getDeltaYear(
-                          (-offsetGearHaab * 9 / pi +
-                                  ((angleTime + finalAngle) * 180 / pi) / 365) *
-                              20,
-                        ); // [celery] calculation correct
-
-                        DateTime chosenGregorianDate = startDate.add(
-                          Duration(
-                            days: 365 * (currYear - 5141 + dYear) + chosenDay,
-                          ),
-                        );
-
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            opaque: false,
-                            pageBuilder: (BuildContext context, _, _) =>
-                                DateSelection(
-                                  backgroundImage: backgroundImage,
-                                  mainColor: mainColor,
-                                  themeNahuales: themeNahuales,
-                                  chosenYear: chosenYear,
-                                  chosenDay: chosenDay,
-                                  chosenTone: chosenTone,
-                                  chosenNahual: chosenNahual,
-                                  beginTone: beginTone,
-                                  beginNahual: beginNahual,
-                                  chosenLongCount: [
-                                    sBaktun,
-                                    sKatun,
-                                    sTun,
-                                    sWinal,
-                                    sKin,
-                                  ],
-                                  chosenGregorianDate: chosenGregorianDate,
-                                ),
-                          ),
-                        );
-                      },
-                      child: Stack(
-                        children: [
-                          Text(
-                            strTextToneNahual,
-                            textAlign: TextAlign.center,
-                            style: textStyleToneNahualStroke,
-                          ),
-                          Text(
-                            strTextToneNahual,
-                            textAlign: TextAlign.center,
-                            style: textStyleToneNahualText,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
               Stack(
                 children: [
                   Positioned(
@@ -3251,7 +3314,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                     left: posSettings.left,
                     child: GestureDetector(
                       onHorizontalDragUpdate: (details) {
-                        _scaffoldKey.currentState!.openEndDrawer();
+                        _scaffoldKey.currentState?.openEndDrawer();
                       },
                       child: AndroidGestureExclusionContainer(
                         child: Container(
