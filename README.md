@@ -1,7 +1,5 @@
 <div align="center">
-  <a href="https://youtu.be/YSHrUxRS5rg">
-    <img src="https://img.youtube.com/vi/YSHrUxRS5rg/maxresdefault.jpg" alt="Watch the video" style="width:90%;">
-  </a>
+    <img src=".gitassets/images/presentation.jpg" width="100%">
 </div>
 <div align="center">
     <img src=".gitassets/images/1.jpg" width="30%">
@@ -29,11 +27,6 @@
     <img src=".gitassets/images/15.jpg" width="30%">
 </div>
 <br />
-<div align="center">
-    <a href="https://youtube.com/shorts/q73vEcmiXDs">
-        Watch on Youtube
-    </a>
-</div>
 <br />
 <div align="center">
   <table border="0">
