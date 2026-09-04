@@ -52,7 +52,7 @@ class MayaList {
     "Mol", //
     "Ch'en", //
     "Yax", //
-    "SaK'", //
+    "Sak'", //
     "Cej", //
     "Mak", //
     "Kank'in", //
