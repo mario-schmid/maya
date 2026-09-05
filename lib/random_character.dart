@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:maya/classes/maya_base.dart';
 
 import '../helper/maya_image.dart';
 
 class RandomCharacter extends StatefulWidget {
   final ImageProvider backgroundImage;
+  final String themeNahuales;
   final int tone;
   final int nahual;
   const RandomCharacter({
     super.key,
     required this.backgroundImage,
+    required this.themeNahuales,
     required this.tone,
     required this.nahual,
   });
@@ -93,7 +96,7 @@ class _RandomCharacterState extends State<RandomCharacter>
                           child: MayaImage.imageToneWhiteCurved[widget.tone],
                         ),
                         SizedBox(height: size.width * 0.01),
-                        MayaImage.signNahual[widget.nahual],
+                        MayaBase.getNahual(widget.themeNahuales, widget.nahual),
                       ],
                     ),
                   ),

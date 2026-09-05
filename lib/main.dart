@@ -3081,6 +3081,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         pageBuilder: (BuildContext context, _, _) =>
                             RandomCharacter(
                               backgroundImage: backgroundImage,
+                              themeNahuales: themeNahuales,
                               tone: toneNahual[0],
                               nahual: toneNahual[1],
                             ),
